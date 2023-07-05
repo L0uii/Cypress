@@ -1,0 +1,40 @@
+name: testing
+
+on: push
+
+jobs:
+  cypress:
+    runs-on: [ self-hosted ]
+    container:
+      image: udp-registry.fiducial.dom/occi/ghba/fiducial:php
+      options: --user root
+    steps:
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.15.0
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Install npm
+        run: npm install
+
+      - name: Install Dependencies (Cypress)
+        run: |
+          dnf install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel  nss libXScrnSaver alsa-lib
+          npm install cypress --save-dev
+          npm install @cypress/xvfb
+      
+      - name: Run functionnal automatic test (Cypress)
+        env: 
+         username: ${{ secrets.USER_NAME }}
+         password: ${{ secrets.USER_NAME }}
+         HTTP_PROXY: "http://udp-proxy.fiducial.dom:8888"
+         HTTPS_PROXY: "http://udp-proxy.fiducial.dom:8888"
+        run: |
+           ifconfig         
+
+          
+
+          
