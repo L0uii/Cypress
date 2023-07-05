@@ -1,0 +1,60 @@
+article {
+    width: 85%;
+    margin: 0 auto 10px;
+}
+
+form {
+    margin: 20px 0 30px;
+}
+
+.fields-grid {
+    width: 100%;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, 32%) ;
+    .one {
+        grid-column: auto / span 3;
+    }
+    .two {
+        grid-column: auto / span 2;
+    }
+    .three {
+        grid-column: auto / span 1;
+    }
+    .mat-form-field {
+        font-size: 1em;
+    }
+}
+
+.date-input {
+    border: none;
+    width: 100%;
+    outline: none;
+    font-size: 1em;
+}
+
+.date-error {
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+    color: #f44336;
+    font-size: 10.5px;
+}
+
+em {
+    font-family: "Heebo";
+    color: #3498db;
+    font-size: 0.9em;
+}
+
+.submit {
+    float: right;
+}
+
+.file-input {
+    display: none;
+}
+
+.file {
+    order: 15;
+}

@@ -1,0 +1,92 @@
+.user {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-infos {
+  font-size: 15px;
+}
+
+.about {
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.mat-icon {
+  font-size: 32px;
+  height: 32px;
+  width: 32px;
+  margin-left: 12px;
+}
+
+.env-menu {
+  padding: 0 10%;
+}
+
+.spacer {
+  flex: 1 1 auto
+}
+
+.nav {
+  margin: 0 20px;
+}
+
+.link {
+  margin-right: 10px;
+  padding: 8px 24px;
+  font-size: 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.link.active {
+  background: rgba(52, 152, 219, 0.9);
+  color: #fff;
+}
+
+.fiducial-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.version-number {
+  font-size: 13px;
+  color: #ABBBCB;
+  margin: 0;
+}
+
+.version-number-div {
+  display: flex;
+  align-items: center;
+}
+
+.picto-egd {
+  display: flex;
+  align-items: center;
+  height: 20px;
+}
+
+.picto-egd-img {
+  width: 100px;
+}
+
+.infos {
+  min-width: 100px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.logo-version {
+  display: flex;
+  flex-direction: row;
+}
+
+.button-code-budget {
+  margin: 15px;
+}
+

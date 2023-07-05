@@ -1,0 +1,9 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mat-dialog-actions {
+  justify-content: flex-end;
+  gap: 10px;
+}

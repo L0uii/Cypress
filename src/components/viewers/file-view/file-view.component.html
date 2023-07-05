@@ -1,0 +1,23 @@
+<ng-container *ngIf="nodeId">
+  <ng-template let-node="node" #sidebarTemplate>
+    <adf-info-drawer [title]="'Informations'">
+      <adf-info-drawer-tab [label]="'Propriétés'">
+        <adf-content-metadata-card [node]="node"
+                                   [readOnly]="true">
+        </adf-content-metadata-card>
+      </adf-info-drawer-tab>
+    </adf-info-drawer>
+  </ng-template>
+  <adf-viewer [allowNavigate]="allowNavigate"
+              [displayName]="displayName"
+              [nodeId]="nodeId"
+              [allowRightSidebar]="true"
+              [sidebarRightTemplate]="sidebarTemplate"
+              (showViewerChange)="onShowViewerChange($event)"
+              [canNavigateBefore]="canNavigateBefore"
+              [canNavigateNext]="canNavigateNext"
+              [overlayMode]="false"
+              (navigateBefore)="onNavigateBefore()"
+              (navigateNext)="onNavigateNext()">
+  </adf-viewer>
+</ng-container>

@@ -1,0 +1,17 @@
+<ng-container *ngIf="label">
+  <label id="input-label">{{ label }}</label>
+</ng-container>
+<mat-radio-group
+  color="primary"
+  [formControl]="control"
+  aria-labelledby="input-label"
+  [ngClass]="{'d-flex flex-column': orientation === 'column'}"
+>
+  <mat-radio-button
+    *ngFor="let option of optionsLabelValue"
+    [ngClass]="orientation === 'row' ? 'ms-3' : 'mb-2'"
+    [value]="option.value"
+  >
+    {{ option.label }}
+  </mat-radio-button>
+</mat-radio-group>

@@ -1,0 +1,164 @@
+<article>
+  <!-- Envoi /CreateDocuments -->
+  <div class="create-documents">
+    <h1 [ngClass]="{'done': createSuccess || createFailed}">
+      <span class="step">1</span>
+      <span>Création de vos documents :</span>
+    </h1>
+    <!-- Création en cours -->
+    <h2 [ngClass]="{'done': createSuccess || createFailed}">
+      <span>Vos documents sont en cours d'envoi dans la GED.</span>
+      <div *ngIf="createPending" class="box">
+        <div class="loader"></div>
+      </div>
+      <mat-icon *ngIf="createSuccess">done</mat-icon>
+      <mat-icon *ngIf="createFailed">error</mat-icon>
+    </h2>
+
+    <!-- Liste documents créés -->
+    <div class="documents" *ngIf="successList.length > 0" [ngClass]="{'done': createSuccess || createFailed}">
+      <h3>Ces fichiers ont été enregistrés en GED :</h3>
+      <div class="container-scroll">
+        <ngx-simplebar [options]="{ autoHide: false }">
+          <div *ngFor="let file of successList" class="documents-list">
+            <mat-icon>done</mat-icon>
+            <p>{{ file }}</p>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+
+    <!-- Liste documents erreur création -->
+    <div class="documents" *ngIf="failList.length > 0 " [ngClass]="{'done': createSuccess || createFailed}">
+      <h3>Ces fichiers n'ont pas pu être enregistrés en GED:</h3>
+      <div class="container-scroll">
+        <ngx-simplebar [options]="{ autoHide: false }">
+          <div *ngFor="let file of failList" class="documents-list">
+            <mat-icon>error</mat-icon>
+            <p>{{ file.name }}</p>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+  </div>
+  <div class="result-creation">
+    <!-- Succès envoi -->
+    <div *ngIf="createSuccess" class="message">
+      <h1>
+        <span class="step">2</span>
+        <div>
+          <span>L'envoi dans la GED a été un succès </span>
+          <ng-container *ngIf="successList.length > 1; then docs_valid else doc_valid"></ng-container>
+          <ng-template #docs_valid>
+            <span>({{successList.length}} documents créés).</span>
+          </ng-template>
+          <ng-template #doc_valid>
+            <span>(un document créé).</span>
+          </ng-template>
+        </div>
+      </h1>
+      <button mat-raised-button color="primary" (click)="close()">Retour</button>
+    </div>
+    <!-- Erreur envoi -->
+    <div *ngIf="createFailed" class="message" [ngClass]="{'done': retryPending || retryFailed || retrySuccess}">
+      <h1>
+        <span class="step">2</span>
+        <span>Une erreur est survenue lors de la création des documents dans la GED.</span>
+      </h1>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <em>Détail des erreurs</em>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div style="margin-left: -24px" *ngIf="failList.length > 0 "
+          [ngClass]="{'done': createSuccess || createFailed}">
+          <div class="container-scroll">
+            <ngx-simplebar [options]="{ autoHide: false }">
+              <div *ngFor="let file of failList" class="error-list">
+                <strong>{{ file.name }} : </strong><span>{{file.error}}</span>
+              </div>
+            </ngx-simplebar>
+          </div>
+        </div>
+      </mat-expansion-panel>
+      <div class="buttons" *ngIf="createFailed && !retryPending && !retryFailed && !retrySuccess">
+        <button mat-raised-button color="primary" (click)="retry(retryList)">Réessayer</button>
+        <button mat-raised-button color="primary" (click)="close()">Retour</button>
+      </div>
+    </div>
+    <h2 *ngIf="retryPending" [ngClass]="{'done': retrySuccess || retryFailed}">
+      <span>Une nouvelle tentative de création est en cours.</span>
+      <div *ngIf="retryPending && !retrySuccess && !retryFailed" class="box">
+        <div class="loader"></div>
+      </div>
+      <mat-icon *ngIf="retrySuccess">done</mat-icon>
+      <mat-icon *ngIf="retryFailed">error</mat-icon>
+    </h2>
+    <!-- Liste documents créés nouvelle tentative -->
+    <div class="documents" *ngIf="successListRetry.length > 0" [ngClass]="{'done': retrySuccess || retryFailed}">
+      <h3>Ces fichiers ont été enregistrés en GED :</h3>
+      <div class="container-scroll">
+        <ngx-simplebar [options]="{ autoHide: false }">
+          <div *ngFor="let file of successListRetry" class="documents-list">
+            <mat-icon>done</mat-icon>
+            <p>{{ file }}</p>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+
+    <!-- Liste documents erreur création nouvelle tentative -->
+    <div class="documents" *ngIf="failListRetry.length > 0 " [ngClass]="{'done': retrySuccess || retryFailed}">
+      <h3>Ces fichiers n'ont pas pu être enregistrés en GED:</h3>
+      <div class="container-scroll">
+        <ngx-simplebar [options]="{ autoHide: false }">
+          <div *ngFor="let file of failListRetry" class="documents-list">
+            <mat-icon>error</mat-icon>
+            <p>{{ file.name }}</p>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+    <!-- Succès relance création -->
+    <div *ngIf="retrySuccess" class="message">
+      <h2>
+        <div>
+          <span>L'envoi dans la GED a été un succès </span>
+          <ng-container *ngIf="successListRetry.length > 1; then docs_valid else doc_valid"></ng-container>
+          <ng-template #docs_valid>
+            <span>({{successListRetry.length}} documents créés).</span>
+          </ng-template>
+          <ng-template #doc_valid>
+            <span>(un document créé).</span>
+          </ng-template>
+        </div>
+      </h2>
+      <button mat-raised-button color="primary" (click)="close()">Retour</button>
+    </div>
+    <!-- Echec relance création -->
+    <div *ngIf="retryFailed" class="message">
+      <h2>La création dans la GED est indisponible.</h2>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <em>Détail des erreurs</em>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div style="margin-left: -24px" *ngIf="failListRetry.length > 0 "
+          [ngClass]="{'done': createSuccess || createFailed}">
+          <div class="container-scroll">
+            <ngx-simplebar [options]="{ autoHide: false }">
+              <div *ngFor="let file of failListRetry" class="error-list">
+                <strong>{{ file.name }} : </strong><span>{{file.error}}</span>
+              </div>
+            </ngx-simplebar>
+          </div>
+        </div>
+      </mat-expansion-panel>
+      <p>Veuillez contacter le support.</p>
+      <button mat-raised-button color="primary" (click)="close()">Retour</button>
+    </div>
+  </div>
+
+</article>

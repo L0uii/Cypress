@@ -1,0 +1,34 @@
+<form [formGroup]="dateForm">
+  <div class="date-fields">
+    <span class="date-label">{{ label }}</span>
+    <app-autocomplete
+      placeHolder="Jour"
+      [list]="days"
+      formControlName="day"
+      autoActiveFirstOption="true"
+    >
+    </app-autocomplete>
+    <app-autocomplete
+      placeHolder="Mois"
+      [list]="months"
+      formControlName="month"
+      autoActiveFirstOption="true"
+    >
+    </app-autocomplete>
+    <app-autocomplete
+      placeHolder="Année"
+      [list]="years"
+      formControlName="year"
+      autoActiveFirstOption="true"
+      [isDescending]="isYearDescending"
+    >
+    </app-autocomplete>
+
+    <app-clear-button
+      *ngIf="!!ngControl?.value && ngControl?.value != '0-0-0'"
+      matSuffix
+      (onClear)="clear(true)"
+    >
+    </app-clear-button>
+  </div>
+</form>

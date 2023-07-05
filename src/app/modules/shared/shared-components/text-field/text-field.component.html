@@ -1,0 +1,17 @@
+<mat-form-field class="w-100">
+  <input [formControl]="control"
+         [placeholder]="placeholder"
+         (keyup.enter)="onSearch.emit()"
+         autocomplete="off"
+         type="text"
+         matInput
+         #textInput/>
+  <app-clear-button matSuffix
+    *ngIf="control.value"
+    (onClear)="clear()">
+  </app-clear-button>
+  <span class="obligatoire" *ngIf="isRequired">*</span>
+  <mat-hint *ngIf="hintText">
+    {{ hintText }}
+  </mat-hint>
+</mat-form-field>

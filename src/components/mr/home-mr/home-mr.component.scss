@@ -1,0 +1,269 @@
+
+main {
+  position: relative;
+}
+
+::ng-deep .mat-tab-header {
+  padding-left: 24px;
+}
+
+strong {
+  margin-left: 4px;
+}
+
+.alert-warning {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+
+  mat-icon {
+    margin-right: .5rem;
+  }
+}
+
+.warning-message-container {
+  margin-bottom: 21px;
+}
+
+.sort {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  .mat-button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+.mat-form-field.sous-dossier {
+  transition: margin 0.3s ease-in-out;
+}
+
+.mat-form-field.sous-dossier .mat-hint.sous-dossier {
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+  color: red;
+}
+
+.mat-form-field.sous-dossier:active,
+.mat-form-field.sous-dossier:hover {
+  margin-bottom: 20px;
+}
+
+.mat-form-field.sous-dossier:active .mat-hint.sous-dossier,
+.mat-form-field.sous-dossier:hover .mat-hint.sous-dossier {
+  opacity: 1;
+}
+
+.filtres-actifs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: -2px 0 12px;
+  padding: 0 24px;
+}
+
+.sidenav {
+  z-index: 3;
+}
+
+.sidenav.right {
+  right: 0;
+  left: unset;
+}
+
+.sidenav.open {
+  width: 450px;
+}
+
+.sidenav .mat-expansion-panel:not([class*=mat-elevation-z]) {
+  width: calc(100% + 12px);
+  margin-left: -6px;
+}
+
+.sidenav .mat-expansion-panel-header {
+  padding: 0 16px;
+}
+
+::ng-deep .sidenav .mat-expansion-panel-body {
+  padding: 0 16px 16px;
+}
+
+.mat-expansion-panel .mat-form-field {
+  width: 100%;
+}
+
+  .sidenav .mat-form-field:not(.eCoffre){
+    width: 100%;
+  }
+
+  .sidenav .mat-form-field.eCoffre {
+    width: 85%;
+  }
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 24px;
+}
+
+.buttons .mat-button,
+.buttons .mat-raised-button {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 16px;;
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #808080;
+  padding: 15px;
+  cursor: pointer;
+}
+
+section {
+  transition: margin-right 0.5s;
+}
+
+// section.sidenav-open {
+//   margin-right: 450px;
+// }
+
+::ng-deep .mat-option.options-mr {
+  overflow: hidden;
+  text-overflow: unset;
+  line-height: 24px;
+  margin-bottom: 10px;
+  white-space: normal;
+}
+
+.filter-tab {
+  margin-left: 5px;
+}
+
+.fields,
+.exercice {
+  margin: 0 24px;
+}
+
+.date-fields {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.date-fields .mat-form-field {
+  width: 30%;
+}
+
+.date-clear {
+  width: 5%;
+}
+
+.date-label {
+  position: absolute;
+  bottom: -5px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.quick-filter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+
+  .mat-button.selected {
+    border: 2px solid #3498DB;
+  }
+}
+
+h4 {
+  margin: 40px 0 15px;
+  font-size: 16px;
+}
+
+h4.active {
+  color: #3498DB;
+}
+
+.exercice-year {
+  margin: 10px 0;
+}
+
+::ng-deep .tabs-mr .mat-tab-label:first-of-type {
+  min-width: 60px;
+  width: 60px;
+}
+
+.custom-label {
+  padding: 20px 40px;
+}
+
+.home-tab {
+  width: 90%;
+  margin: 0 auto;
+
+  h3 {
+    margin-top: 30px;
+  }
+}
+
+.elevated-table {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  margin-bottom: 20px;
+}
+
+.documents-type {
+  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .results {
+    margin: unset;
+    text-align: center;
+  }
+}
+
+::ng-deep .cdk-overlay-pane {
+  width: auto !important;
+}
+
+.mr ::ng-deep .mat-tab-label-active {
+  background-color: rgba(51, 152, 219, 0.6);
+}
+
+.mr ::ng-deep .mat-tab-label {
+  opacity: 1;
+}
+
+::ng-deep .mat-tab-group.mat-primary .mat-ink-bar {
+  background-color: transparent;
+}
+
+:host ::ng-deep .mat-tab-body-wrapper {
+  height: calc(100vh - 300px);
+  overflow: auto;
+}
+
+.expansion-table {
+  max-height: 650px;
+  overflow: auto;
+}

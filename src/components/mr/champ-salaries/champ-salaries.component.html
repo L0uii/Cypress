@@ -1,0 +1,25 @@
+<!-- Champs type select -->
+<mat-form-field>
+  <mat-label>{{input.label}}</mat-label>
+  <input 
+    matInput
+    [matAutocomplete]="groupSalaries"
+    (keyup)="filterEmployes($event.target.value)"
+    #trigger="matAutocompleteTrigger"
+    (click)="onFocusSalarie($event, trigger)"
+    [(ngModel)]="input.value">
+  <mat-autocomplete #groupSalaries="matAutocomplete">
+    <mat-option *ngFor="let employee of filteredListe" (click)="select(employee)"
+      [value]="employee">
+      {{ employee }}
+    </mat-option>
+  </mat-autocomplete>
+  <button *ngIf="input.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="input.value = ''; select()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <span *ngIf="isRequired" class="obligatoire">*</span>
+  <!--<mat-hint *ngIf="errors.numero">Aucun numéro dossier saisi.</mat-hint>-->
+  <mat-hint *ngIf="errors.numeroUpdate">Vous devez modifier des documents concernant le même numéro de dossier.</mat-hint>
+  <mat-hint *ngIf="errors.results">Aucun salarié actif pour ce dossier.</mat-hint>
+  <mat-hint *ngIf="errors.API">Récupération de la liste impossible</mat-hint>
+</mat-form-field>

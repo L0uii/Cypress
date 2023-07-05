@@ -1,0 +1,91 @@
+<section>
+  <mat-button-toggle-group [(ngModel)]="selectedCustomer" (change)="search(true)" aria-label="Person selector">
+    <mat-button-toggle [value]="kindsOfCustomer.client">Client</mat-button-toggle>
+    <mat-button-toggle [value]="kindsOfCustomer.collaborateur">Collaborateur</mat-button-toggle>
+  </mat-button-toggle-group>
+  <article *ngIf="selectedCustomer">
+    <div class="titre">
+      <h2>Export de la liste des documents : documents "visibles
+        client" {{isCollab ? 'et \"non visibles client\"' : ''}}</h2>
+    </div>
+
+    <app-search-dossier
+      [hidden]="!showDirectory"
+      context="exportation"
+      (result)="setCustomer($event)"
+      [dossierList]="dossierList"
+      [customerSearchPending]="customerSearchPending"
+      (clearCustomerEvent)="clearNumeroClient()"
+      [events]="eventsDossier.asObservable()"></app-search-dossier>
+
+    <app-selected-customer
+      [numeroDossier]="customer?.numeroDossier"
+      [nomDossier]="customer?.nomDossier"
+      [codeBudget]="customer?.codeBudget"
+      (isClearCustomer)="clearNumeroClient()">
+    </app-selected-customer>
+
+    <ng-container *ngIf="showSearchResult">
+      <ng-container *ngIf="pending; else showResults">
+        <div class="loading-results">
+          <h3>Recherche en cours</h3>
+          <div  class="gooey">
+            <span class="dot"></span>
+            <div class="dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #showResults>
+        <ng-container *ngIf="results.length > 0; else noResults">
+          <h3>Résultats : <span class="results">{{results.length}}</span> - Dossier n° <span>{{numeroClient}}</span><span *ngIf="nomClient"> : {{nomClient}}</span></h3>
+          <!-- <div class="documents-client" *ngFor="let result of resultsByYear | keyValue">
+            <mat-expansion-panel *ngIf="result.value.length > 0">
+              <mat-expansion-panel-header>
+                <mat-panel-title class="documents-year">
+                  <strong>{{result.key}}</strong> <span class="results">{{result.value.length}}</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="scroll">
+                <ngx-simplebar [options]="{ autoHide: false }">
+                  <div class="document" *ngFor="let document of result.value">
+                    <ng-container *ngIf="document.Nommage; then nommage; else name"></ng-container>
+                    <ng-template #nommage>
+                      <div class="document-name">{{ document.Nommage }}</div>
+                    </ng-template>
+                    <ng-template #name>
+                      <div class="document-name">{{ document.name }}</div>
+                    </ng-template>
+                    <button mat-icon-button (click)="file.download(document, false)" matTooltip="Télécharger un document">
+                      <mat-icon>vertical_align_bottom</mat-icon>
+                    </button>
+                  </div>
+                </ngx-simplebar>
+              </div>
+            </mat-expansion-panel>
+            <button class="download-archive" *ngIf="result.value.length > 0" mat-stroked-button color="primary"
+              (click)="file.downloadZIP(result.value, 'mrCSV')">
+              <mat-icon>vertical_align_bottom</mat-icon> Télécharger l'année {{result.key}}
+            </button>
+          </div> -->
+          <button class="download-csv" mat-raised-button color="primary" (click)="file.downloadCSVForMR(results, '', nomClient)">
+            Télécharger la liste complète des documents au format CSV <mat-icon>article</mat-icon>
+          </button>
+        </ng-container>
+
+        <ng-template #noResults>
+          <h4>Pas de documents à exporter.</h4>
+        </ng-template>
+
+        <button class="download-csv" mat-raised-button color="primary" (click)="clearNumeroClient()">
+          Nouvelle recherche <mat-icon>autorenew</mat-icon>
+        </button>
+      </ng-template>
+
+    </ng-container>
+  </article>
+</section>

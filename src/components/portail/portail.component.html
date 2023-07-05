@@ -1,0 +1,24 @@
+<ng-container *ngIf="isLoading || noGroup; else showSpaces" class="portail">
+  <div class="empty">
+    <h2 *ngIf="noGroup">Aucun espace GED ne correspond à cet identifiant. Vous allez être redirigé vers la page de login.</h2>
+    <div  class="gooey">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-template #showSpaces>
+  <div class="links">
+    <p class="portal-title"><b>Choisissez votre espace de consultation :</b></p>
+    <div class="cards">
+      <mat-card *ngFor="let espace of espacesGED" [routerLink]="[espace.route]">
+        <mat-icon *ngIf="espace.name" svgIcon="{{espace.icon}}"></mat-icon>
+        <p><b>{{espace.label}}</b></p>
+      </mat-card>
+    </div>
+  </div>
+</ng-template>

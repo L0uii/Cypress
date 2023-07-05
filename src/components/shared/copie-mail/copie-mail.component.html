@@ -1,0 +1,41 @@
+<div class="update">
+  <div class="container-egd">
+    <!-- Titre -->
+    <div class="title">
+      <h3>Envoyer les documents d'une enveloppe signée par e-mail</h3>
+      <mat-icon class="close" (click)="close($event)" matTooltip="Fermer">close</mat-icon>
+    </div>
+    <form [formGroup]="uploadForm" (ngSubmit)="forwardDocument()">
+      <div class="email">
+        <mat-form-field>
+          <mat-chip-list #copieMailList>
+            <mat-chip *ngFor="let copieMail of copieMails; let i=index" [ngClass]="{'warn': !copieMail.valid}"
+                      class="langue">
+              {{ copieMail.value }}
+              <mat-icon class="chip-icon" (click)="remove(copieMail)">cancel</mat-icon>
+            </mat-chip>
+            <input #copieMailInput (matChipInputTokenEnd)="add($event)"
+                   [formControl]="copieMailCtrl"
+                   [matChipInputAddOnBlur]="true"
+                   [matChipInputFor]="copieMailList"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   autocomplete="off"
+                   placeholder="Destinataires en copie"/>
+          </mat-chip-list>
+          <mat-hint>Séparez les adresses d'un espace ou d'une virgule.</mat-hint>
+        </mat-form-field>
+        <mat-error *ngIf="mailCopieInvalid">Adresse e-mail invalide</mat-error>
+      </div>
+      <!-- Submit buttons -->
+      <div class="send">
+        <button mat-button (click)="close($event)">Annuler</button>
+        <div class="send-button">
+          <div *ngIf="disabled" class="box">
+            <div class="loader"></div>
+          </div>
+          <button [disabled]="disabled" type="submit" color="primary" mat-raised-button>Envoyer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

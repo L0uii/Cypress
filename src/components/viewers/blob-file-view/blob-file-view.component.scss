@@ -1,0 +1,17 @@
+.adf-viewer {
+  &__display-name {
+    font-size: 18px !important;
+    font-weight: bold !important;
+  }
+
+  &__mimeicon {
+    height: 20px !important;
+    width: 20px !important;
+  }
+}
+
+.cropper-hidden,
+.cropper-view-box,
+#viewer-crop-button {
+  display: none;
+}

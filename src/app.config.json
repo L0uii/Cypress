@@ -1,0 +1,21 @@
+{
+  "$schema": "../node_modules/@alfresco/adf-core/app.config.schema.json",
+  "ecmHost": "http://ged-alf-rec.fiducial.dom:8080",
+  "bpmHost": "http://ged-alf-rec.fiducial.dom:8080",
+  "providers": "ECM",
+  "application": {
+    "name": "Espace GED"
+  },
+  "languagePicker": true,
+  "languages": [
+    {
+      "key": "fr",
+      "label": "Français"
+    },
+    {
+      "key": "en",
+      "label": "English"
+    }
+  ],
+  "logLevel": "trace"
+}

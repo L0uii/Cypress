@@ -1,0 +1,64 @@
+<h1>Gestion des codes budgets</h1>
+<h3>Attention, vous allez intervenir sur des données sensibles. Merci pour votre vigilance.</h3>
+
+<div class="main-search">
+  <form [formGroup]="form">
+    <mat-form-field *ngIf="showInput" appearance="fill" class="search-user">
+      <mat-label>Rechercher un utilisateur</mat-label>
+      <input (keyup.enter)="selectUser()" formControlName="user" matInput>
+      <button (click)="clearCustomer()" *ngIf="form.value.user.length" aria-label="Clear" mat-button mat-icon-button
+              matSuffix type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-hint>Recherche par prénom, nom et matricule</mat-hint>
+    </mat-form-field>
+  <app-select-user (selectedUserEvent)="selectedUser($event)"
+                   (changeChoiceEvent)="changeChoice()"
+                   *ngIf="showResponses"
+                   [users]="users">
+  </app-select-user>
+  <div *ngIf="showUser">
+    <app-infos-user (detroySelectedCustomer)="destroySelectedCustomer()" [user]="user"></app-infos-user>
+    <mat-form-field appearance="fill" class="chip-list">
+      <mat-label>Gestion des codes budgets</mat-label>
+      <mat-chip-list #chipList aria-label="Code Budget selection">
+        <mat-chip (removed)="remove(codeBudget)" *ngFor="let codeBudget of codesBudget">
+          {{codeBudget}}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+        <input (matChipInputTokenEnd)="add($event)"
+               [matChipInputAddOnBlur]="addOnBlur"
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+               minlength="5"
+               maxlength="5"
+               placeholder="Nouveau Code Budget"
+        >
+      </mat-chip-list>
+    </mat-form-field>
+    <button (click)="onSubmit()" class="validate-button" color="primary" mat-raised-button>Valider</button>
+  </div>
+  <div class="result">
+    <div class="result-message">
+      <p *ngIf="showResults">
+        Les codes budgets de l'utilisateur 
+        <strong>{{user.Owner.displayName}}</strong> 
+        ont bien été modifiés. L'utilisateur possède les codes budgets suivants : 
+        <span *ngFor="let cb of codesBudget"><strong> {{cb}} </strong></span>
+        en complément de son code budget principal 
+        <strong>{{ user.DepartmentNumber }}</strong>
+      </p>
+      <p *ngIf="showError">Les codes budgets de l'utilisateur <span><strong>{{user.Owner.displayName}}</strong></span>
+        n'ont pas pu être modifié.</p>
+    </div>
+    <div class="back-button">
+      <button (click)="destroySelectedCustomer()"
+              *ngIf="showResults || showError"
+              color="primary"
+              mat-raised-button
+              type="button">Retour
+      </button>
+    </div>
+  </div>
+  </form>
+</div>

@@ -1,0 +1,27 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Attention</h1>
+  <button mat-icon-button type="button" (click)="closeDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="sendMail()">
+  <div mat-dialog-content>
+    <p>Les documents sélectionnés dépassent la limite de taille pour l'envoi par e-mail ({{ maxSizeMb }} Mo)</p>
+
+    <ng-container formArrayName="files">
+      <ng-container *ngFor="let file of filesFormArray.controls; let i = index">
+          <div [formGroup]="file">
+            <mat-checkbox formControlName="checked" color="primary">
+              {{files[i].name}} ({{files[i].size | formatFilesize }})
+            </mat-checkbox>
+          </div>
+      </ng-container>
+    </ng-container>
+    <p>Total: {{ totalSizeSelected | formatFilesize }}</p>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-stroked-button color="primary" type="button" (click)="closeDialog()">Fermer</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="totalSizeSelected === 0 || (totalSizeSelected > (maxSizeMb * 1024 * 1024))">Envoyer</button>
+  </div>
+</form>

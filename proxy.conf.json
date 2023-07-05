@@ -1,0 +1,55 @@
+{
+  "/alfresco": {
+    "target": "http://ged-alf-rec.fiducial.dom:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/fiduShare": {
+    "target": "https://lxlyodev30.fiducial.dom/",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/fiduShare": ""
+    }
+  },
+  "/sendDocumentForSigning": {
+    "target": "http://lxlyogfw30/proxy/sendDocumentForSigning",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/sendDocumentForSigning": ""
+    }
+  },
+  "/cancelSigningDemand": {
+    "target": "http://lxlyogfw30/proxy/cancelSigningDemand",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/cancelSigningDemand": ""
+    }
+  },
+  "/CreateDocument": {
+    "target": "http://lxlyogfw30/proxy/CreateDocument",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/CreateDocument": ""
+    }
+  },
+  "/Login": {
+    "target": "http://lxlyogfw30/proxy/Login",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/Login": ""
+    }
+  },
+  "/retrySigningDemand": {
+    "target": "http://lxlyogfw30/proxy/retrySigningDemand",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/retrySigningDemand": ""
+    }
+  }
+}

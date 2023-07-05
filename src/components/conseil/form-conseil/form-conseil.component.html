@@ -1,0 +1,200 @@
+<div class="file-input">
+  <app-file-input *ngIf="showFiles" (syncData)="filesLoaded($event)" [extensions]="extensions"
+                  [showMetadataOptions]="showMetadataOptions">
+  </app-file-input>
+</div>
+<div *ngIf="showForm" class="row">
+  <div class="col-6">
+    <article>
+
+      <div *ngFor="let document of pageOfItems">
+        <div *ngIf="!sameMetadata" class="flex-between-center">
+          <h3>Informations relatives au document : '{{document}}'</h3>
+          <h4>({{pager.currentPage}}/{{pager.totalItems}})</h4>
+        </div>
+        <div *ngIf="sameMetadata">
+          <h3>Informations relatives aux documents : </h3>
+          <p>{{document}}</p>
+        </div>
+        <!-- Formulaire -->
+        <section class="form">
+          <app-search-customer (result)="addCustomer($event)"
+                               *ngIf="showDirectory"
+                               [pager]="pager"
+                               [sameCustomer]="sameCustomer">
+          </app-search-customer>
+          <!-- Métadonnées client -->
+          <form *ngIf="showCustomerForm" [formGroup]="customerForm">
+            <div class="customer-info">
+              <div class="customer-inputs-button">
+                <div class="fields">
+                  <mat-form-field class="two">
+                    <input #numero autocomplete="off" formControlName="numeroClient" matInput maxlength="8"
+                           placeholder="Numéro client"/>
+                    <mat-hint align="end">{{numero.value.length}} / 8</mat-hint>
+                  </mat-form-field>
+                  <mat-form-field class="two">
+                    <input #nom autocomplete="off" formControlName="nomClient" matInput
+                           placeholder="Nom et prénom client"/>
+                    <span class="obligatoire">*</span>
+                  </mat-form-field>
+                </div>
+                <div class="fields">
+                  <mat-form-field class="two">
+                    <input #postalCode autocomplete="off" formControlName="codePostal" matInput maxlength="5"
+                           placeholder="Code postal"/>
+                    <span class="obligatoire">*</span>
+                    <mat-hint align="end">{{postalCode.value.length}} / 5</mat-hint>
+                  </mat-form-field>
+                  <mat-form-field class="two">
+                    <input #budget autocomplete="off" formControlName="codeBudget" matInput maxlength="5"
+                           placeholder="Code budget"/>
+                    <mat-hint align="end">{{budget.value.length}} / 5</mat-hint>
+                    <span class="obligatoire">*</span>
+                  </mat-form-field>
+                </div>
+              </div>
+              <button (click)="destroySelectedCustomer()" *ngIf="!sameCustomer || pager.currentPage === 1" color="primary"
+                      mat-button>Rechercher un client
+              </button>
+            </div>
+          </form>
+          <h4 *ngIf="showSelectedCustomer">Pour modifier les informations d'un client existant, merci de contacter le
+            back-office.
+          </h4>
+          <section *ngIf="showSelectedCustomer" class="selected-customer">
+            <div class="infos-customer">
+              <p><strong>Nom :</strong> {{customerForm.value.nomClient}}</p>
+              <p><strong>Numéro client :</strong> {{customerForm.value.numeroClient}}</p>
+              <p><strong>Code postal :</strong> {{customerForm.value.codePostal}}</p>
+              <p><strong>Code budget :</strong> {{customerForm.value.codeBudget}}</p>
+            </div>
+            <button (click)="destroySelectedCustomer()" *ngIf="!sameCustomer || pager.currentPage === 1" color="primary"
+                    mat-button>Changer de client
+            </button>
+          </section>
+          <section *ngIf="sameCustomer && pager.currentPage > 1 && metadataCustomer" class="selected-customer">
+            <div class="infos-customer">
+              <p><strong>Nom :</strong>{{metadataCustomer.nomClient}}</p>
+              <p><strong>Numéro client :</strong> {{metadataCustomer.numeroClient}}</p>
+              <p><strong>Code postal :</strong> {{metadataCustomer.codePostal}}</p>
+              <p><strong>Code budget :</strong> {{metadataCustomer.codeBudget}}</p>
+            </div>
+          </section>
+
+          <!-- Métadonnées du document -->
+          <form *ngIf="uploadForm" (keydown.enter)="$event.preventDefault()" [formGroup]="uploadForm">
+            <!-- Type du document -->
+            <div class="fields">
+              <mat-form-field class="one">
+                <input autocomplete="off"
+                       (click)="onFocus(0)"
+                       (keyup)="selectDocType('labelSousFamille', $event.target.value)"
+                       [matAutocomplete]="autoGroup1"
+                       formControlName="documentType"
+                       matInput
+                       placeholder="Type de document"
+                >
+                <mat-autocomplete #autoGroup1="matAutocomplete">
+                  <mat-option *ngFor="let doc of filteredDocumentType" (click)="selectInputs(doc)"
+                              [value]="doc.labelSousFamille">
+                    {{doc.labelSousFamille}}
+                  </mat-option>
+                </mat-autocomplete>
+                <button mat-button *ngIf="uploadForm.value.documentType" matSuffix mat-icon-button aria-label="Clear"
+                        (click)="reset()">
+                  <mat-icon>close</mat-icon>
+                </button>
+                <mat-error *ngIf="uploadForm.controls['documentType'].invalid">Vous devez sélectionner un type de document
+                  dans le menu déroulant.
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="fields">
+
+              <div *ngIf="inputVisibility.fournisseur" [ngStyle]="{'order': '2'}" class="three fields">
+                <app-autocomplete [list]="partenairesList"
+                                  class="w-100"
+                                  formControlName="partenaire"
+                                  placeHolder="Partenaire"
+                >
+                </app-autocomplete>
+                <mat-error *ngIf="uploadForm.controls['partenaire'].invalid">Ce champ est invalide</mat-error>
+                <span *ngIf="utils.isRequiredControl(uploadForm,'partenaire')" class="obligatoire">*</span>
+              </div>
+
+              <div *ngIf="inputVisibility.nature" [ngStyle]="{'order': '3'}" class="three fields">
+                <app-autocomplete [list]="categoriesList"
+                                  class="w-100"
+                                  formControlName="categorie"
+                                  placeHolder="Catégorie du produit"
+                >
+                </app-autocomplete>
+                <mat-error *ngIf="uploadForm.controls['categorie'].invalid">Ce champ est invalide</mat-error>
+                <span *ngIf="utils.isRequiredControl(uploadForm,'categorie')" class="obligatoire">*</span>
+              </div>
+
+              <div *ngIf="inputVisibility.produit" [ngStyle]="{'order': '4'}" class="three fields">
+                <app-autocomplete class="w-100"
+                                  [list]="produitsList"
+                                  formControlName="produit"
+                                  placeHolder="Nom du produit souscrit"
+                >
+                </app-autocomplete>
+                <mat-error *ngIf="uploadForm.controls['produit'].invalid">Ce champ est invalide</mat-error>
+                <span *ngIf="utils.isRequiredControl(uploadForm,'produit')" class="obligatoire">*</span>
+              </div>
+
+              <div *ngFor="let input of inputs; let i = index;"
+                   [ngClass]="{'one': input.name === 'description', 'three': input.name !== 'description'}"
+                   [ngStyle]="{'order': input.order}">
+                <!--  Champs type text -->
+                <mat-form-field *ngIf="input.type === 'text'">
+                  <input
+                    #i
+                    matInput
+                    [placeholder]="input.label"
+                    [formControlName]="input.name"
+                    autocomplete="off"
+                  />
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="uploadForm.controls[input.name].invalid">Ce champ est requis</mat-error>
+                  <mat-hint *ngIf="input.hint" align="end">{{ i.value.length }} / {{input.hint}}</mat-hint>
+                </mat-form-field>
+
+                <!-- Champs type datetime -->
+                <mat-form-field *ngIf="input.type === 'date'">
+                  <mat-label>{{input.label}}</mat-label>
+                  <input [formControlName]="input.name" [matDatepicker]="i" [min]="minDate" autocomplete="off" matInput/>
+                  <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+                  <mat-datepicker #i></mat-datepicker>
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="uploadForm.controls[input.name].invalid">Le format de date n'est pas valide
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="three">
+                <div class="mat-form-field"></div>
+              </div>
+            </div>
+            <em>* champs requis</em>
+            <div class="flex-between-center">
+              <button color="primary" mat-raised-button (click)="goBack($event)">Annuler</button>
+              <button (click)="saveMetadataFromInput()" color="primary" mat-raised-button>
+                <span *ngIf="pager.currentPage !== pager.totalItems">Suivant</span>
+                <span *ngIf="pager.currentPage === pager.totalItems">Valider</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </article>
+  </div>
+  <div class="col-6">
+    <app-blob-file-view
+      [blobFileList]="filePreviewList"
+      (onViewerClosed)="goBack()">
+    </app-blob-file-view>
+  </div>
+</div>
+<app-send *ngIf="showSend" [data]="data" (filesSended)="resetPage()"></app-send>

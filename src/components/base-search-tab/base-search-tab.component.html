@@ -1,0 +1,915 @@
+<mat-toolbar class="tools__menu" *ngIf="moduleHasToolbar && selection.hasValue()">
+
+  <ng-container *ngIf="showADV">
+    <mat-form-field class="search-filter" color="primary">
+      <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filtrer les résultats affichés"
+             #filter/>
+      <button mat-button *ngIf="filter.value != ''" matSuffix mat-icon-button aria-label="Clear"
+              (click)="applyFilter(''); filter.value = ''">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+
+  <span class="tools__menu--spacer"></span>
+  <div class="tools__buttons">
+    <ng-container *ngTemplateOutlet="
+      showADV ? advToolbar :
+      showSofiral ? sofiralToolbar :
+      showExpertise ? expertiseToolbar :
+      showGeranceAssocies ? geranceAssociesToolbar :
+      showArchives ? archivesPresidenceToolbar :
+      conseilToolbar
+    "></ng-container>
+  </div>
+
+  <!-- Toolbar ADV -->
+  <ng-template #advToolbar>
+    <app-send-mail-button [files]="selection.selected" space="adv" (mailSent)="deselectAll()"></app-send-mail-button>
+    <button class="adv" mat-raised-button color="primary" (click)="downloadZIP(selection.selected, 'adv')">
+      Télécharger la sélection
+    </button>
+  </ng-template>
+
+  <!-- Toolbar MR -->
+  <ng-template #expertiseToolbar>
+    <button class="btn-icon" (click)="updateExpertise(selection.selected)"
+            matTooltip="Modifier des documents">
+      <mat-icon>trending_up</mat-icon>
+    </button>
+    <button class="btn-icon" (click)="downloadCSVForMR(selection.selected, tab)"
+            matTooltip="Liste résultats CSV">
+      <img src="../../assets/img/csv-active.png"
+           style="max-width: 24px; max-height: 24px;"/>
+    </button>
+    <app-send-mail-button (mailSent)="deselectAll()" [files]="selection.selected"
+                          space="expertise"></app-send-mail-button>
+    <button class="btn-icon" (click)="downloadZIP(selection.selected, 'expertise')"
+            matTooltip="Télécharger sélection zip">
+      <mat-icon>system_update_alt</mat-icon>
+    </button>
+  </ng-template>
+
+  <!-- Toolbar Sofiral -->
+  <ng-template #sofiralToolbar>
+    <app-send-mail-button (mailSent)="deselectAll()" [files]="selection.selected"
+                          space="sofiral"></app-send-mail-button>
+    <button class="btn-icon" (click)="downloadZIP(selection.selected, 'sofiral')"
+            matTooltip="Télécharger sélection zip">
+      <mat-icon>system_update_alt</mat-icon>
+    </button>
+  </ng-template>
+
+  <!-- Toolbar Gérance associes -->
+  <ng-template #geranceAssociesToolbar>
+    <button *ngIf="isATraiter" class="btn-icon"
+            (click)="updateGeranceAssociesATraiter(selection.selected)"
+            matTooltip="Mise à jour">
+      <mat-icon>update</mat-icon>
+    </button>
+    <button class="btn-icon"
+            (click)="downloadCSVForGeranceAssocies(selection.selected)"
+            matTooltip="Liste résultats CSV">
+      <img src="../../assets/img/csv-active.png"
+           style="max-width: 24px; max-height: 24px;"/>
+    </button>
+    <app-send-mail-button (mailSent)="deselectAll()" [files]="selection.selected"
+                          space="gerance_associes"></app-send-mail-button>
+    <button class="btn-icon"
+            (click)="downloadZIP(selection.selected, 'gerance_associes')"
+            matTooltip="Télécharger sélection zip">
+      <mat-icon>system_update_alt</mat-icon>
+    </button>
+  </ng-template>
+
+  <!-- toolbar archives -->
+  <ng-template #archivesPresidenceToolbar>
+    <button class="btn-icon" (click)="getCSV(selection.selected)"
+            matTooltip="Liste résultats CSV">
+      <img src="../../assets/img/csv-active.png"
+           style="max-width: 24px; max-height: 24px;"/>
+    </button>
+  </ng-template>
+
+  <!-- Toolbar Conseil -->
+  <ng-template #conseilToolbar>
+    <button (click)="updateConseil(selection.selected)"
+            *ngIf="(isUserConseilCGP && (fn !== 'pendingProcessingCGP' && fn !== 'pendingProcessing')) || (!isUserConseilCGP && (isUserConseilBO || (isUserConseilSiege && fn !== 'facturesConseil')))"
+            class="btn-icon"
+            matTooltip="Modifier des documents">
+      <mat-icon>trending_up</mat-icon>
+    </button>
+    <app-send-mail-button [files]="selection.selected"
+                          (mailSent)="deselectAll()"
+                          [space]="fn === 'facturesConseil' ? 'adv' : 'conseil'">
+    </app-send-mail-button>
+    <button class="btn-icon"
+            (click)="downloadZIP(selection.selected, fn === 'facturesConseil' ? 'adv' : 'conseil')"
+            matTooltip="Télécharger sélection zip">
+      <mat-icon>system_update_alt</mat-icon>
+    </button>
+  </ng-template>
+</mat-toolbar>
+
+<!-- Search results -->
+<div class="table-wrapper" [ngClass]="{'has-toolbar': moduleHasToolbar && selection.hasValue()}">
+  <div class="no-rows-container" *ngIf="pending || totalItems === 0">
+    <div *ngIf="pending; else noItems" class="loading-container">
+      <div class="pending-results">
+        <h3>Recherche en cours</h3>
+        <div class="gooey">
+          <span class="dot"></span>
+          <div class="dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message à afficher quand le tableau est vide -->
+    <ng-template #noItems>
+      <div *ngIf="totalItems === 0 && !pending" class="no-results">
+        <h3 class="no-data">Aucun résultat pour cette recherche dans le dossier sélectionné.</h3>
+      </div>
+    </ng-template>
+  </div>
+
+  <div *ngIf="totalItems" class="table-container">
+    <mat-table #table [dataSource]="fixedMatTableDataSource" class="table"
+               matSort>
+      <!-- Columns communes -->
+      <ng-container [matColumnDef]="ColumnsType.Select">
+        <mat-header-cell *matHeaderCellDef class="custom-checkbox">
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row" class="custom-checkbox">
+          <mat-checkbox
+            (change)="$event ? selection.toggle(row) : null"
+            (click)="$event.stopPropagation()"
+            [checked]="selection.isSelected(row)"
+            color="primary">
+          </mat-checkbox>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.CodeClient">
+        <mat-header-cell *matHeaderCellDef>Numéro client</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="link-customer" [routerLink]="['/adv/consultation', element.CodeClient]"
+                (contextmenu)="copyToClipboard($event, element.CodeClient)">{{ element.CodeClient }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.CodeClientMR">
+        <mat-header-cell *matHeaderCellDef>Numéro dossier</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="link-customer" [routerLink]="['/expertise-consulting/consultation', element.CodeClient]"
+                (contextmenu)="copyToClipboard($event, element.CodeClient)"
+                matTooltip="Recherche n° client">{{ element.CodeClient }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NommageMR">
+        <mat-header-cell *matHeaderCellDef>Nom du document</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ng-container *ngIf="element.CollecteMessage"
+            [ngTemplateOutlet]="collecteMessageTemplate"
+            [ngTemplateOutletContext]="{ collecteMessage: element.CollecteMessage }">
+          </ng-container>
+          <span class="link-customer document-name-table-field" (click)="showResource(element.id)" matTooltip="Ouvrir aperçu">
+            {{ element.Nommage ? element.Nommage : element.name }}
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Nommage">
+        <mat-header-cell *matHeaderCellDef>Nom du fichier</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Nommage }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NommageGerance">
+        <mat-header-cell *matHeaderCellDef>Nom du document</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="link-customer" (click)="showResource(element.id)" matTooltip="Ouvrir aperçu">
+          {{ element.NommageGerance }}
+        </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateDocument">
+        <mat-header-cell *matHeaderCellDef>Date document</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.DateDocument | formatDate }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Description">
+        <mat-header-cell *matHeaderCellDef class="description" mat-header-cell>Description</mat-header-cell>
+        <mat-cell *matCellDef="let element" class="description">{{ element.Description }}
+          <span *ngIf="element.StatutDocumentAssocie">
+            <strong>Contrôle :</strong>
+            {{ element.StatutDocumentAssocie }}
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Nature">
+        <mat-header-cell *matHeaderCellDef>Nature</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Nature }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Options">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element" class="cell-options">
+          <button (click)="showResource(element.id)" mat-icon-button title="Aperçu">
+            <mat-icon>remove_red_eye</mat-icon>
+          </button>
+          <button (click)="download(element, true)" mat-icon-button title="Télécharger">
+            <mat-icon>vertical_align_bottom</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columns Archives présidence -->
+      <ng-container [matColumnDef]="ColumnsType.Titre_AP">
+        <mat-header-cell *matHeaderCellDef>Titre</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span *ngIf="element.Sommaire === 'SOMMAIRE_PRESENT'" class="link-customer"
+                (click)="showResource(element.id)" matTooltip="Ouvrir aperçu">{{ element.Titre }}</span>
+          <span *ngIf="element.Sommaire === 'SOMMAIRE_ABSENT'">{{ element.Titre }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Nature_AP">
+        <mat-header-cell *matHeaderCellDef>Nature du dossier</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.Nature | strReplace : '_' : ' ' }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Annee_AP">
+        <mat-header-cell *matHeaderCellDef>Année</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.AnneeDebut | date: 'yyyy' }} <span
+            *ngIf="element.AnneeFin">-</span> {{ element.AnneeFin | date: 'yyyy'}}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Dossier_AP">
+        <mat-header-cell *matHeaderCellDef>État du dossier</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.EtatDossier }}</span>
+          <span *ngIf="element.Destinataire">Transmis à : {{ element.Destinataire }}</span>
+          <span>Depuis le : {{ element.DateTraitement | formatDate }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Localisation_AP">
+        <mat-header-cell *matHeaderCellDef>Localisation</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.Localisation | strReplace : '_' : ' ' }}</span>
+          <span *ngIf="element.Local">{{ element.Local | strReplace : '_' : ' ' }}</span>
+          <span
+            *ngIf="element.ComplementLocalisation">{{ element.ComplementLocalisation | strReplace : '_' : ' ' }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Thematique_AP">
+        <mat-header-cell *matHeaderCellDef>Thématique</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.Thematique | strReplace : '_' : ' '}}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Remarques_AP">
+        <mat-header-cell *matHeaderCellDef>Remarques</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.Description}}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Date_AP">
+        <mat-header-cell *matHeaderCellDef>Date de création</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span>{{ element.DateCreation | formatDate }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Options_AP">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button [matMenuTriggerFor]="menuArchives" aria-label="Afficher les options" mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuArchives>
+            <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)"
+                    *ngIf="element.Sommaire === 'SOMMAIRE_PRESENT'" mat-menu-item>
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Aperçu</span>
+            </button>
+            <button (click)="updateArchives([element])" *ngIf="isUserArchives" mat-menu-item>
+              <mat-icon>call_made</mat-icon>
+              <span>Modifier</span>
+            </button>
+            <button (click)="deleteDocument(element)" *ngIf="isUserArchives" mat-menu-item>
+              <mat-icon>close</mat-icon>
+              <span>Supprimer</span>
+            </button>
+            <button (click)="download(element, true)" *ngIf="element.Sommaire === 'SOMMAIRE_PRESENT'" mat-menu-item>
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger</span>
+            </button>
+          </mat-menu>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columns Type ADV -->
+      <ng-container [matColumnDef]="ColumnsType.Periodicite">
+        <mat-header-cell *matHeaderCellDef>Périodicité</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Periodicite }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Montant">
+        <mat-header-cell *matHeaderCellDef>Montant</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Montant | number: "1.2":"fr" }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateFacture">
+        <mat-header-cell *matHeaderCellDef>Date facture</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.DateFacture | formatDate }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateDebutFacture">
+        <mat-header-cell *matHeaderCellDef>Date début</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.DateDebutFacture | formatDate }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateFinFacture">
+        <mat-header-cell *matHeaderCellDef>Date fin</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.DateFinFacture | formatDate }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NomSociete">
+        <mat-header-cell *matHeaderCellDef>Nom société</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.NomSociete }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NumFacture">
+        <mat-header-cell *matHeaderCellDef>Numéro facture</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.NumFacture }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NomClient">
+        <mat-header-cell *matHeaderCellDef>Nom client</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.NomClient }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Statut">
+        <mat-header-cell *matHeaderCellDef>Statut</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Statut }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.SousCategory">
+        <mat-header-cell *matHeaderCellDef>Sous catégorie</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.SousCategory }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Duplicata">
+        <mat-header-cell *matHeaderCellDef>Duplicata</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <mat-icon>{{ element.Duplicata ? "done" : "clear" }}</mat-icon>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columns Conseil -->
+      <ng-container [matColumnDef]="ColumnsType.Acheteur">
+        <mat-header-cell *matHeaderCellDef>Client</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div (contextmenu)="copyToClipboard($event, element.CodeClient)"
+               [routerLink]="['/conseil/consultation', element.CodeClient]"
+               class="link-customer" matTooltip="Recherche n° client">
+            <strong>{{ element.CodeClient }} : {{ element.Acheteur }}</strong>
+          </div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.AcheteurPending">
+        <mat-header-cell *matHeaderCellDef>Client</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div (contextmenu)="copyToClipboard($event, element.CodeClient)"
+               [routerLink]="['/conseil/traitement', element.CodeClient]"
+               class="link-customer" matTooltip="Recherche n° client">
+            <strong>{{ element.CodeClient }} : {{ element.Acheteur }}</strong>
+          </div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.ClientFacture">
+        <mat-header-cell *matHeaderCellDef>Client</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <strong>{{ element.CodeClient }}</strong>
+          <div>{{ element.NomClient }}</div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DirectionRegionale">
+        <mat-header-cell *matHeaderCellDef>DR</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.CodeBudget | codeBudget}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Createur">
+        <mat-header-cell *matHeaderCellDef>Créateur</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Createur | creator }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Partenaire">
+        <mat-header-cell *matHeaderCellDef>Partenaire</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Fournisseur }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Famille">
+        <mat-header-cell *matHeaderCellDef>Famille</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Categorie | categorieConseil}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Reference">
+        <mat-header-cell *matHeaderCellDef>Référence</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Reference }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.CategorieProduit">
+        <mat-header-cell *matHeaderCellDef>Catégorie produit</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Nature }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DatesConseil">
+        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span *ngIf="element.DateCreation">
+            <strong>Création :</strong>
+            {{ element.DateCreation | formatDate }}
+          </span>
+          <span *ngIf="element.DateEmission">
+            <strong>Document :</strong>
+            {{ element.DateEmission | formatDate }}
+          </span>
+          <span *ngIf="element.DateReception">
+            <strong>Réception :</strong>
+            {{ element.DateReception | formatDate }}
+          </span>
+          <span *ngIf="element.DateContrat">
+            <strong>Prise d'effet :</strong>
+            {{ element.DateContrat | formatDate }}
+          </span>
+          <span *ngIf="element.DateFinValidite">
+            <strong>Fin validité :</strong>
+            {{ element.DateFinValidite | formatDate }}
+          </span>
+          <span *ngIf="element.DateSignature">
+            <strong>Signature :</strong>
+            {{ element.DateSignature | formatDate }}
+          </span>
+          <span
+            *ngIf="!element.DateSignature && !element.DateFinValidite && !element.DateContrat && !element.DateReception && !element.DateEmission">
+            Aucune date saisie.
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DatesATraiter">
+        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span *ngIf="element.DateCreation">
+            <strong>Création :</strong>
+            {{ element.DateCreation | formatDate }}
+          </span>
+          <span *ngIf="element.DateEmission">
+            <strong>Document :</strong>
+            {{ element.DateEmission | formatDate }}
+          </span>
+          <span *ngIf="element.DateReception">
+            <strong>Réception :</strong>
+            {{ element.DateReception | formatDate }}
+          </span>
+          <span *ngIf="element.DateContrat">
+            <strong>Prise d'effet :</strong>
+            {{ element.DateContrat | formatDate }}
+          </span>
+          <span *ngIf="element.DateFinValidite">
+            <strong>Fin validité :</strong>
+            {{ element.DateFinValidite | formatDate }}
+          </span>
+          <span *ngIf="element.DateSignature">
+            <strong>Signature :</strong>
+            {{ element.DateSignature | formatDate }}
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Produit">
+        <mat-header-cell *matHeaderCellDef>Produit</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Produit }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="TypeDocument">
+        <mat-header-cell *matHeaderCellDef>Type de document</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="link-customer" (click)="showResource(element.id)"
+                matTooltip="Ouvrir aperçu">{{element.TypeDocument | typeDocumentConseil}}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.OptionsConseil">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button [matMenuTriggerFor]="menuConseil" aria-label="Afficher les options" mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuConseil>
+            <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)"
+                    mat-menu-item>
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Aperçu</span>
+            </button>
+            <button (click)="updateConseil([element])" *ngIf="(isUserConseilCGP && (fn !== 'pendingProcessingCGP' && fn !== 'pendingProcessing')) ||
+            (!isUserConseilCGP && (isUserConseilBO || (isUserConseilSiege && fn !== 'facturesConseil')))" mat-menu-item>
+              <mat-icon>call_made</mat-icon>
+              <span>Modifier</span>
+            </button>
+            <button (click)="deleteDocument(element)" *ngIf="isUserConseilSiege && fn !== 'facturesConseil'"
+                    mat-menu-item>
+              <mat-icon>close</mat-icon>
+              <span>Supprimer</span>
+            </button>
+            <button (click)="download(element, true)" mat-menu-item>
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger</span>
+            </button>
+          </mat-menu>
+
+          <app-recently-modified-icon [lastModification]="element?.LastModification"></app-recently-modified-icon>
+        </mat-cell>
+      </ng-container>
+
+      <!--  Client Sofiral-->
+      <ng-container [matColumnDef]="ColumnsType.AcheteurSofiral">
+        <mat-header-cell *matHeaderCellDef>Dossier</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <strong (contextmenu)="copyToClipboard($event, element.CodeClient)"
+                  [routerLink]="['/sofiral/consultation', element.CodeClient]"
+                  class="link-customer" matTooltip="Recherche n° dossier">
+            {{ element.CodeClient }}</strong>
+          <div>{{ element.NomClient }}</div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.TitreSofiral">
+        <mat-header-cell *matHeaderCellDef>Nom du fichier</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="link-customer" (click)="showResource(element.id)"
+                (contextmenu)="openInNewTab(element.id)" matTooltip="Ouvrir aperçu">{{ element.Nommage }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.OptionsSofiral">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button [matMenuTriggerFor]="menuSofiral" aria-label="Afficher les options" mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuSofiral>
+            <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)"
+                    mat-menu-item>
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Aperçu</span>
+            </button>
+            <button (click)="download(element, true)" mat-menu-item>
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger</span>
+            </button>
+          </mat-menu>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Colums MR -->
+      <ng-container [matColumnDef]="ColumnsType.Titre">
+        <mat-header-cell *matHeaderCellDef>Nom du fichier</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.name }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.TitreMR">
+        <mat-header-cell *matHeaderCellDef>Nom du document</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ng-container *ngIf="element.CollecteMessage"
+            [ngTemplateOutlet]="collecteMessageTemplate"
+            [ngTemplateOutletContext]="{ collecteMessage: element.CollecteMessage }">
+          </ng-container>
+          <span class="link-customer" (click)="showResource(element.id)"
+                (contextmenu)="openInNewTab(element.id)" matTooltip="Ouvrir aperçu">{{ element.name }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.NomClientMR">
+        <mat-header-cell *matHeaderCellDef>Nom dossier</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.NomDossier }}</mat-cell><!-- V-->
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.ThemeMR">
+        <mat-header-cell *matHeaderCellDef>Thème</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.SousFamille | themeMr }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Origine">
+        <mat-header-cell *matHeaderCellDef>Origine collaborateur</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element | origineMR }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.LastModification">
+        <mat-header-cell *matHeaderCellDef>Dernière modification</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.LastModification | formatDate}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.ClassementMR">
+        <mat-header-cell *matHeaderCellDef>Classement</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element | themeMr }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.FamilleMR">
+        <mat-header-cell *matHeaderCellDef>Sous dossiers</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Famille | categorieMr }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.SousFamilleMR">
+        <mat-header-cell *matHeaderCellDef>Type de document</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.SousFamille | sousCategorieMr }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateCreation">
+        <mat-header-cell *matHeaderCellDef>Date de dépot en GED</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.DateCreation | formatDate}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.VisibilityClient">
+        <mat-header-cell *matHeaderCellDef>Visibilité client</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span *ngIf="element.SousFamille | visibilityClientMr" class="visibCell_display">
+            <strong>FMEC : </strong><mat-icon class="icon-display">done</mat-icon>
+          </span>
+          <span *ngIf="element.Ecoffre=='DOCUMENT_ENVOYE'" class="eCoffreCell_display">
+            <strong>Ecoffre : </strong><mat-icon class="icon-display">done</mat-icon>
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.OptionsMR">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element" class="cell-options">
+          <button [matMenuTriggerFor]="menuMR" aria-label="Afficher les options" mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuMR>
+            <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)"
+                    mat-menu-item>
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Aperçu</span>
+            </button>
+            <button (click)="download(element, false)" mat-menu-item>
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger</span>
+            </button>
+            <button (click)="updateExpertise(element)" *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+              <mat-icon>call_made</mat-icon>
+              <span>Modifier</span>
+            </button>
+            <button (click)="deleteDocument(element)" *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+              <mat-icon>close</mat-icon>
+              <span>Supprimer</span>
+            </button>
+            <ng-container *ngIf="element.CollecteMessage"
+              [ngTemplateOutlet]="repondreClientButtonTemplate"
+              [ngTemplateOutletContext]="{ element: element }">
+            </ng-container>
+          </mat-menu>
+
+          <app-recently-modified-icon [lastModification]="element?.LastModification"></app-recently-modified-icon>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.OptionsHomeMR">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element" class="cell-options">
+          <button [matMenuTriggerFor]="menuMR" aria-label="Afficher les options" mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuMR>
+            <container-element [ngSwitch]="homeRowName">
+              <ng-container *ngSwitchCase="'Achat / Vente'">
+                <button (click)="transfer(element, 'social')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Social</span>
+                </button>
+                <button (click)="transfer(element, 'autre')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Autre</span>
+                </button>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Social'">
+                <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)" mat-menu-item>
+                  <mat-icon>remove_red_eye</mat-icon>
+                  <span>Aperçu</span>
+                </button>
+                <button (click)="download(element, false)" mat-menu-item>
+                  <mat-icon>vertical_align_bottom</mat-icon>
+                  <span>Télécharger</span>
+                </button>
+                <button (click)="updateExpertise(element)"
+                        *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+                  <mat-icon>call_made</mat-icon>
+                  <span>Modifier</span>
+                </button>
+                <button (click)="deleteDocument(element)"
+                        *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+                  <mat-icon>close</mat-icon>
+                  <span>Supprimer</span>
+                </button>
+                <button (click)="transfer(element, 'achat')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Achat / Vente</span>
+                </button>
+                <button (click)="transfer(element, 'autre')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Autre</span>
+                </button>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Autre'">
+                <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)" mat-menu-item>
+                  <mat-icon>remove_red_eye</mat-icon>
+                  <span>Aperçu</span>
+                </button>
+                <button (click)="download(element, false)" mat-menu-item>
+                  <mat-icon>vertical_align_bottom</mat-icon>
+                  <span>Télécharger</span>
+                </button>
+                <button (click)="updateExpertise(element)"
+                        *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+                  <mat-icon>call_made</mat-icon>
+                  <span>Modifier</span>
+                </button>
+                <button (click)="deleteDocument(element)"
+                        *ngIf="element.Application !== 'WINSIS'" mat-menu-item>
+                  <mat-icon>close</mat-icon>
+                  <span>Supprimer</span>
+                </button>
+                <button (click)="transfer(element, 'achat')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Achat / Vente</span>
+                </button>
+                <button (click)="transfer(element, 'social')" mat-menu-item>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>Transférer dans Social</span>
+                </button>
+              </ng-container>
+            </container-element>
+            <ng-container *ngIf="element.CollecteMessage"
+              [ngTemplateOutlet]="repondreClientButtonTemplate"
+              [ngTemplateOutletContext]="{ element: element }">
+            </ng-container>
+          </mat-menu>
+
+          <app-recently-modified-icon [lastModification]="element?.LastModification"></app-recently-modified-icon>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container [matColumnDef]="ColumnsType.Preview">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button (click)="showResource(element.id)" mat-icon-button title="Aperçu">
+            <mat-icon>remove_red_eye</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Colums Gérance -->
+      <ng-container [matColumnDef]="ColumnsType.AssocieGerance">
+        <mat-header-cell *matHeaderCellDef>Associé</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span [routerLink]="['/gerance-associes/consultation', element.NumeroAssocie]" class="link-customer"
+                (contextmenu)="copyToClipboard($event, element.NumeroAssocie)" matTooltip="Recherche n° dossier">
+            {{ element.NumeroAssocie }}
+          </span>
+          <span>{{ element.NomAssocie }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.AssocieGerancePending">
+        <mat-header-cell *matHeaderCellDef>Associé</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span [routerLink]="['/gerance-associes/traitement', element.NumeroAssocie]" class="link-customer"
+                (contextmenu)="copyToClipboard($event, element.NumeroAssocie)">
+          {{ element.NumeroAssocie }}
+        </span>
+          <span>{{ element.NomAssocie }}</span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.PartenaireGerance">
+        <mat-header-cell *matHeaderCellDef>Partenaire</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div class="d-flex flex-column gap-1">
+            <span *ngIf="element.CodeManager || element.NomManager">
+              <strong>Manager</strong> :
+              <span class="link-customer" (click)="emitGeranceManager(element.NomManager, element.CodeManager)"
+                    matTooltip="Recherche Manager">
+                {{ element.CodeManager }} - {{ element.NomManager }}
+              </span> {{element.Contact}}
+            </span>
+            <span *ngIf="element.CodeAgent || element.NomAgent">
+              <strong>Agent</strong> :
+              <span class="link-customer" (click)="emitGeranceAgent(element.NomAgent, element.CodeAgent)"
+                    matTooltip="Recherche Agent">
+                {{ element.CodeAgent }} - {{ element.NomAgent }}
+              </span>
+            </span>
+            <span *ngIf="element.ContactGerance">
+              <strong>Contact</strong> : {{ element.ContactGerance }}
+            </span>
+          </div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.TypeDocumentGerance">
+        <mat-header-cell *matHeaderCellDef>Type de document</mat-header-cell>
+        <mat-cell
+          *matCellDef="let element">{{ element.TypeDocumentGerance | categorieGeranceAssociesTypeDocument}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.CategorieProduitGerance">
+        <mat-header-cell *matHeaderCellDef>Catégorie produit</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.CategorieProduit }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.ProduitGerance">
+        <mat-header-cell *matHeaderCellDef>Produit</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.Produit }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.CategorieProduitMixed">
+        <mat-header-cell *matHeaderCellDef>Catégorie / Produit</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div *ngIf="element.CategorieProduit"><strong>Catégorie : </strong>{{ element.CategorieProduit }}</div>
+          <div *ngIf="element.Produit"><strong>Produit : </strong>{{ element.Produit }}</div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.FamilleGeranceAssocies">
+        <mat-header-cell *matHeaderCellDef>Famille</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.FamilleGeranceAssocies | familleGeranceAssocies}}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.SousDossiers">
+        <mat-header-cell *matHeaderCellDef>Sous dossiers</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.SousDossiers }}</mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DernierIntervenant">
+        <mat-header-cell *matHeaderCellDef>Dernier intervenant</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ng-container *ngIf="element.PriseEnChargePar; else dernierIntervenant">
+            <p><strong>Prise en charge par :</strong> {{ element.PriseEnChargePar | creator }}</p>
+          </ng-container>
+          <ng-template #dernierIntervenant>
+            {{ element.DernierIntervenant | creator }}
+          </ng-template>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DatesGerance">
+        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span *ngIf="element.DateCreation">
+            <strong>Création :</strong>
+            {{ element.DateCreation | formatDate }}
+          </span>
+          <span *ngIf="element.DateDocument">
+            <strong>Document :</strong>
+            {{ element.DateDocument | formatDate }}
+          </span>
+          <span *ngIf="element.DateValidite">
+            <strong>Validité :</strong>
+            {{ element.DateValidite | formatDate }}
+          </span>
+          <span
+            *ngIf="!element.DateDocument && !element.DateCreation && !element.DateValidite">
+            Aucune date saisie.
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.OptionsGerance">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button (click)="isDocReclamation(element);isDocWithStat(element)" [matMenuTriggerFor]="menuCV"
+                  aria-label="Afficher les options"
+                  mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuCV>
+            <button (click)="showResource(element.id)" (contextmenu)="openInNewTab(element.id)"
+                    mat-menu-item>
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Aperçu</span>
+            </button>
+            <button (click)="updateGeranceAssocies([element])"
+                    *ngIf="(isUserGeranceAssociesAssociesBO && !isDocGeranceAssociesReclamation)
+                || (isUserGeranceAssociesAssociesRECL && isDocGeranceAssociesReclamation)" mat-menu-item>
+              <mat-icon>call_made</mat-icon>
+              <span>Modifier</span>
+            </button>
+            <button
+              (click)="deleteDocument(element)"
+              *ngIf="(!isUserGeranceAssociesAssociesBO && !isUserGeranceAssociesPartenaireBO &&
+              (!isUserGeranceAssociesAssociesCONSULT &&
+              !isUserGeranceAssociesAssociesCONSULT_RECL) ||
+              ((isUserGeranceAssociesAssociesSUPP && !isDocGeranceAssociesReclamation)
+                        || (isUserGeranceAssociesAssociesRECL && isDocGeranceAssociesReclamation) || isUserGeranceAssociesPartenaireSUPP))"
+              mat-menu-item>
+              <mat-icon>close</mat-icon>
+              <span>Supprimer</span>
+            </button>
+            <button (click)="download(element, false)" mat-menu-item>
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger</span>
+            </button>
+            <button *ngIf="isATraiter && !element.PriseEnChargePar" (click)="priseEnCharge(element)" mat-menu-item>
+              <mat-icon>check</mat-icon>
+              <span>Prise en Charge</span>
+            </button>
+            <button (click)="updateGeranceAssociesStatDoc([element])"
+                    *ngIf="isUserGeranceAssociesAssociesCONTROL && isDocGeranceAssociesWithStat && !isATraiter"
+                    mat-menu-item>
+              <mat-icon>check</mat-icon>
+              <span>Statut</span>
+            </button>
+          </mat-menu>
+
+          <app-recently-modified-icon [lastModification]="element?.LastModification"></app-recently-modified-icon>
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: columns;"></mat-row>
+    </mat-table>
+  </div>
+  <mat-paginator #paginator [length]="totalItems" [pageSize]="pageSize" class="paginator"
+                 (page)="onPaginationChange($event)" [hidePageSize]="hidePageSize"
+                 [ngClass]="{'hidden': totalItems === 0}">
+  </mat-paginator>
+</div>
+
+<ng-template #collecteMessageTemplate
+  let-collecteMessage="collecteMessage">
+  <mat-icon [matTooltip]="collecteMessage" class="collecte-message-icon">
+    info
+  </mat-icon>
+</ng-template>
+
+<ng-template #repondreClientButtonTemplate
+  let-element="element">
+  <button (click)="repondreClient(element)" mat-menu-item>
+    <mat-icon>mail</mat-icon>
+    <span>Répondre client</span>
+  </button>
+</ng-template>

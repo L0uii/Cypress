@@ -1,0 +1,27 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "paths": {
+      "jszip": ["../node_modules/jszip/dist/jszip.min.js"]
+    },
+    "outDir": "./dist/out-tsc",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "target": "es2020",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["esnext", "dom"],
+    "module": "es2020"
+  },
+  "angularCompilerOptions": {
+    "preserveWhitespaces": false
+  },
+  "include": ["src/**/*.ts"]
+}

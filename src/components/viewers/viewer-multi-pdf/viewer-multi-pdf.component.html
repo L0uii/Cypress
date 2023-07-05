@@ -1,0 +1,74 @@
+<div class="viewer" *ngFor="let document of pageOfItems">
+  <div class="pdf__toolbar">
+    <div class="pdf__info">
+      <button class="pdf__icon" (click)="toggleNav()" matTooltip="Afficher détails">
+        <mat-icon>info</mat-icon>
+      </button>
+      <button class="pdf__icon" (click)="download(document)" matTooltip="Télécharger">
+        <mat-icon>vertical_align_bottom </mat-icon>
+      </button>
+    </div>
+    <button *ngIf="documents.length > 1" mat-raised-button color="primary" [disabled]="pager.currentPage === 1"
+      (click)="setPage(pager.currentPage - 1)" class="page-link">Document précédent</button>
+    <div class="pdf__tools">
+      <div class="pdf__rotate">
+        <button class="pdf__icon" (click)="rotate(-90)" matTooltip="Pivoter à gauche">
+          <mat-icon>rotate_left</mat-icon>
+        </button>
+        <button class="pdf__icon" (click)="rotate(90)" matTooltip="Pivoter à droite">
+          <mat-icon>rotate_right</mat-icon>
+        </button>
+      </div>
+      <div class="viewer-paging" *ngIf="pdf">
+        <button class="pdf__icon" (click)="incrementPage(-1)" matTooltip="Page précédente" *ngIf="pdf.numPages > 1">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <span>{{ page }} sur {{ pdf.numPages }}</span>
+        <button class="pdf__icon" (click)="incrementPage(1)" matTooltip="Page suivante" *ngIf="pdf.numPages > 1">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+      <div class="pdf__zoom">
+        <button class="pdf__icon" (click)="zoomIn()" matTooltip="Zoom avant">
+          <mat-icon>zoom_in</mat-icon>
+        </button>
+        <button class="pdf__icon" (click)="zoomOut()" matTooltip="Zoom arrière">
+          <mat-icon>zoom_out</mat-icon>
+        </button>
+      </div>
+    </div>
+    <button *ngIf="documents.length > 1" mat-raised-button color="primary"
+      [disabled]="pager.currentPage === pager.totalPages" (click)="setPage(pager.currentPage + 1)"
+      class="page-link">Document suivant</button>
+
+    <button class="pdf__icon -close" (click)="close()" matTooltip="Fermer l'aperçu">
+      <mat-icon>close</mat-icon>
+    </button>
+
+  </div>
+  <div class="sidenav" [ngClass]="{open: sideNavOpen}">
+    <h3>Propriétés du document</h3>
+    <button class="sidenav__btn--close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="properties" *ngFor="let property of properties">
+      <div *ngIf="property.value">
+        <strong>{{property.name}}</strong>
+        <span>{{property.value}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="main__content" [ngClass]="{sideNavOpen: sideNavOpen}">
+
+    <div class="pdf-viewer">
+      <div class="loader__pdf" *ngIf="isLoading">
+        <div class="loader__spiner__pdf"></div>
+      </div>
+      <div class="pdf-body">
+        <pdf-viewer [src]="document.url" [(page)]="page" [rotation]="rotation" [zoom]="zoom" [show-all]="false"
+          [render-text]="true" [render-text-mode]="2" (after-load-complete)="afterLoadComplete($event, document.id)">
+        </pdf-viewer>
+      </div>
+    </div>
+  </div>
+</div>

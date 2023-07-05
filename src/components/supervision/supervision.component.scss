@@ -1,0 +1,44 @@
+.supervision {
+  width: 60%;
+  margin: 0 auto;
+}
+.supervision h1 {
+  margin: 40px 0;
+}
+.supervision h2 {
+  margin: 30px 0;
+  padding: 6px 0;
+  border-bottom: 2px solid #a6a6a64d;
+}
+.supervision__status {
+  text-transform: uppercase;
+  font-weight: normal;
+  border-radius: 6px;
+  padding: 3px 9px;
+  margin-right: 10px;
+  color: #fff;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+}
+.supervision__status.is--up {
+  background-image: linear-gradient(to right top, #04aa19, #05b623, #04c22c, #04c22c, #04c22c, #04c22c, #05b623, #04aa19);
+}
+.supervision__status.is--down {
+  background-image: linear-gradient(to left bottom, #c70000, #ca0006, #b10005, #cb0c0f, #eb1212);
+}
+
+.supervision__url.is--broken {
+  color: #cc0000;
+  font-weight: 600;
+}
+.supervision__urls {
+  display: flex;
+  justify-content: space-between;
+}
+.supervision__urls mat-card {
+  width: 40%;
+}
+.supervision__urls table th,
+.supervision__urls table td {
+  text-align: left;
+  padding: 10px 0;
+}

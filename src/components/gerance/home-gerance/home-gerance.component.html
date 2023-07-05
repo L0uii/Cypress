@@ -1,0 +1,138 @@
+<main class="gerance">
+  <!-- Sidenav (default : close) -->
+  <aside class="sidenav right" [ngClass]="{open: sideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+      <!-- Filtres de recherche -->
+      <div class="status-field">
+        <mat-form-field>
+          <mat-label>Statut de la signature</mat-label>
+          <mat-select [(ngModel)]="statutSignature">
+            <mat-option value="*" (click)="onSearch()">Aucun</mat-option>
+            <mat-option value="DOCUMENT_LU" (click)="onSearch()">Document lu</mat-option>
+            <mat-option
+              value="SIGNATURE_EC_*"
+              (click)="onSearch()">
+              Document en cours de signature</mat-option>
+            <mat-option value="DOCUMENT_SIGNE" (click)="onSearch()">
+              Document signé</mat-option>
+            <mat-option value="MAIL_ENVOYE' OR fiduSign:statut:'MAIL_SEND" (click)="onSearch()">
+              Mail
+              envoyé</mat-option>
+            <mat-option value="MAIL_RENVOYE" (click)="onSearch()">Mail renvoyé</mat-option>
+            <mat-option value="DEMANDE_ANNULEE" (click)="onSearch()">Demande annulée</mat-option>
+            <mat-option value="DEMANDE_EXPIREE" (click)="onSearch()">Demande expirée</mat-option>
+          </mat-select>
+          <button mat-button *ngIf="statutSignature" matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearStatutSignature()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="fields">
+        <mat-form-field>
+          <input matInput type="text" placeholder="Code immeuble" [(ngModel)]="codeImmeuble" (keyup.enter)="onSearch()"/>
+          <button *ngIf="codeImmeuble" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeImmeuble($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Code lot" [(ngModel)]="codeLot" (keyup.enter)="onSearch()"/>
+          <button *ngIf="codeLot" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeLot($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Code Bail" [(ngModel)]="codeBail" (keyup.enter)="onSearch()" />
+          <button *ngIf="codeBail" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeBail($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Code locataire" [(ngModel)]="codeLocataire" (keyup.enter)="onSearch()" />
+          <button *ngIf="codeLocataire" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeLocataire($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <app-date-select label="Date de début de bail"
+        [(ngModel)]="bailDate"
+        [minYear]="currentYear - 2"
+        [maxYear]="currentYear + 15"
+        [isYearDescending]="false"
+        (onSearch)="onSearch()">
+      </app-date-select>
+    </div>
+
+    <!-- Boutons recherche / réinitialisation -->
+    <div class="filter filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="onSearch()">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()">Effacer</button>
+    </div>
+  </aside>
+
+  <section [ngClass]="{'sidenav-open': sideNavOpen}">
+    <!-- Champ de recherche principal -->
+    <div class="main-search container-egd">
+      <div class="main-fields">
+        <mat-form-field class="full">
+          <input matInput placeholder="Propriétaire de l'immeuble (société)" (keyup)="filterProprietaire($event.target.value)"
+          [matAutocomplete]="groupProprietaire" [(ngModel)]="proprietaireImmeubleInput">
+          <mat-autocomplete #groupProprietaire="matAutocomplete">
+            <mat-option *ngFor="let el of filteredProprietaires" (click)="setValueProprietaire(el)"
+            [value]="el.label">
+            {{el.label}}
+          </mat-option>
+          </mat-autocomplete>
+          <button *ngIf="proprietaireImmeubleInput" mat-button matSuffix mat-icon-button aria-label="Clear"
+          (click)="clearProprietaireImmeuble($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Nom de l'immeuble" [(ngModel)]="nomImmeuble" (keyup.enter)="onSearch()"/>
+          <button *ngIf="nomImmeuble" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearNomImmeuble()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Nom locataire" [(ngModel)]="nomLocataire" (keyup.enter)="onSearch()"/>
+          <button *ngIf="nomLocataire" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearNomLocataire()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <!-- Boutons recherche / réinitialisation -->
+      <button id="btn-search" mat-icon-button color="primary" (click)="onSearch()" matTooltip="Rechercher">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button (click)="clearAll()" matTooltip="Effacer les filtres">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button mat-stroked-button color="primary" (click)="toggleNav()">
+        <span>Recherche avancée</span>
+      </button>
+    </div>
+
+    <!-- Onglets résultats-->
+    <mat-tab-group *ngIf="searchQuery != null" #tabGroup (selectedIndexChange)="tabChanged($event)">
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name }}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <!-- Tableau résultats -->
+        <app-search-results-gerance [fn]="tabKeyValue.value.fetchFn" [searchQuery]="searchQuery"
+          [columns]="tabKeyValue.value.columns" (syncSideNav)="refreshNav($event)" [isOpen]="sideNavOpen"
+          (sync)="onSync(tabKeyValue.key)($event)" (clearInput)="clearAll()">
+        </app-search-results-gerance>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

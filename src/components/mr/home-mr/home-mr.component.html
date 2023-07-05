@@ -1,0 +1,439 @@
+<main class="mr">
+  <!-- Sidenav (default : close) -->
+  <aside class="sidenav right" [ngClass]="{open: sideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+    <!-- Filtres de recherche -->
+
+    <div class="fields">
+        <section>
+          <div class="sort">
+            <button mat-flat-button color="primary" [matMenuTriggerFor]="trier">Trier par :
+              <span>{{selectedSortByField}}</span></button>
+            <button mat-flat-button color="primary" [matMenuTriggerFor]="sens">Ordre :
+              <span>{{selectedSortByOrder}}</span></button>
+          </div>
+          <mat-menu #trier="matMenu" yPosition="below" [overlapTrigger]="false">
+            <button *ngFor="let field of filtersFields" (click)="setSortByField(field)"
+                    mat-menu-item>{{field.label}}</button>
+          </mat-menu>
+          <mat-menu #sens="matMenu" yPosition="below" [overlapTrigger]="false">
+            <button *ngFor="let order of filtersOrder" mat-menu-item
+                    (click)="setSortByOrder(order)">{{order.label}}</button>
+          </mat-menu>
+        </section>
+
+        <mat-expansion-panel class="elevated-table" [expanded]="true" *ngIf="currentTab !== homeTab">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Filtres de l'onglet <span class="filter-tab">{{currentTab}}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <!-- Catégorie du document -->
+          <mat-form-field class="sous-dossier">
+            <textarea matInput
+                      #familleInput
+                      (click)="onFocus(0);this.inputsDefault.documentTypeInput = ''"
+                      (keyup)="filterFamille($event.target.value)"
+                      (keyup.enter)="onSearch()"
+                      [(ngModel)]="inputsDefault.familleInput"
+                      [matAutocomplete]="groupFamille"
+                      placeholder="Classement :"></textarea>
+            <mat-autocomplete #groupFamille="matAutocomplete">
+              <mat-option class="options-mr" *ngFor="let famille of filteredFamille | keyvalue"
+                          (click)="setValueFamille(famille)"
+                          [value]="famille.key">
+                {{famille.key}}
+              </mat-option>
+            </mat-autocomplete>
+            <button *ngIf="inputsDefault.familleInput" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput('famille', true);filterDocumentType(' ');setValueDocumentType('')">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-hint class="sous-dossier">Sélectionner ici la catégorie puis la sous-catégorie de document dans la liste
+              ci-dessous.
+            </mat-hint>
+          </mat-form-field>
+
+          <!-- Type du document -->
+          <mat-form-field>
+            <input matInput
+                  placeholder="Type du document"
+                  (keyup)="filterDocumentType($event.target.value)"
+                  (keyup.enter)="onSearch()"
+                  [matAutocomplete]="groupDocumentType"
+                  (click)="filterDocumentType(' ');onFocus(1)"
+                  [(ngModel)]="inputsDefault.documentTypeInput">
+            <mat-autocomplete #groupDocumentType="matAutocomplete">
+              <mat-option class="options-mr" *ngFor="let docType of filteredDocumentType"
+                          (click)="setValueDocumentType(docType);onSearch()"
+                          [value]="docType.labelSousFamille">
+                {{docType.labelSousFamille}}
+                <span *ngIf="docType.displayClient; then visible else invisible"></span>
+                <ng-template #visible>
+                  <mat-icon title="Visible client">visibility</mat-icon>
+                </ng-template>
+                <ng-template #invisible>
+                  <mat-icon title="Non visible client">visibility_off</mat-icon>
+                </ng-template>
+              </mat-option>
+            </mat-autocomplete>
+            <button *ngIf="inputsDefault.documentTypeInput" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput('documentType', true);filterDocumentType(' ');">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </mat-expansion-panel>
+        <div class="hint-title" (mouseover)="showHint = true" (mouseout)="showHint = false">
+          <span>
+            Comment rechercher par dates
+          </span>
+          <mat-icon>
+            help
+          </mat-icon>
+        </div>
+        <div class="hint" *ngIf="showHint">
+          <p>Vous pouvez saisir :</p>
+          <ul>
+            <li>Une année.</li>
+            <li>Un mois et une année.</li>
+            <li>Un jour, un mois et une année (date exacte).</li>
+          </ul>
+          <p>Vous ne pouvez pas renseigner uniquement un mois, uniquement un jour, un jour et une année.</p>
+        </div>
+
+        <app-date-select *ngIf="!open"
+                        (onSearch)="onSearch()"
+                        [(ngModel)]="inputsDefault.documentDate"
+                        [isYearDescending]="false"
+                        [label]="labelDate"
+                        [maxYear]="currentYear + 15"
+                        [minYear]="2016">
+        </app-date-select>
+
+        <mat-expansion-panel class="elevated-table" [(expanded)]=open>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Recherche "Date du document" par période
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <app-date-select label="Date de début"
+                          (onSearch)="onSearch()"
+                          [(ngModel)]="inputsDefault.searchPeriodStart"
+                          [isYearDescending]="false"
+                          [maxYear]="currentYear + 15"
+                          [minYear]="2016">
+          </app-date-select>
+
+          <app-date-select label="Date de fin"
+                          (onSearch)="onSearch()"
+                          [(ngModel)]="inputsDefault.searchPeriodEnd"
+                          [isYearDescending]="false"
+                          [maxYear]="currentYear + 15"
+                          [minYear]="2016">
+          </app-date-select>
+        </mat-expansion-panel>
+
+        <!-- Date de dépôt en GED -->
+        <app-date-select label="Date de dépôt en GED"
+                        (onSearch)="onSearch()"
+                        [(ngModel)]="inputsDefault.creationDate"
+                        [isYearDescending]="false"
+                        [maxYear]="currentYear + 15"
+                        [minYear]="2016">
+        </app-date-select>
+
+        <app-date-select label="Date de dernière modification"
+                        (onSearch)="onSearch()"
+                        [(ngModel)]="inputsDefault.modificationDate"
+                        [isYearDescending]="false"
+                        [maxYear]="currentYear + 15"
+                        [minYear]="2016">
+        </app-date-select>
+
+        <mat-form-field>
+          <mat-label>Exercice</mat-label>
+          <input readonly class="date-input" matInput (focus)="pickerDateFinExercice.open()"
+                [value]="inputsDefault.typedDateFinExercice"/>
+          <input style="display:none;" matInput [matDatepicker]="pickerDateFinExercice" [min]="minDate2" [max]="maxDate"
+                [(ngModel)]="inputsDefault.dateFinExercice"/>
+          <mat-datepicker-toggle matSuffix [for]="pickerDateFinExercice"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDateFinExercice startView="multi-year"
+                          (yearSelected)="setYearExercice(inputsDefault.dateFinExercice, $event, pickerDateFinExercice)"></mat-datepicker>
+          <button *ngIf="inputsDefault.dateFinExercice" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('dateFinExercice', true)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <!-- Auteur -->
+        <mat-form-field>
+          <input matInput (keyup.enter)="onSearch()"
+                placeholder="Origine collaborateur"
+                [(ngModel)]="inputsDefault.author"/>
+          <button *ngIf="inputsDefault.author" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('author', true)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <!-- Visibilite Ecoffre -->
+        <mat-form-field appearance="fill" class="eCoffre">
+          <mat-label>Envoyé à l'Ecoffre</mat-label>
+          <mat-select [(ngModel)]="inputsDefault.eCoffre">
+            <mat-option *ngFor="let eCoffre of eCoffreValues" [value]="eCoffre.value">
+              {{eCoffre.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button *ngIf="inputsDefault.eCoffre" mat-button matSuffix mat-icon-button aria-label="Clear"
+                (click)="clearInput('eCoffre', true)">
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-form-field *ngIf="currentTab === 'Social'">
+          <input matInput (keyup.enter)="onSearch()" placeholder="Nom du salarié"
+                [(ngModel)]="inputsDefault.employeeName"/>
+          <button *ngIf="inputsDefault.employeeName" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('employeeName', true)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field *ngIf="currentTab === 'Social'">
+          <input matInput (keyup.enter)="onSearch()" placeholder="Prénom du salarié"
+                [(ngModel)]="inputsDefault.employeeFirstName"/>
+          <button *ngIf="inputsDefault.employeeFirstName" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('employeeFirstName', true)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+      </div>
+      <div *ngIf="!!inputs" class="fields filtres-conditionnels">
+        <div *ngFor="let input of inputs; let i = index; trackBy: trackByIndex">
+          <!--  Champs type text -->
+          <mat-form-field *ngIf="input.type === 'text'">
+            <input #i (keyup.enter)="onSearch()" matInput [placeholder]="input.label" [(ngModel)]="input.value"/>
+            <button *ngIf="input.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs type datetime -->
+          <mat-form-field *ngIf="input.type === 'date' && input.name !='documentDate' && input.name !='dateFacture'">
+            <mat-label>{{input.label}}</mat-label>
+            <input matInput [min]="minDate" [matDatepicker]="dp" [(ngModel)]="input.value"/>
+            <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+            <button *ngIf="input.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <app-date-select *ngIf="input.name =='dateFacture'"
+                          (onSearch)="onSearch()"
+                          [(ngModel)]="inputsDefault.factDate"
+                          [isYearDescending]="false"
+                          [label]="input.label"
+                          [maxYear]="currentYear + 15"
+                          [minYear]="2016">
+          </app-date-select>
+
+          <!-- Champs type select -->
+          <mat-form-field *ngIf="input.type === 'options'">
+            <mat-label>{{input.label}}</mat-label>
+            <mat-select [(ngModel)]="input.value">
+              <mat-option [value]=""></mat-option>
+              <mat-option class="options-mr" #i *ngFor="let option of input.options"
+                          [value]="option">{{option}}</mat-option>
+            </mat-select>
+            <button *ngIf="input.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <!-- Boutons recherche / réinitialisation -->
+    
+    <div class="buttons filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="onSearch()">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()">Effacer</button>
+    </div>
+  </aside>
+
+  <section [ngClass]="{'sidenav-open': sideNavOpen}">
+    <!-- Champ de recherche principal -->
+    <div class="d-flex mx-5 mb-3 gap-3 align-items-center">
+      <div class="d-flex flex-fill gap-3 align-items-center" id="simple-search">
+        <div class="flex-fill">
+          <app-search-dossier [hidden]="!showDirectory"
+                              [context]="'consultation'"
+                              [events]="eventsDossier.asObservable()"
+                              [customerSearchPending]="customerSearchPending"
+                              [dossierList]="dossierList"
+                              (result)="addCustomer($event)"
+                              (resetSearch)="clearCustomer()"
+                              (clearCustomerEvent)="clearCustomer()">
+          </app-search-dossier>
+          <app-selected-customer
+            [numeroDossier]="inputsDefault.numeroDossier"
+            [nomDossier]="inputsDefault.nomDossier"
+            [codeBudget]="inputsDefault.codeBudget"
+            (isClearCustomer)="clearCustomer()">
+          </app-selected-customer>
+        </div>
+
+        <app-text-field class="flex-fill"
+                        id="keyword-search"
+                        (onSearch)="onSearch()"
+                        [(ngModel)]="inputsDefault.nommage"
+                        placeholder="Nom ou type de document, mots-clés">
+        </app-text-field>
+      </div>
+
+      <div class="search-icons">
+        <button (click)="onSearch()" color="primary" id="btn-search" mat-icon-button matTooltip="Rechercher">
+          <mat-icon>search</mat-icon>
+        </button>
+        <button (click)="clearAll()" *ngIf="searchQuery" id="btn-clear-search" mat-icon-button matTooltip="Effacer les filtres">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <!-- Boutons recherche / réinitialisation -->
+      <button (click)="toggleNav()" color="primary" mat-stroked-button>
+        <span>Recherche avancée</span>
+      </button>
+    </div>
+    <div *ngIf="searchQuery" class="filtres-actifs">
+      <span *ngFor="let input of inputs"><span class="actif" *ngIf="actifs[input.name]">{{input.label}}
+        <mat-icon (click)="clearInput(input.name)">close</mat-icon></span></span>
+      <span class="actif" *ngIf="actifs.employeeName || actifs.employeeFirstName">NOM / Prénom salarié <mat-icon
+        (click)="clearInput('employeeName', true);clearInput('employeeFirstName', true);">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.dateFinExercice">Exercice<mat-icon
+        (click)="clearInput('dateFinExercice', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.numeroDossier">Numéro ou nom dossier<span
+        *ngIf="inputsDefault.nomDossier || inputsDefault.numeroDossier">: {{inputsDefault.nomDossier}}</span> <mat-icon
+        (click)="clearCustomer()">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.nommage">Nom du document ou mot-clé <mat-icon
+        (click)="clearInput('nommage', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.famille">Dossier / sous dossier <mat-icon (click)="clearInput('famille', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.documentType">Type du document <mat-icon
+        (click)="clearInput('documentType', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.creationDate">Date de dépôt en GED<mat-icon
+        (click)="clearInput('creationDate', true)">close</mat-icon></span>
+      <span class="actif"
+            *ngIf="actifs.modificationDate">Date de modification <mat-icon
+        (click)="clearInput('modificationDate', true)">close</mat-icon></span>
+      <span class="actif"
+            *ngIf="actifs.factDate">Date de facture <mat-icon
+        (click)="clearInput('factDate', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.author">Origine collaborateur <mat-icon (click)="clearInput('author', true)">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.documentDate && inputsDefault.documentTypeInput==''">Date du document <mat-icon
+        (click)="clearInput('documentDate',true)">close</mat-icon></span>
+      <span class="actif"
+            *ngIf="actifs.searchPeriodStart || actifs.searchPeriodEnd">Période de recherche de date de document <mat-icon
+        (click)="clearInput('searchPeriodStart',true);clearInput('searchPeriodEnd',true);onSearch();">close</mat-icon></span>
+      <span *ngIf="actifs.eCoffre" class="actif">Envoyé à l'Ecoffre<mat-icon
+        (click)="clearInput('eCoffre',true);onSearch();">close</mat-icon></span>
+
+    </div>
+    <!-- Onglets résultats-->
+    <mat-tab-group *ngIf="searchQuery != null" #tabGroup class="tabs-mr"
+                   (selectedIndexChange)="tabChanged($event)"
+                   [selectedIndex]="initTab">
+      <!-- Onglet 'Accueil' -->
+      <mat-tab class="home">
+        <ng-template mat-tab-label>
+          <mat-icon color="primary">home</mat-icon>
+        </ng-template>
+        <section class="home-tab">
+          <!-- Tables documents en attente (recherche facets) -->
+          <h3>Documents déposés par les clients et en attente de traitement</h3>
+
+          <div *ngIf="hasAnyDocumentWaitingForQualificationMoreThan10Months" class="warning-message-container">
+            <div class="alert-warning">
+              <mat-icon aria-hidden="false" aria-label="warning icon">warning</mat-icon>
+              Tous les documents déposés en GED avant le 31/12/{{ currentYear - 1 }} et non qualifiés/traités seront
+              automatiquement supprimés au cours du mois de janvier {{ currentYear + 1 }}.
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <app-slide-toggle
+                [formControl]="filterDocumentsToggle"
+                color="primary"
+                label="Pour visualiser ces documents, cliquez sur le bouton suivant">
+              </app-slide-toggle>
+
+              <button (click)="removeSelectedDocuments()" *ngIf="deleteDocumentService.documentsToBeDeleted.length"
+                      mat-raised-button>Supprimer le(s) document(s) sélectionné(s)
+                <mat-icon>restore_from_trash</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="elevated-table" *ngIf="currentTab === 'HOME'">
+            <div class="pending" *ngFor="let tabKeyValue of pendingTabs | keyValue; let i = index">
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <div class="documents-type">
+                      <strong>{{tabKeyValue.value.name}}</strong>
+                      <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="expansion-table">
+                  <app-base-search-tab [sortBy]="sortBy"
+                                       [fn]="tabKeyValue.value.fetchFn"
+                                       [pageSize]="25"
+                                       (changeHomeCategory)="changeHomeCategory($event)"
+                                       [searchQuery]="searchQueryHomeTab"
+                                       [columns]="tabKeyValue.value.columns"
+                                       [space]="'expertise_home'"
+                                       [pending]="pending"
+                                       [isOpen]="sideNavOpen"
+                                       [dossierList]="dossierList"
+                                       (changeDocument)="onChangeDocument($event)"
+                                       (syncSideNav)="refreshNav($event)"
+                                       (sync)="onSync(tabKeyValue.key, pendingTabs, true)($event)"
+                                       [homeRowName]="tabKeyValue.value.name"
+                  >
+                  </app-base-search-tab>
+                </div>
+              </mat-expansion-panel>
+            </div>
+          </div>
+        </section>
+      </mat-tab>
+      <!-- Onglets par thème -->
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name | ongletMr}}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <!-- Tableau résultats -->
+        <app-base-search-tab [fn]="tabKeyValue.value.fetchFn"
+                             [sortBy]="sortBy"
+                             [pageSize]="25"
+                             [searchQuery]="searchQuery"
+                             [columns]="tabKeyValue.value.columns"
+                             [space]="'expertise'"
+                             [tab]="currentTab"
+                             [pending]="pending"
+                             [isOpen]="sideNavOpen"
+                             [codeClient]="inputsDefault.numeroDossier"
+                             [dossierList]="dossierList"
+                             (changeDocument)="onChangeDocument($event)"
+                             (syncSideNav)="refreshNav($event)"
+                             (sync)="onSync(tabKeyValue.key, tabs)($event)">
+        </app-base-search-tab>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

@@ -1,0 +1,206 @@
+<div *ngIf="totalItems !== 0" class="scroll">
+  <ngx-simplebar #scrollable>
+    <mat-table [dataSource]="dataSource">
+      <ng-container [matColumnDef]=" ColumnsType.Select">
+        <mat-header-cell *matHeaderCellDef class="custom-checkbox">
+          <mat-checkbox color="primary" (change)="$event ? utils.masterToggle(dataSource, selection) : null"
+                        [checked]="selection.hasValue() && utils.isAllSelected(dataSource, selection)"
+                        [indeterminate]="selection.hasValue() && !utils.isAllSelected(dataSource, selection)">
+          </mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row" class="custom-checkbox">
+          <mat-checkbox color="primary" (click)="$event.stopPropagation()"
+                        (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+          </mat-checkbox>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Name">
+        <mat-header-cell *matHeaderCellDef class="description">Intitulé</mat-header-cell>
+        <mat-cell *matCellDef="let element" class="description">{{ element.Nommage }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="Proprietaire">
+        <mat-header-cell *matHeaderCellDef>Propriétaire</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{element.Proprietaire | proprietaireGerance}}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="NomImmeuble">
+        <mat-header-cell *matHeaderCellDef>Nom immeuble</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{element.NomImmeuble}}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="NomLocataire">
+        <mat-header-cell *matHeaderCellDef>Nom locataire</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{element.NomLocataire}}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="Emetteur">
+        <mat-header-cell *matHeaderCellDef>Emetteur</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <strong> {{ element.PrenomEmetteur }} {{ element.NomEmetteur }}</strong>
+          <p>{{ element.MailEmetteur }}</p>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="PendingSignataires">
+        <mat-header-cell *matHeaderCellDef>Signature en attente</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div>{{element | pendingSignataire }}</div>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.Dates">
+        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <p *ngIf="element.DateDocument">
+            <strong>Demande :</strong>
+            {{ element.DateDocument | formatDate }}
+          </p>
+          <p *ngIf="element.DateBail">
+            <strong>Date début bail:</strong>
+            {{ element.DateBail | formatDate }}
+          </p>
+          <p *ngIf="element.DateSignature1 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+            <strong>Signature 1: </strong>
+            {{ element.DateSignature1 | formatDate }}
+          </p>
+          <p *ngIf="element.DateSignature2 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+            <strong>Signature 2: </strong>
+            {{ element.DateSignature2 | formatDate }}
+          </p>
+          <p *ngIf="element.DateSignature3 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+            <strong>Signature 3: </strong>
+            {{ element.DateSignature3 | formatDate }}
+          </p>
+          <p *ngIf="element.DateSignature4 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+            <strong>Signature 4: </strong>
+            {{ element.DateSignature4 | formatDate }}
+          </p>
+        </mat-cell>
+      </ng-container>
+      <ng-container [matColumnDef]="ColumnsType.DateSignature">
+        <mat-header-cell *matHeaderCellDef>Date signature</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <div *ngIf="element.DateDocument">
+            <p *ngIf="element.DateSignature1 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+              <strong>{{element.PrenomSignataire1}} {{element.NomSignataire1}}</strong> :
+              {{ element.DateSignature1 | formatDate }}
+            </p>
+            <p *ngIf="element.DateSignature2 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+              <strong>{{element.PrenomSignataire2}} {{element.NomSignataire2}}</strong> :
+              {{ element.DateSignature2 | formatDate }}
+            </p>
+            <p *ngIf="element.DateSignature3 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+              <strong>{{element.PrenomSignataire3}} {{element.NomSignataire3}}</strong> :
+              {{ element.DateSignature3 | formatDate }}
+            </p>
+            <p *ngIf="element.DateSignature4 && element.StatutSignature === 'DOCUMENT_SIGNE'">
+              <strong>{{element.PrenomSignataire4}} {{element.NomSignataire4}}</strong>
+              {{ element.DateSignature4 | formatDate }}
+            </p>
+          </div>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="StatutSignature">
+        <mat-header-cell *matHeaderCellDef>Statut Signature</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element | signingStatus }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="Files">
+        <mat-header-cell *matHeaderCellDef>Enveloppe</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <p *ngFor="let doc of element.Files">{{doc}}</p>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="OptionsPending">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button [matMenuTriggerFor]="menuPending" aria-label="Afficher les options">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuPending>
+            <button *ngIf="validationTime(element.DateDocument)" mat-menu-item (click)="retryAll(element)"
+                    [disabled]="element.StatutSignature === 'DEMANDE_ANNULEE' || element.StatutSignature === 'DOCUMENT_SIGNE' || element.StatutSignature === 'DEMANDE_EXPIREE'">
+              <mat-icon>autorenew</mat-icon>
+              <span>Relancer tous les signataires</span>
+            </button>
+            <button *ngIf="validationTime(element.DateDocument)" mat-menu-item [matMenuTriggerFor]="menuSignataires"
+                    [disabled]="element.StatutSignature === 'DEMANDE_ANNULEE' || element.StatutSignature === 'DOCUMENT_SIGNE' || element.StatutSignature === 'DEMANDE_EXPIREE'">
+              <mat-icon>autorenew</mat-icon>
+              <span>Relancer un signataire</span>
+            </button>
+            <button *ngIf="validationTime(element.DateDocument)" mat-menu-item
+                    (click)="fidusign.cancelSigning(element.id)"
+                    [disabled]="element.StatutSignature === 'DEMANDE_ANNULEE' || element.StatutSignature === 'DOCUMENT_SIGNE' || element.StatutSignature === 'DEMANDE_EXPIREE'">
+              <mat-icon>cancel</mat-icon>
+              <span>Annuler signature</span>
+            </button>
+            <button *ngIf="validationTime(element.DateDocument)" mat-menu-item (click)="changeEmail(element.uuids)"
+                    [disabled]="element.StatutSignature === 'DEMANDE_ANNULEE' || element.StatutSignature === 'DOCUMENT_SIGNE' || element.StatutSignature === 'DEMANDE_EXPIREE'">
+              <mat-icon>sync_alt</mat-icon>
+              <span>Modifier signataire</span>
+            </button>
+            <button mat-menu-item (click)="preview.showPdfs(element.uuids)">
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Afficher un aperçu</span>
+            </button>
+            <button mat-menu-item (click)="file.downloadZIP(element.zipInfo, 'fidusign')">
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger les documents</span>
+            </button>
+          </mat-menu>
+          <mat-menu #menuSignataires>
+            <button *ngIf="!fidusign.isAlreadySigned(element, 1)" mat-menu-item
+                    (click)="fidusign.retrySigningOne(element.uuids, 1)">
+              <mat-icon>person</mat-icon>
+              <span>{{element.PrenomSignataire1}} {{element.NomSignataire1}}</span>
+            </button>
+            <button *ngIf="!fidusign.isAlreadySigned(element, 2) && element.MailSignataire2" mat-menu-item
+                    (click)="fidusign.retrySigningOne(element.uuids, 2)">
+              <mat-icon>person</mat-icon>
+              <span>{{element.PrenomSignataire2}} {{element.NomSignataire2}}</span>
+            </button>
+            <button *ngIf="!fidusign.isAlreadySigned(element, 3) && element.MailSignataire3" mat-menu-item
+                    (click)="fidusign.retrySigningOne(element.uuids, 3)">
+              <mat-icon>person</mat-icon>
+              <span>{{element.PrenomSignataire3}} {{element.NomSignataire3}}</span>
+            </button>
+            <button *ngIf="!fidusign.isAlreadySigned(element, 4) && element.MailSignataire4" mat-menu-item
+                    (click)="fidusign.retrySigningOne(element.uuids, 4)">
+              <mat-icon>person</mat-icon>
+              <span>{{element.PrenomSignataire4}} {{element.NomSignataire4}}</span>
+            </button>
+          </mat-menu>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="OptionsSigned">
+        <mat-header-cell *matHeaderCellDef>Options</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button [matMenuTriggerFor]="menuSigned" aria-label="Afficher les options">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuSigned>
+            <button mat-menu-item (click)="forward(element.uuids)">
+              <mat-icon>forward_to_inbox</mat-icon>
+              <span>Envoyer en copie</span>
+            </button>
+            <button mat-menu-item (click)="preview.showPdfs(element.uuids)">
+              <mat-icon>remove_red_eye</mat-icon>
+              <span>Afficher un aperçu</span>
+            </button>
+            <button mat-menu-item (click)="file.downloadZIP(element.zipInfo, 'fidusign')">
+              <mat-icon>vertical_align_bottom</mat-icon>
+              <span>Télécharger les documents</span>
+            </button>
+          </mat-menu>
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+      <mat-row *matRowDef=" let row; columns: columns;"></mat-row>
+    </mat-table>
+  </ngx-simplebar>
+</div>
+<button *ngIf="totalItems !== 0" mat-raised-button class="more-results" color="primary" (click)="nextResults()"
+        [disabled]="!hasMoreItems">
+  Plus de résultats
+</button>
+<!-- Message à afficher quand le tableau est vide -->
+<div *ngIf="totalItems === 0" class="no-results">
+  <div>
+    <h3>Aucun résultat pour cette recherche dans le dossier sélectionné.</h3>
+    <button mat-button color="primary" (click)="backToSearch()">Effacer les filtres</button>
+  </div>
+</div>

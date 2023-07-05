@@ -1,0 +1,220 @@
+<div class="update">
+  <article *ngIf="!updateLaunched" class="container-egd">
+    <div class="title">
+      <h3>Mettre à jour les métadonnées du document :</h3>
+      <span class="close"><mat-icon (click)="close()">close</mat-icon></span>
+    </div>
+    <form *ngIf="uploadForm" [formGroup]="uploadForm">
+      <div class="fields-grid">
+        <ng-container *ngFor="let input of (inputs | callback: filterFields) | keyValue; let i = index; let j = index; trackBy:trackByType">
+          <!--  Champs type text -->
+          <mat-form-field *ngIf="input.value.type === 'text' && input.value.show" [ngStyle]="{'order': input.value.order}" [ngClass]="input.value.name === 'description' ? 'one' : 'three'">
+            <input #i autocomplete="off" matInput [placeholder]="input.value.label" [formControlName]="input.value.name" />
+            <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+            <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Ce champ est requis</mat-error>
+            <mat-hint *ngIf="input.value.hint" align="end">{{ i.value.length }} / {{input.value.hint}}</mat-hint>
+            <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="clearInput($event, input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs type datetime -->
+          <mat-form-field *ngIf="input.value.type === 'date' && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input autocomplete="off" matInput [matDatepicker]="i" [formControlName]="input.value.name"/>
+            <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+            <mat-datepicker #i></mat-datepicker>
+            <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+            <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Le format de date n'est pas valide</mat-error>
+            <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="clearInput($event, input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs type year -->
+          <mat-form-field *ngIf="input.value.type === 'year' && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input readonly class="date-input" matInput (focus)="i.open()" [value]="input.value.typedDate" />
+            <input style="display:none;" matInput [matDatepicker]="i" [formControlName]="input.value.name"/>
+            <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+            <mat-datepicker #i startView="multi-year" (yearSelected)="setYear(input.value.name, $event, i)"></mat-datepicker>
+            <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+            <div *ngIf="uploadForm.controls[input.value.name].invalid && (uploadForm.controls[input.value.name].dirty || uploadForm.controls[input.value.name].touched)" class="date-error">Le format de date n'est pas valide</div>
+            <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="clearInput($event, input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs select autocomplete -->
+          <mat-form-field  *ngIf="(input.value.type === 'optionsArray' || input.value.type === 'optionsObject') && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input autocomplete="off"
+                   #j
+                   (keyup)="filterOptions($event.target.value, input.value.name)"
+                   matInput
+                   [matAutocomplete]="i"
+                   [formControlName]="input.value.name"
+                   #trigger="matAutocompleteTrigger"
+                   (click)="onFocus($event, trigger)"
+            >
+            <mat-autocomplete #i="matAutocomplete">
+              <mat-option
+                (click)="setValue($event, element.value, input.value.name)"
+                *ngFor="let element of filtered[input.value.name]"
+                [value]="element.label"
+              >
+                {{element.label}}
+              </mat-option>
+            </mat-autocomplete>
+            <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+            <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Ce champ est requis</mat-error>
+            <button mat-button *ngIf="input.value.saisieLibre && filtered[input.value.name].length === 0 " matSuffix
+                    mat-icon-button matTooltip="Ajouter cette saisie"
+                    (click)="setValue($event, j.value, input.value.name)">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button
+                    aria-label="Clear"
+                    (click)="clearInput($event, input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <!-- Champ type tags -->
+          <mat-form-field *ngIf="input.value.type === 'tags' && input.value.show" [ngStyle]="{'order': input.value.order}" class="one">
+            <mat-label>{{input.value.label}}</mat-label>
+            <mat-chip-list #i>
+              <mat-chip *ngFor="let value of input.value.value" [removable]="true" (removed)="remove(value)">
+                {{value}}
+                <mat-icon matChipRemove>cancel</mat-icon>
+              </mat-chip>
+              <input [matChipInputFor]="i"
+                     [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                     [matChipInputAddOnBlur]="true"
+                     (matChipInputTokenEnd)="add($event)">
+            </mat-chip-list>
+            <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button
+                    aria-label="Clear"
+                    (click)="clearInput($event, input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </ng-container>
+        <!--  <div *ngIf="uploadForm.controls['sommaire'].value === 'Oui'" class="file">
+           <input
+             type="file"
+             class="file-input"
+             (filesChangeEmiter)="onFilesChange($event)"
+             (filesInvalidEmiter)="onFilesInvalid($event)"
+             [allowed_extensions]="archivesPresidenceService.extensions"
+             appDragAndDrop
+             #fileUpload>
+             <button mat-button [color]="invalidFile ? 'warn' : 'primary'" class="upload-btn"
+             (click)="fileUpload.click(); $event.preventDefault()">
+             <span *ngIf="fileName">{{fileName}}</span>
+             <span *ngIf="invalidFile">Document invalide (docx ou odt).</span>
+             <span *ngIf="!fileName && !invalidFile">Ajouter un sommaire</span>
+               <mat-icon>attach_file</mat-icon>
+             </button>
+         </div> -->
+      </div>
+      <em>* champs requis</em>
+      <button (click)="send($event)" class="submit" color="primary" mat-raised-button>Valider</button>
+    </form>
+  </article>
+  <article *ngIf="updateLaunched">
+    <div class="pending">
+      <div class="title">
+        <h3 [ngClass]="{'done': updateSuccess || updateFailed}">
+          <span> Document en cours de modification :
+            <!-- <ng-container *ngIf="documents.length > 1; then titleDocs else titleDoc"></ng-container>
+            <ng-template #titleDocs>
+              <label>Documents en cours de modification :</label>
+            </ng-template>
+            <ng-template #titleDoc>
+              <label>Document en cours de modification :</label>
+            </ng-template> -->
+          </span>
+          <div *ngIf="updatePending" class="box">
+            <div class="loader"></div>
+          </div>
+          <mat-icon *ngIf="updateSuccess">done</mat-icon>
+          <mat-icon *ngIf="updateFailed">error</mat-icon>
+        </h3>
+        <button class="close" (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <!-- Liste documents modifiés -->
+      <div class="documents" *ngIf="successList.length > 0">
+        <h3> Ce fichier a été modifié :
+         <!--  <ng-container *ngIf="documents.length > 1; then updatedDocs else updatedDoc"></ng-container>
+          <ng-template #updatedDocs>
+            <label>Ces fichiers ont été modifiés :</label>
+          </ng-template>
+          <ng-template #updatedDoc>
+            <label>Ce fichier a été modifié :</label>
+          </ng-template> -->
+        </h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of successList" class="documents-list">
+              <mat-icon>done</mat-icon>
+              <p>{{ file }}</p>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+      <!-- Liste documents échec modification -->
+      <div class="documents" *ngIf="failList.length > 0">
+        <h3> Ce fichier n'a pas pu être modifié :
+         <!--  <ng-container *ngIf="documents.length > 1; then notUpdatedDocs else notUpdatedDoc"></ng-container>
+          <ng-template #notUpdatedDocs>
+            <label>Ces fichiers n'ont pas pu être modifiés :</label>
+          </ng-template>
+          <ng-template #notUpdatedDoc>
+            <label>Ce fichier n'a pas pu être modifié :</label>
+          </ng-template> -->
+        </h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of failList" class="documents-list">
+              <mat-icon>error</mat-icon>
+              <div>
+                <p>{{ file.title }}</p>
+                <p><em>{{file.error}}</em></p>
+              </div>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+
+    </div>
+    <div class="result">
+      <!-- Succès modification -->
+      <div *ngIf="updateSuccess">
+        <h3>
+          <div>
+            <span>La modification a été un succès </span>
+            <ng-container *ngIf="successList.length > 1; then docs_valid else doc_valid"></ng-container>
+            <ng-template #docs_valid>
+              <span>({{successList.length}} documents modifiés).</span>
+            </ng-template>
+            <ng-template #doc_valid>
+              <span>(un document modifié).</span>
+            </ng-template>
+          </div>
+        </h3>
+        <button mat-raised-button color="primary" (click)="close()">Retour</button>
+      </div>
+    </div>
+    <!-- Erreur envoi -->
+    <div *ngIf="updateFailed">
+      <h3>Une erreur est survenue lors de la modifications des métadonnées.</h3>
+      <p>Veuillez contacter le support.</p>
+      <button mat-raised-button color="primary" (click)="close()">Retour</button>
+    </div>
+  </article>
+</div>

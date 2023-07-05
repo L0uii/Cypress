@@ -1,0 +1,110 @@
+.portail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.portal-title {
+  font-size: 19px;
+  color: #3E3E3E;
+}
+
+.empty {
+  position: relative;
+  padding: 50px;
+}
+
+.links {
+  width: 85%;
+  margin: 30px auto;
+  text-align: center;
+}
+
+.links h2 {
+  font-weight: normal;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  width: 70%;
+  margin: auto;
+}
+
+.cards mat-card {
+  background: #FFFFFF 0 0 no-repeat padding-box;
+  box-shadow: 0 0 10px #E5E5E5;
+  border-radius: 19px;
+  opacity: 1;
+  margin: 20px 0;
+  width: 180px;
+  height: 187px;
+  cursor: pointer;
+}
+
+.cards mat-icon {
+  height: 90px;
+  width: 90px;
+  margin-left: auto;
+  margin-right: auto;
+  top: 10%;
+  position: relative;
+}
+
+.cards p {
+  text-align: center;
+  font-size: 17px;
+  letter-spacing: 0;
+  color: #000000;
+  opacity: 1;
+}
+
+@-moz-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-webkit-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-o-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-moz-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@-webkit-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@-o-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}

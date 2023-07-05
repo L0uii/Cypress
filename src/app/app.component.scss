@@ -1,0 +1,15 @@
+router-outlet[name="view"] + * {
+  width: 100%;
+  height: 100vh;
+  z-index: 20;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  overflow-y: scroll;
+  background: #fff;
+}
+
+router-outlet[name="view"] + router-outlet[name="view"] + app-delete-document, router-outlet[name="view"] {
+  background: rgba(255, 255, 255, 0.5);
+}

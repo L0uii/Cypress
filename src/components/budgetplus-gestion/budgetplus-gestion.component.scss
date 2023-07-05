@@ -1,0 +1,35 @@
+h1, h3 {
+  padding: 25px;
+}
+
+h3 {
+  color: #f44336;
+}
+
+.main-search {
+  padding: 100px 240px 0;
+}
+
+.search-user {
+  width: 40%
+}
+
+.chip-list {
+  width: 50%;
+  margin-top: 15px;
+}
+
+.validate-button {
+  height: 55px;
+  margin-left: 15px;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+}
+
+.back-button {
+  margin: auto;
+  width: 50%;
+}

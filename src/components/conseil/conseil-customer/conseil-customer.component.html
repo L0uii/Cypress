@@ -1,0 +1,76 @@
+<article>
+  <div class="search">
+    <mat-form-field>
+      <input placeholder="Rechercher un client" [(ngModel)]="customer" (keyup)="searchCustomers()" matInput>
+      <mat-hint>Entrez le nom ou le numéro de client</mat-hint>
+    </mat-form-field>
+
+    <div class="directory" *ngIf="customer !== ''">
+      <div class="scroll">
+        <ngx-simplebar [options]="{ autoHide: false }">
+          <div class="list" *ngFor="let person of directory">
+            <mat-card class="customer" (click)="select(person)">
+              <h3>
+                {{person.NumeroDossier}} -
+                {{person.Prenom}}
+                {{person.Nom}}
+              </h3>
+            </mat-card>
+          </div>
+          <div class="list-empty" *ngIf="directory.length === 0 && customer !== ''">
+            <button mat-raised-button color="primary" (click)="showNewCustomer()">
+              <mat-icon>people_outline</mat-icon> Nouveau client
+            </button>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+  </div>
+  <form *ngIf="showCustomerInfo" [formGroup]="uploadForm" (ngSubmit)="send()" #formDirective="ngForm">
+    <div class="fields">
+      <div class="customer">
+        <mat-form-field class="customer-field">
+          <input matInput #numero maxlength="8" placeholder="Numéro client" formControlName="numeroClient" />
+          <mat-hint align="end">{{numero.value.length}} / 8</mat-hint>
+          <span class="obligatoire">*</span>
+        </mat-form-field>
+        <button mat-icon-button matTooltip="Client en attente de numéro" (click)="setCustomerNumber($event)">
+          <mat-icon>smart_button</mat-icon>
+        </button>
+      </div>
+      <mat-form-field>
+        <input matInput #nom placeholder="Nom et prénom client" formControlName="nom" />
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+    </div>
+    <div class="fields">
+      <mat-form-field>
+        <input matInput #postalCode maxlength="5" placeholder="Code postal client" formControlName="codePostal" />
+        <span class="obligatoire">*</span>
+        <mat-hint align="end">{{postalCode.value.length}} / 5</mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput #budget maxlength="5" placeholder="Code budget" formControlName="codeBudget" />
+        <mat-hint align="end">{{budget.value.length}} / 5</mat-hint>
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+    </div>
+    <div class="controls">
+      <div>
+        <em>* champs requis</em>
+        <p *ngIf="!isNewCustomer">
+          <span class="alert">!</span> La modification d'une fiche client n'a aucun impact sur les informations
+          d'un
+          document
+          déjà chargé.
+        </p>
+      </div>
+      <button *ngIf="isNewCustomer" type="submit" mat-raised-button color="primary">
+        <mat-icon>person_add</mat-icon> Ajouter client
+      </button>
+      <button *ngIf="!isNewCustomer" type="submit" mat-raised-button color="primary">
+        Mettre à jour
+      </button>
+    </div>
+  </form>
+</article>

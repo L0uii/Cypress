@@ -1,0 +1,188 @@
+@use '@angular/material' as mat;
+@import "@alfresco/adf-core/theming";
+
+@import '~bootstrap/dist/css/bootstrap-grid.min';
+
+@import '~bootstrap/dist/css/bootstrap-utilities.min';
+
+@include mat.core($alfresco-typography);
+
+$md-mycustomprimary: (
+  50: #e7f3fb,
+  100: #c2e0f4,
+  200: #9acced,
+  300: #71b7e6,
+  400: #52a7e0,
+  500: #3498db,
+  600: #2f90d7,
+  700: #2785d2,
+  800: #217bcd,
+  900: #156ac4,
+  A100: #f5f9ff,
+  A200: #c2ddff,
+  A400: #8fc1ff,
+  A700: #75b3ff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #ffffff,
+    300: #ffffff,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000
+  )
+);
+
+$md-mycustomaccent: (
+  50: #f9f9f9,
+  100: #eff0f1,
+  200: #e5e6e8,
+  300: #dbdbde,
+  400: #d3d4d7,
+  500: #cbccd0,
+  600: #c6c7cb,
+  700: #bec0c4,
+  800: #b8b9be,
+  900: #acadb3,
+  A100: #ffffff,
+  A200: #ffffff,
+  A400: #ffffff,
+  A700: #e5ecff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #000000,
+    600: #000000,
+    700: #000000,
+    800: #000000,
+    900: #000000,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000
+  )
+);
+
+$primary: mat.define-palette($md-mycustomprimary);
+$accent: mat.define-palette($md-mycustomaccent);
+$warn: mat.define-palette($alfresco-warn);
+$theme: mat.define-light-theme($primary, $accent, $warn);
+
+$three-percent: 3%;
+$four-percent: 4%;
+$five-percent: 5%;
+$six-percent: 6%;
+$seven-percent: 7%;
+$eight-percent: 8%;
+$nine-percent: 9%;
+$ten-percent: 10%;
+$eleven-percent: 11%;
+$twelve-percent: 12%;
+$thirteen-percent: 13%;
+$fourteen-percent: 14%;
+$fifteen-percent: 15%;
+$sixteen-percent: 16%;
+$seventeen-percent: 17%;
+$eighteen-percent: 18%;
+$nineteen-percent: 19%;
+$twenty-percent: 20%;
+$twenty-one-percent: 21%;
+$twenty-two-percent: 22%;
+$twenty-three-percent: 23%;
+$twenty-four-percent: 24%;
+$twenty-five-percent: 25%;
+$center: center;
+
+@include mat.all-component-themes($theme);
+@include adf-core-theme($theme);
+
+$background: map-get($theme, background);
+
+body,
+html {
+  margin: 0;
+  height: 100%;
+  background: mat.get-color-from-palette($background, "card");
+  font-size: mat.font-size($alfresco-typography, body-1);
+  font-family: mat.font-family($alfresco-typography);
+  line-height: mat.line-height($alfresco-typography, body-1);
+}
+
+.simplebar-scrollbar::before {
+  width: 10px !important;
+}
+
+.scroll {
+  width: 100%;
+  height: 350px;
+  background-color: #fff;
+  margin-top: 2px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.20),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.list-customer.mat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+  h3 {
+    margin: 0
+  }
+}
+
+.obligatoire {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  color: #3498db;
+}
+
+.mat-menu-scroll {
+  overflow: auto;
+  max-height: 250px;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.fw-normal {
+  font-weight: 300;
+}
+
+
+/* Boutons recherche / réinitialisation */
+
+.filter-buttons-fixed {
+  position: fixed;
+  bottom: 0;
+  width: 400px;
+}
+
+.recherche-container-scroll {
+  height: calc(100vh - 200px);
+  overflow-y: scroll;
+  overflow-x: hidden;
+}

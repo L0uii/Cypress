@@ -1,0 +1,127 @@
+<header *ngIf="fidusign.fileList.length === 1; else multipleFiles">
+  <h3 class="d-inline-block">Informations relatives au document :</h3>
+  <span class="files-info">{{ fidusign.fileList[0].name }}</span>
+</header>
+
+<ng-template #multipleFiles>
+  <h3 class="d-flex align-items-center">
+    Informations relatives à cette enveloppe :
+    <button [matMenuTriggerFor]="files" class="files-info" color="secondary" mat-raised-button
+            type="button">Liste des documents téléchargés
+    </button>
+
+    <mat-menu #files="matMenu" class="mat-menu-scroll">
+      <span mat-menu-item class="pe-none" *ngFor="let file of fidusign.fileList">{{ file.name }}</span>
+    </mat-menu>
+  </h3>
+</ng-template>
+
+<ng-container [formGroup]="form">
+  <article formGroupName="step2">
+    <div class="form__3">
+      <app-autocomplete
+        isRequired="true"
+        [list]="brancheActiviteList$ | async"
+        placeHolder="Branche d'activité"
+        formControlName="juridique:droitSocBrancheActivite">
+      </app-autocomplete>
+
+      <app-autocomplete
+        isRequired="true"
+        [valueLabelList]="entiteJuridiqueList$ | async"
+        placeHolder="Entité Juridique"
+        formControlName="fiducial:domainContainerFamille">
+      </app-autocomplete>
+
+      <app-autocomplete
+        isRequired="true"
+        [list]="natureOperationList$ | async"
+        placeHolder="Nature de l’opération juridique "
+        formControlName="juridique:droitSocNatureOperation">
+      </app-autocomplete>
+    </div>
+
+    <div class="form__3">
+      <app-autocomplete
+        [list]="natureDocumentList$ | async"
+        placeHolder="Nature du document"
+        formControlName="juridique:droitSocNatureDocument">
+      </app-autocomplete>
+
+      <mat-form-field>
+        <input
+          matInput
+          [matDatepicker]="DateDeOperationJuridique"
+          autocomplete="off"
+          placeholder="Date de l'opération juridique"
+          formControlName="juridique:droitSocDateOperation"/>
+        <mat-datepicker-toggle matSuffix [for]="DateDeOperationJuridique"></mat-datepicker-toggle>
+        <mat-datepicker #DateDeOperationJuridique></mat-datepicker>
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input
+          matInput
+          [matDatepicker]="DateDePriseEffect"
+          autocomplete="off"
+          placeholder="Date de prise d'effet de l'opération juridique"
+          formControlName="juridique:droitSocDatePriseEffet"/>
+        <mat-datepicker-toggle matSuffix [for]="DateDePriseEffect"></mat-datepicker-toggle>
+        <mat-datepicker #DateDePriseEffect></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field class="w-100">
+        <textarea
+          matInput
+          autocomplete="off"
+          placeholder="Intitulé de l'enveloppe"
+          formControlName="cm:description"
+          maxlength="100"
+          (blur)="this.fidusign.pastedTextToUnFormat();"
+          (focus)="this.fidusign.pastedTextToFormat()"
+          (keydown.enter)="onKeyDown($event)"
+          #description>
+        </textarea>
+        <mat-hint align="end">{{ description.value.length }} / 100</mat-hint>
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="form.get(['step2', 'envoyerEnGed'])">
+      <h4>Envoyer en GED :</h4>
+      <mat-radio-group color="primary" formControlName="envoyerEnGed">
+        <div class="mb-3">
+          <mat-radio-button value="avec">
+            Avec demande de signature
+          </mat-radio-button>
+        </div>
+
+        <div>
+          <mat-radio-button value="sans">
+            Sans demande de signature (document(s) déjà signé(s))
+          </mat-radio-button>
+        </div>
+      </mat-radio-group>
+
+      <div *ngIf="form.get(['step2', 'fiduSign:dateCertification'])" class="form__3 mt-2">
+        <mat-form-field>
+          <mat-label>Date de signature</mat-label>
+          <input
+            [matDatepicker]="dateDeSignature"
+            [matDatepickerFilter]="noFutureFilter"
+            [max]="dateNow"
+            autocomplete="off"
+            formControlName="fiduSign:dateCertification"
+            matInput/>
+          <mat-datepicker-toggle matSuffix [for]="dateDeSignature"></mat-datepicker-toggle>
+          <mat-datepicker #dateDeSignature></mat-datepicker>
+          <span class="obligatoire">*</span>
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+</ng-container>
+

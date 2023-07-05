@@ -1,0 +1,56 @@
+<div class="supervision">
+  <h1>
+    Monitoring status
+    <span *ngIf="status" class="supervision__status is--up">up</span>
+    <span *ngIf="!status" class="supervision__status is--down">down</span>
+  </h1>
+  <h2>urls</h2>
+  <div class="supervision__urls">
+    <mat-card>
+      <mat-card-title>GED Alfresco</mat-card-title>
+      <mat-card-subtitle>{{ gfaUrl }}</mat-card-subtitle>
+      <mat-card-content>
+        <table>
+          <tr>
+            <th>Test</th>
+            <th>Result</th>
+            <th *ngIf="gfaStatus.ok === false">Status</th>
+          </tr>
+          <tr>
+            <td>login</td>
+            <td>
+              <span *ngIf="gfaStatus.ok === true">success</span>
+              <span *ngIf="gfaStatus.ok === false" class="supervision__url is--broken">down</span>
+            </td>
+            <td>
+              <span *ngIf="gfaStatus.ok === false">{{ gfaStatus.status }} : {{ gfaStatus.statusText }}</span>
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>Fidushare</mat-card-title>
+      <mat-card-subtitle>{{ fiduShareUrl }}</mat-card-subtitle>
+      <mat-card-content>
+        <table>
+          <tr>
+            <th>Test</th>
+            <th>Result</th>
+            <th *ngIf="fidushareStatus.ok === false">Status</th>
+          </tr>
+          <tr>
+            <td>request</td>
+            <td>
+              <span *ngIf="fidushareStatus.ok === true">success</span>
+              <span *ngIf="fidushareStatus.ok === false" class="supervision__url is--broken">down</span>
+            </td>
+            <td>
+              <span *ngIf="fidushareStatus.ok === false">{{ fidushareStatus.status }}</span>
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

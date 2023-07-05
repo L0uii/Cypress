@@ -1,0 +1,397 @@
+<main class="conseil">
+  <!-- Sidenav (default : close) -->
+  <aside class="sidenav right" [ngClass]="{open: sideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+    <!-- Filtres de recherche -->
+
+      <section *ngIf="showQuickSearch" class="quick-filter">
+        <p>Fitres rapides</p>
+        <div>
+          <button mat-button color="primary" [ngClass]="{'selected': selectedSearchDR}" (click)="quickSearchDr()">DR
+            Inconnue
+          </button>
+          <button mat-button color="primary" [ngClass]="{'selected': selectedSearchClient}"
+                  (click)="quickSearchClient()">N°
+            Client inconnu
+          </button>
+        </div>
+      </section>
+      <section>
+        <div class="sort">
+          <button [matMenuTriggerFor]="trier" color="primary" mat-flat-button>Trier par :
+            <span>{{selectedSortByField}}</span></button>
+          <button [matMenuTriggerFor]="sens" color="primary" mat-flat-button>Ordre : <span>{{selectedSortByOrder}}</span>
+          </button>
+        </div>
+        <mat-menu #trier="matMenu" [overlapTrigger]="false" yPosition="below">
+          <button (click)="setSortByField(field)" *ngFor="let field of filtersFields"
+                  mat-menu-item>{{field.label}}</button>
+        </mat-menu>
+        <mat-menu #sens="matMenu" [overlapTrigger]="false" yPosition="below">
+          <button (click)="setSortByOrder(order)" *ngFor="let order of filtersOrder"
+                  mat-menu-item>{{order.label}}</button>
+        </mat-menu>
+      </section>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Client
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-form-field>
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.numeroClient" matInput placeholder="Numéro client"/>
+          <button *ngIf="inputs.numeroClient" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('numeroClient')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.codePostal" matInput placeholder="Code postal"/>
+          <button *ngIf="inputs.codePostal" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('codePostal')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Conseil
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-form-field>
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.numeroDossier" matInput placeholder="Numéro de dossier"/>
+          <button *ngIf="inputs.numeroDossier" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('numeroDossier')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <app-autocomplete class="w-100"
+                          (ngModelChange)="selectDR($event)"
+                          [(ngModel)]="inputs.DRLabelInput"
+                          [autoActiveFirstOption]="true"
+                          [valueLabelList]="drList"
+                          placeHolder="Direction régionale"
+        >
+        </app-autocomplete>
+        <mat-form-field>
+          <mat-label>Famille document</mat-label>
+          <mat-select [(ngModel)]="inputs.famille">
+            <mat-option value="*" (click)="onSearch()">Aucun</mat-option>
+            <mat-option
+              value="administratif_reclamation' OR =fiducial:domainContainerFamille:'administratif_souscription' OR =fiducial:domainContainerFamille:'administratif_sinistre"
+              (click)="onSearch()">Administratif
+            </mat-option>
+            <mat-option value="conformite_souscription" (click)="onSearch()">
+              Conformité produit
+            </mat-option>
+            <mat-option
+              value="correspondance_reclamation' OR =fiducial:domainContainerFamille:'correspondance_souscription' OR =fiducial:domainContainerFamille:'correspondance_sinistre"
+              (click)="onSearch()">
+              Correspondance
+            </mat-option>
+          </mat-select>
+          <button mat-button *ngIf="inputs.famille" matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('famille')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput
+                (click)="onFocus(1)"
+                (keyup)="selectDocumentType($event.target.value)"
+                (keyup.enter)="onSearch()"
+                [(ngModel)]="inputs.documentTypeInput"
+                [matAutocomplete]="autoGroup2"
+                placeholder="Type du document"
+          >
+          <mat-autocomplete #autoGroup2="matAutocomplete">
+            <mat-option *ngFor="let el of filteredDocumentType" (click)="setValueDocumentType(el.sousFamille)"
+                        [value]="el.labelSousFamille ">
+              {{el.labelSousFamille }}
+            </mat-option>
+          </mat-autocomplete>
+          <button *ngIf="inputs.documentTypeInput" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('documentType')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.description" matInput placeholder="Description"/>
+          <button *ngIf="inputs.description" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('description')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field *ngIf="!showInputCreator">
+          <input matInput placeholder="Créateur du document" (keyup)="selectCreateur($event.target.value)"
+                (click)="onFocus(2)"
+                (keyup.enter)="onSearch()" [(ngModel)]="inputs.createurInput" [matAutocomplete]="autoGroupCreateur">
+          <mat-autocomplete #autoGroupCreateur="matAutocomplete">
+            <mat-option [value]="" (click)="showInputCreator = true">Autre</mat-option>
+            <mat-option *ngFor="let creator of filteredUsers" (click)="setValueCreateur(creator.shortName)"
+                        [value]="creator.displayName">
+              {{creator.displayName}}
+            </mat-option>
+          </mat-autocomplete>
+          <button (click)="clearInput('createur')" *ngIf="inputs.createurInput" aria-label="Clear" mat-button
+                  mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field *ngIf="showInputCreator">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.createur" matInput placeholder="Créateur du document"/>
+          <button *ngIf="inputs.createur" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('createur')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Produit
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-form-field>
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.numeroContrat" matInput placeholder="Numéro de contrat"/>
+          <button *ngIf="inputs.numeroContrat" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('numeroContrat')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="fields">
+          <div [ngStyle]="{'order': '2'}" class="three">
+            <app-autocomplete (ngModelChange)="partenaireHandler($event)"
+                              [(ngModel)]="inputs.fournisseur"
+                              [list]="partenairesList"
+                              class="w-100"
+                              placeHolder="Partenaire"
+            >
+            </app-autocomplete>
+          </div>
+          <div [ngStyle]="{'order': '3'}" class="three">
+            <app-autocomplete (ngModelChange)="categorieHandler($event) "
+                              [(ngModel)]="inputs.contratNature"
+                              [list]="categoriesList"
+                              class="w-100"
+                              placeHolder="Catégorie du produit"
+            >
+            </app-autocomplete>
+          </div>
+          <div [ngStyle]="{'order': '4'}" class="three">
+            <app-autocomplete (ngModelChange)="produitHandler($event)"
+                              [(ngModel)]="inputs.conseilProduit"
+                              [list]="produitsList"
+                              class="w-100"
+                              placeHolder="Nom du produit souscrit">
+            </app-autocomplete>
+          </div>
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Date
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="hint-title" (mouseover)="showHint = true" (mouseout)="showHint = false">
+          <span>
+            Comment rechercher par dates
+          </span>
+          <mat-icon>
+            help
+          </mat-icon>
+        </div>
+        <div class="hint" *ngIf="showHint">
+          <p>Vous pouvez saisir :</p>
+          <ul>
+            <li>Une année.</li>
+            <li>Un mois et une année.</li>
+            <li>Un jour, un mois et une année (date exacte).</li>
+          </ul>
+          <p>Vous ne pouvez pas renseigner uniquement un mois, uniquement un jour, un jour et une année.</p>
+        </div>
+        <app-date-select
+          label="Date de création"
+          [(ngModel)]="inputs.creationDateInput"
+          (onSearch)="onSearch()"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+        >
+        </app-date-select>
+
+        <app-date-select
+          label="Date de réception"
+          [(ngModel)]="inputs.receptionDateInput"
+          (onSearch)="onSearch()"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+        >
+        </app-date-select>
+
+        <app-date-select
+          label="Date de prise d'effet"
+          [(ngModel)]="inputs.contractDateInput"
+          (onSearch)="onSearch()"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+        >
+        </app-date-select>
+
+        <app-date-select
+          (onSearch)="onSearch()"
+          [(ngModel)]="inputs.contractEndDateInput"
+          [isYearDescending]="false"
+          [maxYear]="currentYear + 15"
+          [minYear]="currentYear - 2"
+          label="Date fin de validité"
+        >
+        </app-date-select>
+
+      </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Factures
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-form-field class="facture">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.numeroFacture" matInput placeholder="Numéro facture"/>
+          <button *ngIf="inputs.numeroFacture" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('numeroFacture')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <app-date-select
+          label="Date de la facture"
+          [(ngModel)]="inputs.factureDateInput"
+          (onSearch)="onSearch()"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+        >
+        </app-date-select>
+
+      </mat-expansion-panel>
+    </div>
+    <!-- Boutons recherche / réinitialisation -->
+    <div class="filter filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="onSearch()">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()">Effacer</button>
+    </div>
+  </aside>
+
+  <section [ngClass]="{'sidenav-open': sideNavOpen}">
+    <!-- Champ de recherche principal -->
+    <div class="main-search container-egd">
+      <mat-form-field>
+        <input (keyup.enter)="onSearch()" [(ngModel)]="inputs.nomClient" matInput placeholder="Nom du client"/>
+        <button (click)="clearInput('nomClient')" *ngIf="inputs.nomClient" aria-label="Effacer" mat-button
+                mat-icon-button
+                matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+      <!-- Boutons recherche / réinitialisation -->
+      <button id="btn-search" mat-icon-button color="primary" (click)="onSearch()" matTooltip="Rechercher">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button (click)="clearAll()" matTooltip="Effacer les filtres">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button mat-stroked-button color="primary" (click)="toggleNav()">
+        <span>Recherche avancée</span>
+      </button>
+    </div>
+    <div *ngIf="searchParams.searchQuery" class="filtres-actifs">
+      <span>Filtre sur </span>
+      <span *ngIf="actifs.nomClient" class="actif">Nom du client<mat-icon
+        (click)="clearInput('nomClient')">close</mat-icon></span>
+      <span *ngIf="actifs.directionRegionale" class="actif">Direction régionale<mat-icon
+        (click)="clearInput('directionRegionale')">close</mat-icon></span>
+      <span *ngIf="actifs.factureDate" class="actif">Date de la facture <mat-icon
+        (click)="clearInput('factureDate')">close</mat-icon></span>
+      <span *ngIf="actifs.contractDate" class="actif">Date de prise d'effet<mat-icon
+        (click)="clearInput('contractDate')">close</mat-icon></span>
+      <span *ngIf="actifs.contractEndDate"
+            class="actif">Date de fin de validité <mat-icon
+        (click)="clearInput('contractEndDate')">close</mat-icon></span>
+      <span *ngIf="actifs.receptionDate" class="actif">Date de réception<mat-icon
+        (click)="clearInput('receptionDate')">close</mat-icon></span>
+      <span *ngIf="actifs.creationDate" class="actif">Date de création<mat-icon
+        (click)="clearInput('creationDate')">close</mat-icon></span>
+      <span *ngIf="actifs.createur" class="actif">Créateur du document <mat-icon
+        (click)="clearInput('createur')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.numeroFacture">Numéro de facture<mat-icon
+        (click)="clearInput('numeroFacture')">close</mat-icon></span>
+      <span *ngIf="actifs.famille" class="actif">Famille du document<mat-icon
+        (click)="clearInput('famille')">close</mat-icon></span>
+      <span *ngIf="actifs.description" class="actif">Description<mat-icon
+        (click)="clearInput('description')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.numeroDossier">Numéro de dossier<mat-icon
+        (click)="clearInput('numeroDossier')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.numeroClient">Numéro de client<mat-icon
+        (click)="clearInput('numeroClient')">close</mat-icon></span>
+      <span *ngIf="actifs.codePostal" class="actif">Code postal<mat-icon
+        (click)="clearInput('codePostal')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.documentType">Type de document<mat-icon
+        (click)="clearInput('documentType')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.numeroContrat">Numéro de contrat<mat-icon
+        (click)="clearInput('numeroContrat')">close</mat-icon></span>
+      <span *ngIf="actifs.fournisseur" class="actif">Partenaire<mat-icon
+        (click)="clearPartenaire()">close</mat-icon></span>
+      <span *ngIf="actifs.contratNature" class="actif">Catégorie du produit<mat-icon
+        (click)="clearCategorie()">close</mat-icon></span>
+      <span *ngIf="actifs.conseilProduit" class="actif">Produit souscrit<mat-icon
+        (click)="clearProduit()">close</mat-icon></span>
+      <span *ngIf="actifs.creationDateInput" class="actif">Date de création<mat-icon
+        (click)="clearInput('creationDateInput')">close</mat-icon></span>
+      <span *ngIf="actifs.factureDateInput" class="actif">Date de la facture<mat-icon
+        (click)="clearInput('factureDateInput')">close</mat-icon></span>
+      <span *ngIf="actifs.contractDateInput" class="actif">Date de prise d'effet<mat-icon
+        (click)="clearInput('contractDateInput')">close</mat-icon></span>
+      <span *ngIf="actifs.contractEndDateInput" class="actif">Date fin de validité<mat-icon
+        (click)="clearInput('contractEndDateInput')">close</mat-icon></span>
+      <span *ngIf="actifs.receptionDateInput" class="actif">Date de réception<mat-icon
+        (click)="clearInput('receptionDateInput')">close</mat-icon></span>
+    </div>
+    <!-- Onglets résultats-->
+    <mat-tab-group #tabGroup (selectedIndexChange)="tabChanged($event)" *ngIf="searchParams.searchQuery != null"
+                   [selectedIndex]="initTab"
+                   class="tabs__conseil">
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue; let i = index">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name }}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <!-- Tableau résultats -->
+        <app-base-search-tab (changeDocument)="onChangeDocument($event)"
+                             (sync)="onSync(tabKeyValue.key)($event)"
+                             (syncSideNav)="refreshNav($event)"
+                             [columns]="tabKeyValue.value.columns"
+                             [fn]="tabKeyValue.value.fetchFn"
+                             [isOpen]="sideNavOpen"
+                             [pageSize]="10"
+                             [searchQuery]="searchParams.searchQuery"
+                             [sortBy]="sortBy"
+                             [space]="'conseil'">
+        </app-base-search-tab>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

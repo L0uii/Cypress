@@ -1,0 +1,198 @@
+<main class="fidusign-achats">
+  <!-- Sidenav (default : close) -->
+  <aside class="sidenav right" [ngClass]="{open: sideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+      <!-- Filtres de recherche -->
+      <form [formGroup]="rechercheAvanceeForm">
+        <ng-container *ngFor="let section of rechercheAvanceeSections">
+          <ng-container *ngIf="rechercheAvanceeFormData[section]?.length">
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title class="text-capitalize">
+                  {{ section }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-container
+                *ngFor="let formData of rechercheAvanceeFormData[section]">
+                <ng-container
+                  [ngTemplateOutlet]="templateRouter"
+                  [ngTemplateOutletContext]="{
+                    formData: formData,
+                    formGroup: rechercheAvanceeForm
+                  }"
+                ></ng-container>
+              </ng-container>
+            </mat-expansion-panel>
+          </ng-container>
+        </ng-container>
+      </form>
+    </div>
+    <!-- Boutons recherche / réinitialisation -->
+    <div class="filter filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="onSearch()" type="button">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()" type="button">Effacer</button>
+    </div>
+  </aside>
+
+  <section [ngClass]="{'sidenav-open': sideNavOpen}">
+    <!-- Champ de recherche principal -->
+    <h3 class="d-inline-block">Fidusign {{subspaceName}}</h3>
+    <form [formGroup]="mainSearchForm">
+      <div class="d-flex mx-5 gap-3 align-items-center">
+        <div class="d-flex flex-fill gap-3">
+          <ng-container *ngFor="let formData of mainSearchFormData">
+            <ng-container [ngTemplateOutlet]="templateRouter"
+              [ngTemplateOutletContext]="{
+                formData: formData,
+                formGroup: mainSearchForm
+               }">
+            </ng-container>
+          </ng-container>
+        </div>
+        <!-- Boutons recherche / réinitialisation -->
+        <button mat-icon-button (click)="clearAll()" matTooltip="Effacer les filtres" type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button mat-stroked-button color="primary" (click)="toggleNav()" type="button">
+          <span>Recherche avancée</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Onglets résultats-->
+    <mat-tab-group *ngIf="searchQuery != null" #tabGroup>
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name }}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <!-- Tableau résultats -->
+        <app-search-fidusign [fn]="tabKeyValue.value.fetchFn" [searchQuery]="searchQuery"
+                             (clearInput)="clearAll()" (sync)="onSync(tabKeyValue.key)($event)"
+                             (syncSideNav)="refreshNav($event)"
+                             [columns]="tabKeyValue.value.columns" [isOpen]="sideNavOpen"
+                             [categorieList]="categorieList" [entiteJuridiqueList]="entiteJuridiqueList"
+                             [segmentMarcheList]="segmentMarcheList">
+        </app-search-fidusign>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>
+
+<ng-template #templateRouter
+  let-formData="formData"
+  let-formGroup="formGroup">
+  <ng-container
+    [ngTemplateOutlet]="
+      formData.inputType === 'autocomplete'
+        ? autocompleteTemplate
+        : formData.inputType === 'text'
+        ? textTemplate
+        : formData.inputType === 'date'
+        ? dateTemplate
+        : formData.inputType === 'year-range'
+        ? yearRangeTemplate
+        : formData.inputType === 'dropdown'
+        ? dropdownTemplate
+        : radioTemplate
+    "
+    [ngTemplateOutletContext]="{
+      formData: formData,
+      formGroup: formGroup
+    }"
+  ></ng-container>
+</ng-template>
+
+<ng-template
+  #autocompleteTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-autocomplete
+    [formControl]="formGroup.get(formData.name)"
+    [placeHolder]="formData.description"
+    [list]="formData.inputSubtype !== 'label-value' ? (formData.data | async) : null"
+    [valueLabelList]="formData.inputSubtype == 'label-value' ? (formData.data | async) : null"
+    [allowFreeText]="formData.inputSubtype == 'allow-text'"
+    (onSearch)="onSearch()"
+    class="w-100"
+  >
+  </app-autocomplete>
+</ng-template>
+
+<ng-template
+  #textTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-text-field
+    [placeholder]="formData.description"
+    [formControl]="formGroup.get(formData.name)"
+    (onSearch)="onSearch()"
+    class="w-100"
+  >
+  </app-text-field>
+</ng-template>
+
+<ng-template
+  #dateTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-date-select
+    [label]="formData.description"
+    [formControl]="formGroup.get(formData.name)"
+    (onSearch)="onSearch()"
+    [minYear]="currentYear - 2"
+    [maxYear]="currentYear + 15"
+    [isYearDescending]="false"
+  >
+  </app-date-select>
+</ng-template>
+
+<ng-template
+  #yearRangeTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-year-range
+    [label]="formData.description"
+    [formControl]="formGroup.get(formData.name)"
+    (onSearch)="onSearch()"
+  >
+  </app-year-range>
+</ng-template>
+
+<ng-template
+  #dropdownTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-dropdown
+    [label]="formData.description"
+    [formControl]="formGroup.get(formData.name)"
+    [optionList]="formData.data"
+    (onSelectionChange)="onDropdownSelectionChange($event, formData.name)"
+  >
+  </app-dropdown>
+</ng-template>
+
+<ng-template
+  #radioTemplate
+  let-formData="formData"
+  let-formGroup="formGroup"
+>
+  <app-radio-group
+    [label]="formData.description"
+    [optionsList]="formData.data"
+    [formControl]="formGroup.get(formData.name)"
+    (onSearch)="onSearch()"
+  >
+  </app-radio-group>
+</ng-template>

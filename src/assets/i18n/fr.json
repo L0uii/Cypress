@@ -1,0 +1,148 @@
+{
+  "LOGIN": {
+    "LOGO": "Alfresco",
+    "LABEL": {
+      "LOGIN": "Connexion",
+      "USERNAME": "Nom d'utilisateur",
+      "PASSWORD": "Mot de passe",
+      "REMEMBER": "Mémoriser"
+    },
+    "MESSAGES": {
+      "USERNAME-REQUIRED": "Requis",
+      "USERNAME-MIN": "Votre nom d'utilisateur doit comporter au moins {{ minLength }} caractères.",
+      "PASSWORD-REQUIRED": "Entrez votre mot de passe pour vous connecter",
+      "LOGIN-ERROR-CREDENTIALS": "Le nom d'utilisateur ou le mot de passe entré est inconnu",
+      "LOGIN-ERROR-PROVIDERS": "Le fournisseur ne peut pas être non défini",
+      "LOGIN-ERROR-CORS": "Exception CORS, vérifiez la configuration du serveur",
+      "LOGIN-ERROR-CSRF": "Exception CSRF, set [disableCsrf]=\"true\" in login.component",
+      "LOGIN-ECM-LICENSE": "L'entrepôt Alfresco Content Services est en lecture seule"
+    },
+    "BUTTON": {
+      "LOGIN": "Connexion",
+      "CHECKING": "Vérification",
+      "WELCOME": "Bienvenue",
+      "SSO": "Authentification SSO"
+    },
+    "ACTION": {
+      "HELP": "Besoin d'aide ?",
+      "REGISTER": "S'inscrire"
+    },
+    "DIALOG": {
+      "CANCEL": "Annuler",
+      "CHOOSE": "Choisir"
+    }
+  },
+  "ESPACE_GED": {
+    "ICONS": {
+      "LANGUAGE": "Langue",
+      "LOGOUT": "Déconnexion",
+      "CHANGE": "Changer d'espace GED"
+    },
+    "SEARCH": {
+      "LABEL": {
+        "CUSTOMER_ID": "Numéro client",
+        "CUSTOMER_NAME": "Nom client",
+        "SIREN": "Numéro SIREN",
+        "COMPANY": "Société émettrice",
+        "BILL_NUMBER": "Numéro facture",
+        "DOCUMENT_DATE": "Date document",
+        "BILL_AMOUNT": "Montant facture",
+        "BUDGET_ID": "Code budget",
+        "CATEGORY": "Sous catégorie",
+        "DOCUMENT_START_DATE": "Date de début facture",
+        "DOCUMENT_END_DATE": "Date de fin facture",
+        "TVA": "TVA",
+        "DATE_DAY": "Jour",
+        "DATE_MONTH": "Mois",
+        "DATE_YEAR": "Année",
+        "REGIONAL_DIRECTORY": "Direction régionale",
+        "SUBFAMILY": "Sous dossier",
+        "CONTRACT_PROVIDER": "Compagnie",
+        "CONTRACT_TYPE": "Catégorie du produit",
+        "DOCUMENT_TYPE": "Type du document",
+        "POSTAL_CODE": "Code postal",
+        "EMISSION_DATE": "Date d'émission",
+        "CONTRACT_DATE": "Date prise d'effet",
+        "CONTRACT_END_DATE": "Date fin de validité",
+        "RECEPTION_DATE": "Date de réception du document",
+        "CONSEIL_PRODUIT": "Nom produit",
+        "CV_CONTENT": "Rechercher dans un CV",
+        "CV_TITLE": "Rechercher dans nom du ficher",
+        "CANDIDATE_NUMBER": "Numéro de dossier",
+        "CANDIDATE_FIRSTNAME": "Prénom candidat",
+        "CANDIDATE_ACTIVITY": "Domaine d'activité",
+        "CANDIDATE_JOB": "Type de métier",
+        "CANDIDATE_EXPERIENCE": "Niveau d'expertise (années)",
+        "CANDIDATE_LANGUAGE": "Langue"
+      },
+      "BUTTON": {
+        "SEARCH": "Rechercher",
+        "DELETE": "Effacer"
+      }
+    },
+    "RESULTS": {
+      "TABS": {
+        "CONTRACTS": "Contrats",
+        "DOCLAB": "Documents LAB",
+        "MANDATSETEBAC": "Mandats ETEBAC",
+        "MANDATSSEPA": "Mandats SEPA",
+        "RIB": "RIB",
+        "BILLS": "Factures et avoirs"
+      },
+      "COLUMNS": {
+        "CUSTOMER_ID": "Numéro client",
+        "DOCUMENT_DATE": "Date document",
+        "TYPE": "Nature",
+        "NAMING": "Nom du fichier",
+        "STATUS": "Statut",
+        "CUSTOMER_NAME": "Nom client",
+        "BILL_NUMBER": "Numéro facture",
+        "COMPANY": "Nom société",
+        "CATEGORY": "Sous catégorie",
+        "BILL_DATE": "Date facture",
+        "OPTIONS": "Options",
+        "BEGIN_DATE": "Date début",
+        "END_DATE": "Date fin",
+        "FREQUENCY": "Périodicité",
+        "AMOUNT": "Montant",
+        "DUPLICATA": "Duplicata",
+        "REFERENCE": "Réference",
+        "CUSTOMER": "Client",
+        "SIGNING_DATE": "Date de signature",
+        "VALIDITY_END_DATE": "Date de fin de validité",
+        "PRODUCT": "Produit",
+        "DESCRIPTION": "Description",
+        "FILE_NUMBER": "Numéro de dossier",
+        "FIELD": "Domaine d'activité",
+        "JOB": "Métier",
+        "EXPERTISE_LEVEL": "Niveau d'expertise",
+        "SIGNING_STATUS": "Status signature",
+        "RENEWAL": "Reconduction",
+        "CANCELLATION_DEADLINE": "Date limite résiliation",
+        "CONTRACT_END": "Fin de contrat",
+        "EMITTER": "Emetteur",
+        "RECIPIENT": "Destinataire(s)",
+        "PROVIDER": "Fournisseur",
+        "RECEPTION_DATE": "Date de réception"
+      },
+      "MESSAGES": {
+        "NO_RESULT": "Aucun résultat pour cette recherche."
+      },
+      "LABELS": {
+        "PREVIEW": "Aperçu",
+        "DOWNLOAD": "Télécharger",
+        "UPDATE": "Modifier",
+        "DELETE": "Supprimer"
+      },
+      "BUTTONS": {
+        "FILTER": "Filtrer les résultats affichés",
+        "SEND": "Envoyer par e-mail",
+        "DOWNLOAD": "Télécharger la sélection"
+      },
+      "PAGINATION": {
+        "RANGE": "Fichiers par page",
+        "NUMBER": "sur"
+      }
+    }
+  }
+}

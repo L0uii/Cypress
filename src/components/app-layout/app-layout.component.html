@@ -1,0 +1,66 @@
+<header class="toolbar">
+  <div class="fiducial-logo">
+    <div>
+      <img src="assets/img/logo_fiducial.png" alt="Logo Fiducial"/>
+    </div>
+    <div class="logo-version">
+      <div class="picto-egd">
+        <img alt="Logo EGD" class="picto-egd-img" src="assets/img/picto-egd.png"/>
+      </div>
+      <div class="version-number-div">
+        <p class="version-number">V {{ currentVersion }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="nav" *ngFor="let item of navigationLinks; let i = index;">
+    <span *ngIf="!item.hide" class="link" [ngClass]="{'active': item.active}" (click)="onTabChange(item)"
+          [routerLink]="item.link">{{ item.label }}</span>
+  </div>
+  <span class="spacer"></span>
+  <div *ngIf="currentSpace === 'expertise-consulting' || currentSpace === 'sofiral'" [style]="codeBudgetInputStyle">
+    <ng-container *ngIf="codeBudgets.length > 1">
+      <app-autocomplete [formControl]="codeBudgetControl"
+          placeHolder="Sélection du code budget"
+          [valueLabelList]="codeBudgets"
+          [autoActiveFirstOption]="true"
+          [blurOnClear]="false"
+          (onBlur)="onAutocompleteBlur()"
+          class="w-100"
+          id="codeBudgetDropdown">
+        </app-autocomplete>
+    </ng-container>
+  </div>
+  <div [matMenuTriggerFor]="options" class="user">
+    <mat-icon>account_circle</mat-icon>
+    <div class="infos">
+      <p class="user-infos"><b>{{user.firstName}} {{user.lastName}}</b></p>
+      <div *ngIf="codeBudgets.length === 1">
+        <p>Code budget : <em>{{codeBudget}}</em></p>
+        <p>{{ singleCodeBudgetLabel }}</p>
+      </div>
+    </div>
+  </div>
+  <mat-menu #options="matMenu" yPosition="below">
+    <button *ngIf="!groupService.isOnlyOneGEDSpace" [routerLink]="['/espace-ged/portail']" mat-menu-item type="button">
+      <mat-icon>import_export</mat-icon>
+      <span>Changer d'espace GED</span>
+    </button>
+    <button mat-menu-item (click)="logout()" type="button">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Déconnexion</span>
+    </button>
+  </mat-menu>
+  <div [matMenuTriggerFor]="about" class="about">
+    <mat-icon [color]="isNewVersion ? 'primary' : null"
+      [matTooltip]="isNewVersion ? 'Une nouvelle version de l\'Espace GED a été mise à disposition depuis votre dernière connexion' : null">
+      help
+    </mat-icon>
+  </div>
+  <mat-menu #about="matMenu" yPosition="below">
+    <button mat-menu-item (click)="openAboutDialog()">À propos</button>
+    <button *ngIf="currentSpace === 'expertise-consulting'"
+            mat-menu-item (click)="openDocumentationDialog()">Documentation
+    </button>
+  </mat-menu>
+</header>
+<router-outlet></router-outlet>

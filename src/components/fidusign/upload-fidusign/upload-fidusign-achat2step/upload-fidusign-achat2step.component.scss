@@ -1,0 +1,35 @@
+.dates {
+  width: 65%;
+
+  .date-resiliation {
+    display: none;
+  }
+
+  &.active {
+    .date-resiliation {
+      display: block;
+    }
+
+    .column {
+      &:first-child {
+        width: 35%;
+      }
+
+      &:last-child {
+        width: 58%;
+      }
+    }
+  }
+
+  .date-resiliation {
+    width: 46%;
+  }
+
+  .column {
+    width: 46%;
+  }
+}
+
+.reduction-tacite {
+  width: 245px;
+}

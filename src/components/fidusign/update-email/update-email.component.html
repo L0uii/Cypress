@@ -1,0 +1,94 @@
+<div class="update">
+  <div class="container-egd">
+    <!-- Titre -->
+    <div class="title">
+      <h3>Modifier l'adresse e-mail</h3>
+      <mat-icon class="close" (click)="close($event)" matTooltip="Fermer">close</mat-icon>
+    </div>
+    <!-- Form -->
+    <form [formGroup]="uploadForm" (ngSubmit)="updateEmail()">
+      <!-- Signataire 1 -->
+      <div class="signataire" *ngIf="!isSignedBy1">
+        <h4>Signataire 1 :</h4>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Prénom" formControlName="prenomSignataire1">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Nom" formControlName="nomSignataire1">
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input matInput placeholder="Email" formControlName="mailSignataire1">
+        </mat-form-field>
+      </div>
+      <h4 *ngIf="isSignedBy1">
+        <strong>{{prenomSignataire1}} {{nomSignataire1}}</strong> a déjà signé le document.
+      </h4>
+      <!-- Signataire 2 -->
+      <div class="signataire" *ngIf="!isSignedBy2 && (prenomSignataire2 || nomSignataire2)">
+        <h4>Signataire 2 :</h4>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Prénom" formControlName="prenomSignataire2">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Nom" formControlName="nomSignataire2">
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input matInput placeholder="Email" formControlName="mailSignataire2">
+        </mat-form-field>
+      </div>
+      <h4 *ngIf="isSignedBy2">
+        <strong>{{prenomSignataire2}} {{nomSignataire2}}</strong> a déjà signé le document.
+      </h4>
+      <!-- Signataire 3 -->
+      <div class="signataire" *ngIf="!isSignedBy3 && (prenomSignataire3|| nomSignataire3)">
+        <h4>Signataire 3 :</h4>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Prénom" formControlName="prenomSignataire3">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Nom" formControlName="nomSignataire3">
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input matInput placeholder="Email" formControlName="mailSignataire3">
+        </mat-form-field>
+      </div>
+      <h4 *ngIf="isSignedBy3">
+        <strong>{{prenomSignataire3}} {{nomSignataire3}}</strong> a déjà signé le document.
+      </h4>
+
+      <!-- Signataire 4 -->
+      <div class="signataire" *ngIf="!isSignedBy4 && (prenomSignataire4 || nomSignataire4)">
+        <h4>Signataire 4 :</h4>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Prénom" formControlName="prenomSignataire4">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Nom" formControlName="nomSignataire4">
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input matInput placeholder="Email" formControlName="mailSignataire4">
+        </mat-form-field>
+      </div>
+      <h4 *ngIf="isSignedBy4">
+        <strong>{{prenomSignataire4}} {{nomSignataire4}}</strong> a déjà signé le document.
+      </h4>
+      <!-- Submit buttons -->
+      <div class="send">
+        <button mat-button (click)="close($event)">Annuler</button>
+        <div class="send-button">
+          <div *ngIf="disabled" class="box">
+            <div class="loader"></div>
+          </div>
+          <button [disabled]="disabled" type="submit" color="primary" mat-raised-button>Modifier</button>
+        </div>
+      </div>
+    </form>
+  </div>

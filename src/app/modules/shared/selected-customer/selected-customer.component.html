@@ -1,0 +1,13 @@
+<section *ngIf="numeroDossier" class="selected-customer">
+  <div class="infos-customer">
+    <p><strong>Numéro dossier :</strong> {{numeroDossier}}</p>
+    <div>
+      <strong *ngIf="nomDossier">Nom dossier :&nbsp;&nbsp;</strong>
+    </div>
+    <p class="nom-dossier">{{nomDossier}}</p>
+    <p><strong>Code budget :</strong> {{codeBudget}}</p>
+  </div>
+  <button (click)="clearCustomer()" color="primary" mat-button>
+    Changer de dossier
+  </button>
+</section>

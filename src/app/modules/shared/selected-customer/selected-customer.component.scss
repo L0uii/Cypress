@@ -1,0 +1,27 @@
+.selected-customer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  padding: 0 20px;
+
+  &:hover {
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.25), 3px 5px 7px rgba(0, 0, 0, 0.22);
+  }
+
+  .infos-customer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    p {
+      margin-right: 30px;
+    }
+  }
+
+  .nom-dossier {
+    max-width: 220px;
+    word-break: break-all;
+  }
+}

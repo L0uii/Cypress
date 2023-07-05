@@ -1,0 +1,17 @@
+<button
+  class="btn-icon"
+  (click)="onClick()"
+  matTooltip="Envoyer sélection par e-mail"
+  [disabled]="isLoading"
+>
+  <ng-container *ngIf="isLoading; else emailIcon">
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="24"
+    ></mat-progress-spinner>
+  </ng-container>
+
+  <ng-template #emailIcon>
+    <mat-icon> email </mat-icon>
+  </ng-template>
+</button>

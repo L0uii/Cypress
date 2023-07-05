@@ -1,0 +1,31 @@
+export interface DefaultSearchConseil {
+  DRLabelInput: string;
+  nomClient: string;
+  fournisseur: string;
+  directionRegionale: string;
+  directionRegionaleInput: string;
+  createurInput: string;
+  contratNature: string;
+  codeBudgets: Array<string>;
+  numeroContrat: string;
+  documentType: string;
+  documentTypeInput: string;
+  codePostal: string;
+  conseilProduit: string;
+  numeroClient: string;
+  numeroDossier: string;
+  description: string;
+  famille: string;
+  numeroFacture: string;
+  createur: string;
+  factureDate: string;
+  contractDate: string;
+  contractEndDate: string;
+  receptionDate: string;
+  creationDate: string;
+  creationDateInput: string;
+  receptionDateInput: string;
+  contractDateInput: string;
+  contractEndDateInput: string;
+  factureDateInput: string;
+}

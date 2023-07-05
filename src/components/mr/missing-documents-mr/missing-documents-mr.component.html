@@ -1,0 +1,213 @@
+<article>
+  <h2 class="title">Contrôle des documents absents d'un dossier :</h2>
+
+  <div [formGroup]="form">
+    <app-search-dossier
+      [hidden]="!showDirectory"
+      context="consultation"
+      [events]="eventsDossier.asObservable()"
+      [customerSearchPending]="customerSearchPending"
+      [dossierList]="dossierList"
+      (result)="addCustomer($event)"
+      (resetSearch)="reset()"
+      (clearCustomerEvent)="reset()">
+    </app-search-dossier>
+
+    <app-selected-customer
+      [numeroDossier]="customer?.numeroDossier"
+      [nomDossier]="customer?.nomDossier"
+      [codeBudget]="customer?.codeBudget"
+      (isClearCustomer)="reset()">
+    </app-selected-customer>
+
+    <ng-container *ngIf="customer">
+      <div class="row">
+        <div class="col-7">
+          <div class="d-flex flex-column h-100 justify-content-between">
+            <div>
+              <h4>Types de documents :
+                <app-radio-group [optionsLabelValue]="documentTypes"
+                  formControlName="documentType"
+                  #documentTypeRadioGroup>
+                </app-radio-group>
+              </h4>
+
+              <ng-container *ngIf="form.get('documentType').value && form.get('profileType').enabled">
+                <h4>Type de profil :
+                  <app-radio-group [optionsLabelValue]="profileTypes"
+                    formControlName="profileType">
+                  </app-radio-group>
+                </h4>
+              </ng-container>
+            </div>
+
+            <ng-container *ngIf="showButtons">
+              <div>
+                <h3>Liste des types de documents contrôlés :</h3>
+                <app-slide-toggle
+                  [formControl]="filterDocumentsToggle"
+                  label="Afficher uniquement les documents absents"
+                  class="mb-3">
+                </app-slide-toggle>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="col-5" *ngIf="showButtons">
+            <div class="mb-3">
+              <h4>Télécharger la liste des documents au format CSV/Export collaborateur</h4>
+              <div class="d-flex flex-row gap-2">
+                <app-raised-button label="Documents Absents"
+                  suffixIcon="download"
+                  (onClick)="telechargerMissingCsv()"
+                  class="flex-fill">
+                </app-raised-button>
+                <app-raised-button label="Documents Présents"
+                  [disabled]="missingDocumentsStatus === 'AllMissing'"
+                  suffixIcon="download"
+                  (onClick)="telechargerPresentCsv()"
+                  class="flex-fill">
+                </app-raised-button>
+              </div>
+              <mat-hint>
+                <em>
+                  Merci de cocher la case 'Virgule' dans la partie "Options de séparateur" pour afficher correctement les colonnes
+                  dans le fichier csv
+                </em>
+              </mat-hint>
+            </div>
+
+            <app-raised-button label="Envoyer un mail à destination du client pour compléter le dossier"
+              suffixIcon="mail"
+              (onClick)="envoyerEmailClient()"
+              [disabled]="!customer.email">
+            </app-raised-button>
+            <ng-container *ngIf="!customer.email">
+              <mat-error>
+                <em>Mail non connu du référentiel, merci d'inviter votre client</em>
+              </mat-error>
+            </ng-container>
+          </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <section class="mt-4 d-flex flex-column" *ngIf="form.valid">
+    <ng-container *ngIf="!documentsSearchPending; else pendingTemplate">
+      <div *ngIf="form.get('documentType').value !== 'Social' || allDocumentsByEmployee.length" class="mb-4">
+        <ng-container *ngIf="missingDocumentsStatus === 'NoneMissing' && filterDocumentsToggle.value; else documentsTemplate">
+          <h3 class="mt-5 align-self-center" *ngIf="form.get('documentType').value !== 'Social'">
+            Aucun document absent identifié pour ce dossier
+          </h3>
+        </ng-container>
+
+        <ng-template #documentsTemplate>
+          <ng-container [ngTemplateOutlet]="documentListTemplate"
+            [ngTemplateOutletContext]="{ missingDocumentsByOnglet: missingDocumentsByOnglet }">
+          </ng-container>
+        </ng-template>
+      </div>
+
+      <ng-container *ngIf="form.get('documentType').value === 'Social'">
+        <ng-container *ngIf="allDocumentsByEmployee.length > 0; else noDocsByEmployee">
+          <div class="mt-5">
+            <ng-container *ngFor="let employee of missingDocumentsByEmployeeByOnglet">
+              <mat-expansion-panel [expanded]="false" class="my-2">
+                <mat-expansion-panel-header>
+                  <mat-panel-title class="text-capitalize">
+                    <div class="employee-result-icon">
+                      <ng-container *ngIf="employee.missingCount > 0; else showCheck">
+                        <span class="missing-counter">{{ employee.missingCount }}</span>
+                      </ng-container>
+                      <ng-template #showCheck>
+                        <mat-icon class="align-middle text-success">check</mat-icon>
+                      </ng-template>
+                    </div>
+                    {{ employee.name }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row">
+                  <ng-container [ngTemplateOutlet]="documentListSocialTemplate"
+                    [ngTemplateOutletContext]="{ missingDocumentsByOnglet: employee.documents }">
+                  </ng-container>
+                </div>
+              </mat-expansion-panel>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <ng-template #noDocsByEmployee>
+          <h3 class="mt-5 align-self-center">
+            Aucun employé actif pour ce dossier
+          </h3>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #pendingTemplate>
+      <mat-spinner diameter="48" class="mt-5 align-self-center"></mat-spinner>
+    </ng-template>
+
+  </section>
+</article>
+
+<ng-template #documentListTemplate
+  let-missingDocumentsByOnglet="missingDocumentsByOnglet">
+  <div class="row gy-2">
+    <ng-container *ngFor="let ongletData of missingDocumentsByOnglet">
+      <div class="col-4">
+        <div class="doc-list h-100">
+          <div class="m-2 p-2">
+            <h4 class="mb-0">{{ ongletData.onglet }}</h4>
+            <ul>
+              <ng-container *ngFor="let doc of ongletData.docList">
+                <li>
+                  <div>
+                    <ng-container [ngTemplateOutlet]="docItemTemplate"
+                      [ngTemplateOutletContext]="{ doc: doc }"></ng-container>
+                  </div>
+                </li>
+              </ng-container>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #documentListSocialTemplate
+  let-missingDocumentsByOnglet="missingDocumentsByOnglet">
+    <ng-container *ngFor="let ongletData of missingDocumentsByOnglet">
+        <div class="doc-list m-2 p-3">
+          <h4 class="mb-0">{{ ongletData.onglet }}</h4>
+          <div class="row">
+            <ng-container *ngFor="let doc of ongletData.docList">
+                <div class="col-3">
+                  <ng-container [ngTemplateOutlet]="docItemTemplate"
+                    [ngTemplateOutletContext]="{ doc: doc }"></ng-container>
+                </div>
+            </ng-container>
+          </div>
+        </div>
+    </ng-container>
+</ng-template>
+
+<ng-template #docItemTemplate let-doc="doc">
+  <div class="d-flex">
+    <ng-container *ngIf="doc.isMissing; else docOkIconTemplate">
+      <mat-icon class="align-middle text-danger">close</mat-icon>
+    </ng-container>
+    <ng-template #docOkIconTemplate>
+      <mat-icon class="align-middle text-success">check</mat-icon>
+    </ng-template>
+    <div>
+      <span>{{ doc.name }}</span>
+      <mat-icon class="align-middle text-primary commentaires-info"
+        *ngIf="doc.commentaires"
+        [matTooltip]="doc.commentaires">
+        info
+      </mat-icon>
+    </div>
+  </div>
+</ng-template>

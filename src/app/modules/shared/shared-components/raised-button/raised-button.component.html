@@ -1,0 +1,13 @@
+<button
+  type="button"
+  mat-raised-button
+  color="primary"
+  (click)="onClick.emit()"
+  [ngClass]="{'w-100': fullWidth}"
+  [disabled]="disabled"
+>
+  {{ label }}
+  <ng-container *ngIf="suffixIcon">
+    <mat-icon>{{ suffixIcon }}</mat-icon>
+  </ng-container>
+</button>

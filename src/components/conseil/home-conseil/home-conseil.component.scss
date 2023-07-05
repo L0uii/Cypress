@@ -1,0 +1,183 @@
+
+main {
+  position: relative;
+}
+
+.sort {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 24px;
+
+  .mat-button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+.filtres-actifs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: -8px 0 12px;
+  padding: 0 24px;
+}
+
+.sidenav {
+  z-index: 3;
+}
+
+.sidenav.right {
+  right: 0;
+  left: unset;
+}
+
+.sidenav.open {
+  width: 450px;
+}
+
+.sidenav .mat-expansion-panel:not([class*=mat-elevation-z]) {
+  box-shadow: none;
+}
+
+.sidenav .mat-form-field {
+  width: 100%;
+}
+
+.sidenav .mat-form-field.facture {
+  width: 93%;
+}
+
+.hint-title {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 5px;
+
+  mat-icon {
+    margin-left: 5px;
+  }
+}
+
+.hint {
+  margin-bottom: 10px;
+
+  p {
+    margin: 5px 0;
+  }
+
+  ul {
+    padding-inline-start: 20px;
+    margin: 8px;
+  }
+}
+
+.quick-filter {
+  margin: 0 24px;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .mat-button.selected {
+    border: 2px solid #3498DB;
+  }
+
+}
+
+
+.date-fields {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.date-fields .mat-form-field {
+  width: 30%;
+}
+
+.date-clear {
+  width: 5%;
+}
+
+.date-label {
+  position: absolute;
+  bottom: -5px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+h3 {
+  margin: 20px 24px;
+}
+
+.filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 24px;
+}
+
+.quick-filter .mat-button,
+.filter .mat-button,
+.filter .mat-raised-button {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 16px;;
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #808080;
+  padding: 15px;
+  cursor: pointer;
+}
+
+
+section {
+  transition: margin-left 0.5s;
+}
+
+// section.sidenav-open {
+//   margin-right: 450px;
+// }
+
+.main-search {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+}
+
+.main-search .mat-form-field {
+  width: 75%;
+}
+
+.main-search .mat-icon-button {
+  max-width: 5%;
+}
+
+.conseil ::ng-deep .mat-tab-label-active {
+  background-color: rgba(51, 152, 219, 0.6);
+}
+
+.conseil ::ng-deep .mat-tab-label {
+  opacity: 1;
+}
+
+::ng-deep .mat-tab-group.mat-primary .mat-ink-bar {
+  background-color: transparent;
+}
+
+:host ::ng-deep .mat-tab-body-wrapper {
+  height: calc(100vh - 280px);
+  overflow: auto;
+}

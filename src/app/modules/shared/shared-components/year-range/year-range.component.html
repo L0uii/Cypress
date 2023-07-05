@@ -1,0 +1,30 @@
+<span>{{ label }}</span>
+<form [formGroup]="yearForm">
+  <div class="d-flex justify-content-between align-items-center">
+    <app-dropdown
+      class="flex-fill"
+      label="Année min"
+      formControlName="minYear"
+      [hasCloseButton]="false"
+      [optionList]="years"
+      (onSelectionChange)="onSelectionChange($event, maxYearDropdown.control.value)"
+      #minYearDropdown
+    >
+    </app-dropdown>
+    <app-dropdown
+      class="ms-2 flex-fill"
+      label="Année max"
+      formControlName="maxYear"
+      [hasCloseButton]="false"
+      [optionList]="years"
+      (onSelectionChange)="onSelectionChange(minYearDropdown.control.value, $event)"
+      #maxYearDropdown
+    >
+    </app-dropdown>
+    <app-clear-button
+      *ngIf="minYearDropdown.control.value || maxYearDropdown.control.value"
+      (onClear)="onClear()"
+    >
+    </app-clear-button>
+  </div>
+</form>

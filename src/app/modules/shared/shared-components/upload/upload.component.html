@@ -1,0 +1,58 @@
+<div class="upload">
+  <label class="dropzone" (filesChangeEmiter)="filesChange($event)" (filesInvalidEmiter)="filesInvalidChange($event)"
+    [allowed_extensions]="extensions" appDragAndDrop>
+    <p>
+      <input #fileUploaded type="file" (filesChangeEmiter)="filesChange($event)"
+        (filesInvalidEmiter)="filesInvalidChange($event)" [allowed_extensions]="extensions" [maxSizeMb]="maxSizeMbEach" appDragAndDrop multiple />
+      <img class="icon" src="assets/img/upload.png" alt="Déposez vos fichiers ici" />
+      Déposez votre fichier ici !
+    </p>
+  </label>
+</div>
+<div class="dropzone__list" *ngIf="fileList.length || invalidFiles.length">
+
+  <div *ngIf="!invalidFiles.length && !isUploadValid">
+    <h3>
+      <ng-container *ngIf="invalidFiles.length > 1; else singleInvalidFile">Documents Invalides : </ng-container>
+      <ng-template #singleInvalidFile>Document Invalide : </ng-template>
+    </h3>
+
+    <div class="fst-italic">
+      Vous devez fournir des documents au format {{ extensionsText }}. La taille de chaque document ne doit pas dépasser {{maxSizeMbEach}}Mo. La taille globale de l'enveloppe ne doit pas dépasser {{maxSizeMbTotal}}Mo. Le nombre maximum de documents est de {{maxCount}}. Merci de resélectionner vos documents en respectant ces critères.
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 flex-column">
+    <div class="valid" *ngIf="fileList.length">
+      <h3>
+        <ng-container *ngIf="fileList.length > 1; else singleValidFile">Fichiers en téléchargement :</ng-container>
+        <ng-template #singleValidFile>Fichier en téléchargement :</ng-template>
+      </h3>
+
+      <div class="file__list">
+        <div *ngFor="let file of fileList" class="list__item">
+          <mat-icon (click)="removeFileChange(file, 'valid')" title="Supprimer">cancel</mat-icon>
+          <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="invalid" *ngIf="invalidFiles.length">
+      <h3>
+        <ng-container *ngIf="invalidFiles.length > 1; else singleInvalidFile">Documents Invalides : </ng-container>
+        <ng-template #singleInvalidFile>Document Invalide : </ng-template>
+      </h3>
+
+      <div class="fst-italic">
+        Vous devez fournir des documents au format {{ extensionsText }}. La taille de chaque document ne doit pas dépasser {{maxSizeMbEach}}Mo. La taille globale de l'enveloppe ne doit pas dépasser {{maxSizeMbTotal}}Mo. Le nombre maximum de documents est de {{maxCount}}. Merci de resélectionner vos documents en respectant ces critères.
+      </div>
+
+      <div class="file__list">
+        <div *ngFor="let file of invalidFiles" class="list__item">
+          <mat-icon (click)="removeFileChange(file, 'invalid')" title="Supprimer">cancel</mat-icon>
+          <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,128 @@
+<article>
+  <h2>Export "{{ exportType }}"</h2>
+
+  <ng-container *ngIf="!isPending; else pendingTemplate">
+    <form [formGroup]="mainForm">
+      <ng-container *ngIf="currentTab === 'bulletins' || (currentTab === 'perte-marche' && isDap)">
+        <p class="section">Période concernée :</p>
+        <div class="d-flex gap-2">
+          <app-month-picker label="Date début période"
+            formControlName="dateDebut">
+          </app-month-picker>
+          <app-month-picker label="Date fin période"
+            formControlName="dateFin">
+          </app-month-picker>
+        </div>
+      </ng-container>
+
+      <p class="section">Liste des matricules :</p>
+      <mat-radio-group color="primary" formControlName="matricules">
+        <mat-radio-button class="me-4" value="lt10">
+          Moins de 10 matricules
+          <span class="input-hint">
+            (Saisie des matricules au sein de cette page)
+          </span>
+        </mat-radio-button>
+        <mat-radio-button value="gt10">
+          10 matricules ou plus
+          <span class="input-hint">
+            (Compléter le fichier "Matricules" en cliquant ici puis l'enregistrer et le déposer dans le champs pièce jointe de cette page)
+          </span>
+        </mat-radio-button>
+      </mat-radio-group>
+
+      <ng-container *ngIf="mainForm.get('matricules').value">
+        <ng-container *ngIf="mainForm.get('matricules').value === 'lt10'; else csvTemplate">
+          <app-text-field placeholder="Renseigner la liste de matricules"
+            hintText="Les matricules doivent être séparés par une virgule"
+            formControlName="listeMatricules">
+          </app-text-field>
+        </ng-container>
+
+        <ng-template #csvTemplate>
+          <ng-container *ngIf="!matriculeList.length; else selectedCsvTemplate">
+            <input type="file" id="file" class="input-file" accept=".xlsx,.ods" (change)="loadCsv($event.target)" #fileInput/>
+            <app-raised-button label="Charger matricules"
+              suffixIcon="upload_file"
+              (onClick)="fileInput.click()">
+            </app-raised-button>
+          </ng-container>
+
+          <ng-template #selectedCsvTemplate>
+            <span>Selected file: <b>{{ selectedCsvFile }}</b> <app-clear-button (onClear)="clearCsv()"></app-clear-button></span>
+          </ng-template>
+        </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="currentTab === 'autre-type'">
+        <p class="section">Types de documents :</p>
+        <app-autocomplete-chips
+          class="w-100"
+          hintText="Entrez du texte pour rechercher un type de document"
+          [list]="documentTypeList"
+          [maxSelection]="maxDocuments"
+          placeHolder="Types de documents"
+          formControlName="listeMatricules">
+        </app-autocomplete-chips>
+      </ng-container>
+
+    </form>
+
+    <ng-container *ngIf="currentTab === 'perte-marche'">
+      <p class="section">Types de documents exportés :</p>
+      <div class="d-flex gap-4">
+        <form [formGroup]="exportedDocumentForm" *ngIf="isDap">
+          <ng-container [ngTemplateOutlet]="docTypeCheckboxTemplate"
+            [ngTemplateOutletContext]="{
+              mapper: exportedDocumentLabelMapper,
+              formGroup: exportedDocumentForm
+            }">
+          </ng-container>
+        </form>
+        <form [formGroup]="exportedOptionalDocumentForm">
+          <ng-container [ngTemplateOutlet]="docTypeCheckboxTemplate"
+            [ngTemplateOutletContext]="{
+              mapper: exportedOptionalDocumentLabelMapper,
+              formGroup: exportedOptionalDocumentForm
+            }">
+          </ng-container>
+        </form>
+      </div>
+    </ng-container>
+
+
+    <div class="d-flex flex-column">
+      <app-raised-button label="Réaliser l'export"
+        suffixIcon="list_alt"
+        (onClick)="export()">
+      </app-raised-button>
+      <mat-error class="m-auto">
+        <em>
+          Un mail vous sera envoyé pour vous informer de la mise à disposition de l'export
+        </em>
+      </mat-error>
+
+      <app-raised-button label="Nouvelle recherche"
+        suffixIcon="autorenew"
+        (onClick)="newSearch()"
+        class="mt-3">
+
+      </app-raised-button>
+    </div>
+  </ng-container>
+</article>
+
+<ng-template #docTypeCheckboxTemplate let-mapper="mapper" let-formGroup="formGroup">
+  <div class="d-flex flex-column">
+    <ng-container *ngFor="let item of mapper | keyValue">
+      <mat-checkbox [formControl]="formGroup.get(item.key)"
+        color="primary">
+        {{ item.value }}
+      </mat-checkbox>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #pendingTemplate>
+  <mat-spinner diameter="48" class="mt-5 align-self-center"></mat-spinner>
+</ng-template>

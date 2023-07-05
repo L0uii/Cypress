@@ -1,0 +1,12 @@
+<ng-container *ngIf="blobFileList?.length > 0">
+  <adf-viewer [allowNavigate]="allowNavigate"
+              [displayName]="displayName"
+              [blobFile]="blobFile"
+              [canNavigateBefore]="canNavigateBefore"
+              [canNavigateNext]="canNavigateNext"
+              [overlayMode]="false"
+              (showViewerChange)="onShowViewerChange($event)"
+              (navigateBefore)="onNavigateBefore()"
+              (navigateNext)="onNavigateNext()">
+  </adf-viewer>
+</ng-container>

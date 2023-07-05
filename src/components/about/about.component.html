@@ -1,0 +1,15 @@
+<button mat-button [mat-dialog-close]="true" class="close">
+  <mat-icon>close</mat-icon>
+</button>
+<mat-dialog-content class="mat-typography">
+  <div class="egd-logo">
+    <img class="img-logo" src="assets/img/logo@2x.png" alt="egd-logo"/>
+  </div>
+  <h1>À propos</h1>
+  <ul>
+    <li><a class="link" (click)="onChangelogClick()"
+           [href]="releaseNotesUrl"
+           target="_blank">Espace GED Version {{ currentVersion }}</a></li>
+    <li>Environnement de {{ isProduction ? 'Production' : 'Recette' }}</li>
+  </ul>
+</mat-dialog-content>

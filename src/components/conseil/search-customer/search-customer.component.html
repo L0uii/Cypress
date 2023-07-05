@@ -1,0 +1,27 @@
+<div class="search-customer"> 
+  <mat-form-field *ngIf="!(sameCustomer && pager.currentPage > 1)">
+    <input matInput placeholder="Rechercher un client" [(ngModel)]="customerQuery" (keyup.enter)="search()" />
+    <mat-hint>Entrez le nom ou le numéro de client</mat-hint>    
+  </mat-form-field>
+
+  <div class="directory" *ngIf="customerQuery !== ''">
+    <div class="scroll">
+      <ngx-simplebar>
+        <div class="list" *ngFor="let person of directory">
+          <mat-card class="list-customer" (click)="select(person)">
+            <h3>
+              {{person.NumeroDossier}} -
+              {{person.Prenom}}
+              {{person.Nom}}
+            </h3>
+          </mat-card>
+        </div>
+        <div class="list-empty" *ngIf="directory.length === 0">
+          <button mat-raised-button color="primary" (click)="triggerCreate()">
+            <mat-icon>people_outline</mat-icon> Nouveau client
+          </button>
+        </div>
+      </ngx-simplebar>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,448 @@
+<div [style.bottom]="sendBottom" class="send">
+  <div [style.display]="sendDisplay" [style.opacity]="sendOpacity" class="send-container">
+    <mat-icon class="close" (click)="this.closeSendMessage()">close</mat-icon>
+
+    <!-- Envoi /CreateDocuments -->
+    <div class="create-documents">
+      <h1 [ngClass]="{'done': sendPending}">
+        <span class="step">1</span>
+        <span>Création</span>
+      </h1>
+      <!-- Create pending -->
+      <h2 *ngIf="createPending" [ngClass]="{'done': createSuccess || createFailed}">
+        <span>Vos documents sont en cours d'envoi dans la GED.</span>
+        <div *ngIf="createPending && (!sendPending || createFailed)" class="box">
+          <div class="loader"></div>
+        </div>
+        <mat-icon *ngIf="createSuccess">done</mat-icon>
+        <mat-icon *ngIf="createFailed">error</mat-icon>
+      </h2>
+
+      <!-- Liste documents créés -->
+      <div class="documents" *ngIf="createPending && successList.length > 0"
+        [ngClass]="{'done': createSuccess || createFailed}">
+        <h3>Ces fichiers ont été enregistrés en GED :</h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of successList" class="documents-list">
+              <mat-icon>done</mat-icon>
+              <p>{{ file }}</p>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+
+      <!-- Liste documents erreur création -->
+      <div class="documents" *ngIf="createPending && failList.length > 0 "
+        [ngClass]="{'done': createSuccess || createFailed}">
+        <h3>Ces fichiers n'ont pas pu être enregistrés en GED:</h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of failList" class="documents-list">
+              <mat-icon>error</mat-icon>
+              <p>{{ file }}</p>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+      <!-- Succès envoi -->
+      <h2 *ngIf="createSuccess" [ngClass]="{'done': sendPending}">
+        <div>
+          <span>L'envoi dans la GED a été un succès </span>
+          <ng-container *ngIf="successList.length > 1; then docs_valid else doc_valid"></ng-container>
+          <ng-template #docs_valid>
+            <span>({{successList.length}} documents créés).</span>
+          </ng-template>
+          <ng-template #doc_valid>
+            <span>(un document créé).</span>
+          </ng-template>
+        </div>
+        <mat-icon>done</mat-icon>
+      </h2>
+      <!-- Erreur envoi -->
+      <div *ngIf="createFailed" class="message">
+        <h2>Une erreur est survenue lors de la création des documents dans la GED.</h2>
+        <p>Veuillez contacter le support.</p>
+        <button mat-button color="primary" (click)="closeSendMessage()">Retour</button>
+      </div>
+    </div>
+
+
+    <div class="send-docusign">
+      <h1 [ngClass]="{'done': createPending || createSuccess || createFailed}">
+        <span class="step">2</span>
+        <span>Envoi en signature</span>
+      </h1>
+      <!-- Send pending -->
+      <h2 *ngIf="sendPending" [ngClass]="{'done': sendSuccess || sendFailed || retrySuccess || retryFailed}">
+        <span>Vos documents sont en cours d'envoi en signature.</span>
+
+        <div *ngIf="sendPending && !sendSuccess && !sendFailed && !retrySuccess && !retryFailed" class="box">
+          <div class="loader"></div>
+        </div>
+        <mat-icon *ngIf="sendSuccess && (retrySuccess || retryFailed)">done</mat-icon>
+        <mat-icon *ngIf="sendFailed && (retrySuccess || retryFailed)">error</mat-icon>
+      </h2>
+      <!-- Retry pending -->
+      <h2 *ngIf="retryPending" [ngClass]="{'done': retrySuccess || retryFailed}">
+        <span>Une nouvelle tentative d'envoi est en cours.</span>
+
+        <div *ngIf="retryPending && !retrySuccess && !retryFailed" class="box">
+          <div class="loader"></div>
+        </div>
+        <mat-icon *ngIf="retrySuccess">done</mat-icon>
+        <mat-icon *ngIf="retryFailed">error</mat-icon>
+      </h2>
+      <!-- Envoi en signature OK -->
+      <div *ngIf="sendSuccess || retrySuccess" class="message message-final">
+        <h2>Votre enveloppe a été envoyée en signature.</h2>
+        <button mat-button mat-raised-button color="primary" (click)="closeSendMessage()">Retour</button>
+      </div>
+      <!-- Envoi en signature echec -->
+      <div *ngIf="sendFailed" class="message message-final">
+        <h2>Une erreur est survenue lors de l'envoi en signature.</h2>
+        <p>{{errorSend}}</p>
+        <h3>Vous pouvez réessayer ou annuler la demande :</h3>
+        <!-- ERREUR -->
+        <div>
+          <button mat-button color="primary" (click)="retry(lastSentId, lastSignProperties)">Relancer</button>
+          <button mat-button color="primary" (click)="cancel(nodeList)">Annuler la demande</button>
+        </div>
+      </div>
+
+      <!-- Erreur relance -->
+      <div *ngIf="retryFailed" class="message message-final">
+        <h2>L'envoi en signature n'a pas pu être effectué.</h2>
+        <p>{{errorRetry}}</p>
+        <h3>Veuillez contacter le support pour plus d'informations. (Référence : {{timestampRetry}})</h3>
+        <div>
+          <button mat-button color="primary" (click)="cancel(nodeList)">Annuler la demande</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="upload__container">
+  <h1>Téléchargez vos fichiers</h1>
+  <form [formGroup]="uploadForm" (ngSubmit)="send()" #formDirective="ngForm">
+    <div class="upload__form">
+      <h3>À propos de cette enveloppe :</h3>
+      <div class="fields">
+        <mat-form-field>
+          <input #typeBailElement
+                matInput
+                placeholder="Type de bail"
+                (keyup)="filterTypeBail($event.target.value)"
+                [matAutocomplete]="groupTypeBail"
+                formControlName="typeBail"
+                (click)="onFocus(0)">
+          <mat-autocomplete #groupTypeBail="matAutocomplete">
+            <mat-option *ngFor="let bail of filteredTypeBails" (click)="setValueTypeBail(bail)" [value]="bail">
+              {{bail}}
+            </mat-option>
+          </mat-autocomplete>
+          <button *ngIf="typeBailElement.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearTypeBail($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input #proprietaireImmeubleElement matInput placeholder="Propriétaire de l'immeuble (société)" (keyup)="filterProprietaire($event.target.value)"
+          [matAutocomplete]="groupProprietaire" formControlName="proprietaireImmeubleInput" (click)="onFocus(1)">
+          <mat-autocomplete #groupProprietaire="matAutocomplete">
+            <mat-option *ngFor="let el of filteredProprietaires" (click)="setValueProprietaire(el)"
+              [value]="el.label">
+              {{el.label}}
+            </mat-option>
+          </mat-autocomplete>
+          <button *ngIf="proprietaireImmeubleElement.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearProprietaireImmeuble($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <div class="code">
+          <span *ngIf="codeProprietaire">{{codeProprietaire}}</span>
+          <mat-form-field [ngClass]="{'code-input': codeProprietaire}">
+            <input #codeImmeubleElement matInput type="text" placeholder="Code immeuble" formControlName="codeImmeuble" />
+            <mat-hint align="end">{{codeImmeubleElement.value?.length || 0}}/5</mat-hint>
+            <button *ngIf="codeImmeubleElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeImmeuble($event)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="description">
+        <mat-form-field>
+          <textarea matInput placeholder="Adresse de l'immeuble" formControlName="adresseImmeuble" maxlength="100"
+            #adresseImmeubleElement></textarea>
+             <button *ngIf="adresseImmeubleElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearAdresseImmeuble($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-hint align="end">{{ adresseImmeubleElement.value.length }} / 100</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="fields">
+        <mat-form-field>
+          <input #nomImmeubleElement matInput type="text" placeholder="Nom de l'immeuble" formControlName="nomImmeuble" />
+          <button *ngIf="nomImmeubleElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearNomImmeuble($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input #codeLotElement matInput type="text" placeholder="Code lot" formControlName="codeLot"/>
+          <button *ngIf="codeLotElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeLot($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input #codeBailElement matInput type="text" placeholder="Code Bail" formControlName="codeBail"/>
+          <mat-hint align="end">{{codeBailElement.value?.length || 0}}/5</mat-hint>
+          <button *ngIf="codeBailElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeBail($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="fields">
+        <mat-form-field>
+          <input #nomLocataireElement matInput type="text" placeholder="Nom locataire" formControlName="nomLocataire"
+            />
+          <button *ngIf="nomLocataireElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearNomLocataire($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input #codeLocataireElement matInput type="text" placeholder="Code locataire" formControlName="codeLocataire"
+            />
+          <mat-hint align="end">{{codeLocataireElement.value?.length || 0}}/6</mat-hint>
+          <button *ngIf="codeLocataireElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearCodeLocataire($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput
+            #dateDebutBailInput
+            placeholder="Date de début du bail"
+            formControlName="dateDebutBail"
+            [matDatepicker]="dateDebutBail" />
+            <mat-datepicker-toggle matSuffix [for]="dateDebutBail"></mat-datepicker-toggle>
+          <mat-datepicker #dateDebutBail></mat-datepicker>
+          <button *ngIf="dateDebutBailInput.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearDateDebutBail($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-error *ngIf="dateDebutBailInvalid">Le format de date n'est pas valide</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="description">
+        <mat-form-field>
+          <textarea matInput placeholder="Description" formControlName="description" maxlength="100"
+            #descriptionElement></textarea>
+          <mat-hint align="end">{{ descriptionElement.value.length }} / 100</mat-hint>
+          <button *ngIf="descriptionElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearDescription($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput placeholder="Message à destination des signataires" formControlName="message" maxlength="100"
+            #messageElement></textarea>
+          <mat-hint align="end">{{ messageElement.value.length }} / 100</mat-hint>
+          <button *ngIf="messageElement.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearMessage($event)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <h3>Destinataire(s) de votre document :</h3>
+      <!-- <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}"> -->
+      <div class="description">
+        <mat-form-field>
+          <input placeholder="Signataires Fiducial" aria-label="Signataires Fiducial" matInput
+            [matAutocomplete]="autoGroup4" formControlName="signataires"
+            (keyup)="selectSignataires($event.target.value)">
+          <mat-hint>Entrez du texte pour rechercher un signataire par nom</mat-hint>
+        </mat-form-field>
+        <mat-autocomplete #autoGroup4="matAutocomplete" [displayWith]="displayFn">
+          <mat-option *ngFor="let person of filteredSignataires" [value]="selectedSignataires">
+            <div (click)="optionClicked($event, person)">
+              <mat-checkbox [checked]="person.selected" (change)="toggleSelection(person)"
+                (click)="$event.stopPropagation()">
+                {{person.fullName}}
+              </mat-checkbox>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+      </div>
+      <div>
+        <h4>Signataire 1 :</h4>
+        <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}">
+          <mat-form-field>
+            <input matInput type="text" placeholder="Prénom destinataire" formControlName="recipient1FirstName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Nom destinataire" formControlName="recipient1LastName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="email" placeholder="E-mail destinataire" formControlName="recipient1Email" />
+          </mat-form-field>
+          <mat-form-field *ngIf="uploadForm.value.validationSMS">
+            <input matInput type="tel" placeholder="Téléphone destinataire" formControlName="recipient1Phone"
+              pattern="(06|07)[0-9]{8}" />
+          </mat-form-field>
+          <div mat-button mat-icon-button (click)="showInputSignature2 = true" matTooltip="Ajout signataire 2">
+            <mat-icon class="add">add_circle_outline</mat-icon>
+          </div>
+        </div>
+      </div>
+      <!--  <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}"
+        *ngIf="showSignature2">
+
+        <mat-form-field>
+          <input matInput placeholder="Signataire 2" (keyup)="selectSignataire2($event.target.value)"
+            [matAutocomplete]="autoGroup5" formControlName="signataire2">
+          <mat-autocomplete #autoGroup5="matAutocomplete">
+            <mat-option *ngFor="let person of filteredSignataires" (click)="setSignataire2(person)"
+              [value]="person.fullName">
+              {{person.fullName}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <div mat-button mat-icon-button (click)="showInputSignature3 = true" matTooltip="Ajouter un signataire">
+          <mat-icon class="add">add_circle_outline</mat-icon>
+        </div>
+      </div> -->
+      <div *ngIf="showInputSignature2">
+        <h4>Signataire 2 :</h4>
+        <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}">
+          <mat-form-field>
+            <input matInput type="text" placeholder="Prénom destinataire" formControlName="recipient2FirstName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Nom destinataire" formControlName="recipient2LastName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="email" placeholder="E-mail destinataire" formControlName="recipient2Email" />
+          </mat-form-field>
+          <mat-form-field *ngIf="uploadForm.value.validationSMS">
+            <input matInput type="tel" placeholder="Téléphone destinataire" formControlName="recipient2Phone"
+              pattern="(06|07)[0-9]{8}" />
+          </mat-form-field>
+          <div mat-button mat-icon-button (click)="showInputSignature3 = true" matTooltip="Ajout signataire 3">
+            <mat-icon class="add">add_circle_outline</mat-icon>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showInputSignature3">
+        <h4>Signataire 3 :</h4>
+        <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}">
+          <mat-form-field>
+            <input matInput type="text" placeholder="Prénom destinataire" formControlName="recipient3FirstName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Nom destinataire" formControlName="recipient3LastName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="email" placeholder="E-mail destinataire" formControlName="recipient3Email" />
+          </mat-form-field>
+          <mat-form-field *ngIf="uploadForm.value.validationSMS">
+            <input matInput type="tel" placeholder="Téléphone destinataire" formControlName="recipient3Phone"
+              pattern="(06|07)[0-9]{8}" />
+          </mat-form-field>
+          <div mat-button mat-icon-button (click)="showInputSignature4 = true" matTooltip="Ajout signataire 4">
+            <mat-icon class="add">add_circle_outline</mat-icon>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showInputSignature4">
+        <h4>Signataire 4 :</h4>
+        <div [ngClass]="{'form-phone': uploadForm.value.validationSMS, form: !uploadForm.value.validationSMS}">
+          <mat-form-field>
+            <input matInput type="text" placeholder="Prénom destinataire" formControlName="recipient4FirstName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Nom destinataire" formControlName="recipient4LastName" />
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="email" placeholder="E-mail destinataire" formControlName="recipient4Email" />
+          </mat-form-field>
+          <mat-form-field *ngIf="uploadForm.value.validationSMS">
+            <input matInput type="tel" placeholder="Téléphone destinataire" formControlName="recipient4Phone"
+              pattern="(06|07)[0-9]{8}" />
+          </mat-form-field>
+          <div class="add__disabled" matTooltip="4 signataires maximum !">
+            <mat-icon>add_circle_outline</mat-icon>
+          </div>
+        </div>
+      </div>
+      <div class="description">
+        <mat-form-field>
+          <mat-chip-list #copieMailList>
+            <mat-chip class="langue" [ngClass]="{'warn': !copieMail.valid}" *ngFor="let copieMail of copieMails; let i=index">
+              {{ copieMail.value }}
+              <mat-icon class="chip-icon" (click)="remove(copieMail)">cancel</mat-icon>
+            </mat-chip>
+            <input #copieMailInput placeholder="Destinaires en copie (après signature)"
+              [formControl]="copieMailCtrl"
+              [matChipInputFor]="copieMailList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [matChipInputAddOnBlur]="true"
+              (matChipInputTokenEnd)="add($event)" />
+          </mat-chip-list>
+          <mat-hint>Séparez les adresses d'un espace ou d'une virgule.</mat-hint>
+        </mat-form-field>
+        <mat-error *ngIf="mailCopieInvalid">Adresse e-mail invalide</mat-error>
+      </div>
+    </div>
+    <!-- <mat-divider></mat-divider>
+    <h4 class="documents-checklist">Liste des documents à déposer :</h4>
+    <ul>
+      <li>Contrat de location</li>
+      <li>Règlement</li>
+      <li>Extrait texte de loi</li>
+      <li>État des lieux</li>
+    </ul> -->
+    <div class="upload">
+      <label class="dropzone" (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFilesInvalid($event)"
+        [allowed_extensions]="extensions" appDragAndDrop>
+        <p>
+          <input #fileUploaded type="file" (filesChangeEmiter)="onFilesChange($event)"
+            (filesInvalidEmiter)="onFilesInvalid($event)" [allowed_extensions]="extensions" appDragAndDrop multiple />
+          <img class="icon" src="assets/img/upload.png" alt="Déposez vos fichiers ici" />
+          Déposez vos fichiers ici !
+        </p>
+      </label>
+    </div>
+    <div class="dropzone__list" *ngIf="fileList.length > 0 || invalidFiles.length > 0">
+      <div class="valid" *ngIf="fileList.length > 0">
+        <h3 *ngIf="fileList.length === 1">Fichier en téléchargement :</h3>
+        <h3 *ngIf="fileList.length > 1">Fichiers en téléchargement :</h3>
+
+        <div class="file__list">
+          <div *ngFor="let file of fileList" class="list__item">
+            <mat-icon (click)="utils.remove(file, fileList)" title="Supprimer">cancel</mat-icon>
+            <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="invalid" *ngIf="invalidFiles.length > 0">
+        <h3 *ngIf="invalidFiles.length === 1">Document invalide (.pdf uniquement, 20 Mo maximum) :</h3>
+        <h3 *ngIf="invalidFiles.length > 1">Documents invalides (.pdf uniquement, 20 Mo maximum) :</h3>
+
+        <div class="file__list">
+          <div *ngFor="let file of invalidFiles" class="list__item">
+            <mat-icon (click)="utils.remove(file, invalidFiles)" title="Supprimer">cancel</mat-icon>
+            <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="send__file">
+      <div *ngIf="disabled" class="spinner"></div>
+      <button type="submit" ngClass="disabled ? mat-disabled" [disabled]="disabled" color="primary" mat-raised-button>
+        Envoyer en signature
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,305 @@
+<main class="gerance">
+  <aside class="sidenav right" [ngClass]="{open: isSideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+      <section class="fields">
+        <div class="sort">
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="trier">Trier par :
+            <span>{{selectedSortByField}}</span></button>
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="sens">Ordre : <span>{{selectedSortByOrder}}</span>
+          </button>
+        </div>
+        <mat-menu #trier="matMenu" yPosition="below" [overlapTrigger]="false">
+          <button *ngFor="let field of filtersFields" (click)="setSortByField(field)"
+                  mat-menu-item>{{field.label}}</button>
+        </mat-menu>
+        <mat-menu #sens="matMenu" yPosition="below" [overlapTrigger]="false">
+          <button *ngFor="let order of filtersOrder" mat-menu-item
+                  (click)="setSortByOrder(order)">{{order.label}}</button>
+        </mat-menu>
+      </section>
+      <div class="fields">
+        <mat-form-field>
+          <input matInput
+                #documentTypeInput
+                placeholder="Type du document"
+                [matAutocomplete]="groupDocumentType"
+                (keyup)="filterDocumentType($event.target.value)"
+                [ngModel]="inputsDefault.documentType | categorieGeranceAssociesTypeDocument"
+                (ngModelChange)="inputsDefault.documentType=$event"
+          ><!--               [(ngModel)]="selectedDocType"   -->
+          <mat-autocomplete #groupDocumentType="matAutocomplete">
+            <mat-option *ngFor="let docType of filteredDocumentType"
+                        (click)="setValueDocumentType(docType)"
+                        [value]="docType.labelSousFamille">
+              {{docType.labelSousFamille}}
+            </mat-option>
+          </mat-autocomplete>
+          <button *ngIf="inputsDefault.documentType" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('documentType')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Produit -->
+        <ng-container *ngIf="productList.length">
+          <app-autocomplete placeHolder="Catégorie du Produit"
+            [list]="productCategoryList"
+            [(ngModel)]="inputsDefault.productCategory"
+            (ngModelChange)="onProductCategoryChange($event)"
+            class="w-100">
+          </app-autocomplete>
+
+          <app-autocomplete placeHolder="Produit"
+            [list]="productList"
+            [(ngModel)]="inputsDefault.product"
+            (ngModelChange)="onProductChange($event)"
+            class="w-100">
+          </app-autocomplete>
+        </ng-container>
+
+        <!-- Description -->
+        <mat-form-field>
+          <input [(ngModel)]="inputsDefault.description" autocomplete="off" matInput placeholder="Description"
+                type="text"/>
+          <button *ngIf="inputsDefault.description" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('description')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Contact" [(ngModel)]="inputsDefault.contact" autocomplete="off"/>
+          <button *ngIf="inputsDefault.contact" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('contact')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field *ngIf="isProcessing">
+          <input matInput type="text" placeholder="Prise en charge par"
+                [(ngModel)]="inputsDefault.priseEnCharge" autocomplete="off"/>
+          <button *ngIf="inputsDefault.priseEnCharge" mat-button matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('priseEnCharge')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <div class="hint-title" (mouseover)="showHint = true" (mouseout)="showHint = false">
+          <span>
+            Comment rechercher par dates
+          </span>
+          <mat-icon>
+            help
+          </mat-icon>
+        </div>
+        <div class="hint" *ngIf="showHint">
+          <p>Vous pouvez saisir :</p>
+          <ul>
+            <li>Une année.</li>
+            <li>Un mois et une année.</li>
+            <li>Un jour, un mois et une année (date exacte).</li>
+          </ul>
+          <p>Vous ne pouvez pas renseigner uniquement un mois, uniquement un jour, un jour et une année.</p>
+        </div>
+
+        <app-date-select label="Date du document"
+          [(ngModel)]="inputsDefault.dateDocument"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+          (onSearch)="onSearch()">
+        </app-date-select>
+
+        <app-date-select label="Date de validité"
+          [(ngModel)]="inputsDefault.dateValidite"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+          (onSearch)="onSearch()">
+        </app-date-select>
+
+        <app-date-select label="Date de dépôt en GED"
+          [(ngModel)]="inputsDefault.dateCreation"
+          [minYear]="currentYear - 2"
+          [maxYear]="currentYear + 15"
+          [isYearDescending]="false"
+          (onSearch)="onSearch()">
+        </app-date-select>
+
+        <div
+          *ngIf="inputsDefault.documentType == 'gerance_assoc_checklist_souscription' || inputsDefault.documentType == 'gerance_assoc_bulletin_retrait' || inputsDefault.documentType == 'gerance_assoc_checklist_successions_donations'">
+          <label id="radio-group-label">Statut : </label>
+          <mat-radio-group [(ngModel)]="inputsDefault.statutDocumentAssocie" aria-labelledby="radio-group-label"
+                          class="radio-group">
+            <mat-radio-button value="OK - ">Contrôlé</mat-radio-button>
+            <mat-radio-button value="Projet">Projet</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+    </div>
+    <div class="filter filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="onSearch()">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()">Effacer</button>
+    </div>
+  </aside>
+  <section [ngClass]="{'sidenav-open': isSideNavOpen}">
+    <div class="main-search container-egd">
+      <div class="profil" *ngIf="showSousDossierRadioGroup">
+        <mat-radio-group color="primary"
+                         (change)="onSousDossierChange($event.value)"
+                         [(ngModel)]="selectedSousDossier"
+                         aria-label="Type Sous Dossier"
+                         class="sous-dossier-radio-group">
+          <mat-radio-button class="sous-dossier-radio-button" value="associe">Associé</mat-radio-button>
+          <mat-radio-button class="sous-dossier-radio-button" value="partenaire">Partenaire</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div class="main-fields">
+        <ng-container *ngIf="isAssocie; else partenaireSearch">
+          <app-search-dossier-gerance-associes
+            [hidden]="!showDirectory"
+            [context]="'consultation'"
+            [events]="eventsDossier.asObservable()"
+            (result)="addCustomer($event)"
+            (clearCustomerEvent)="clearCustomer()">
+          </app-search-dossier-gerance-associes>
+          <div *ngIf="showSelectedCustomer" class="selected-customer">
+            <div class="infos-customer">
+              <p><strong>Numéro dossier :</strong> {{inputsDefault.numberAssocie}}</p>
+              <p><strong *ngIf="inputsDefault.nameAssocie">Nom dossier :</strong> {{inputsDefault.nameAssocie}}</p>
+            </div>
+            <button mat-button color="primary"
+                    (click)="clearCustomer()">Changer dossier
+            </button>
+          </div>
+        </ng-container>
+        <ng-template #partenaireSearch>
+          <ng-container [ngTemplateOutlet]="
+            showSelectedManager ? selectedManagerTemplate :
+            showSelectedAgent ? selectedAgentTemplate:
+            partenaireSearchFields">
+          </ng-container>
+
+          <ng-template #selectedManagerTemplate>
+            <div class="selected-customer">
+              <div class="infos-customer">
+                <p><strong>Manager :</strong> {{inputsDefault.codeManager}} - {{inputsDefault.nomManager}}</p>
+              </div>
+              <button mat-button color="primary"
+                      (click)="clearInput('nomManager')">Changer recherche
+              </button>
+            </div>
+          </ng-template>
+
+          <ng-template #selectedAgentTemplate>
+            <div class="selected-customer">
+              <div class="infos-customer">
+                <p><strong>Agent :</strong> {{inputsDefault.codeAgent}} - {{inputsDefault.nomAgent}}</p>
+              </div>
+              <button mat-button color="primary"
+                      (click)="clearInput('nomAgent')">Changer recherche
+              </button>
+            </div>
+          </ng-template>
+
+          <ng-template #partenaireSearchFields>
+            <div class="d-flex flex-row gap-3">
+              <app-autocomplete
+                [valueLabelList]="managerList"
+                placeHolder="Manager"
+                [(ngModel)]="inputsDefault.codeManager"
+                (ngModelChange)="clear('Manager', $event)"
+                (keydown.enter)="onSearch()"
+                class="w-100">
+              </app-autocomplete>
+
+              <app-autocomplete
+                [valueLabelList]="agentList"
+                placeHolder="Agent"
+                [(ngModel)]="inputsDefault.codeAgent"
+                (ngModelChange)="clear('Agent', $event)"
+                (keydown.enter)="onSearch()"
+                class="w-100">
+              </app-autocomplete>
+            </div>
+          </ng-template>
+        </ng-template>
+      </div>      <!-- Boutons recherche / réinitialisation -->
+      <div class="tools">
+        <button id="btn-search" mat-icon-button color="primary" (click)="onSearch()" matTooltip="Rechercher">
+          <mat-icon>search</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="searchQuery" (click)="clearAll()" matTooltip="Effacer les filtres">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="advanced">
+        <button mat-stroked-button color="primary" (click)="toggleNav()">
+          <span>Recherche avancée</span>
+        </button>
+      </div>
+    </div>
+    <div *ngIf="searchQuery" class="filtres-actifs">
+      <span *ngIf="actifs.numberAssocie" class="actif">Numéro ou nom dossier<span
+        *ngIf="inputsDefault.nomDossier || inputsDefault.numeroDossier">: {{inputsDefault.nomDossier}}</span> <mat-icon
+        (click)="clearCustomer()">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.documentType">Type du document <mat-icon
+        (click)="clearInput('documentType')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.productCategory">Catégorie de produit<mat-icon
+        (click)="clearInput('productCategory')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.product">Produit<mat-icon
+        (click)="clearInput('product')">close</mat-icon></span>
+      <span *ngIf="actifs.description" class="actif">Description<mat-icon
+        (click)="clearInput('description')">close</mat-icon></span>
+      <span *ngIf="actifs.contact" class="actif">Contact<mat-icon
+        (click)="clearInput('contact')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.priseEnCharge">Prise en charge<mat-icon (click)="clearInput('priseEnCharge')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.dateDocument">Date du document<mat-icon
+        (click)="clearInput('dateDocument')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.dateValidite">Date de validité<mat-icon
+        (click)="clearInput('dateValidite')">close</mat-icon></span>
+      <span class="actif" *ngIf="actifs.dateCreation">Date de dépôt en GED<mat-icon
+        (click)="clearInput('dateCreation')">close</mat-icon></span>
+      <div
+        *ngIf="inputsDefault.documentType == 'gerance_assoc_checklist_souscription' || inputsDefault.documentType == 'gerance_assoc_bulletin_retrait' || inputsDefault.documentType == 'gerance_assoc_checklist_successions_donations'">
+        <span class="actif" *ngIf="actifs.controle">Controlé<mat-icon
+          (click)="clearInput('controle')">close</mat-icon></span>
+        <span class="actif" *ngIf="actifs.projet">Projet<mat-icon
+          (click)="clearInput('projet')">close</mat-icon></span>
+      </div>
+      <span class="actif" *ngIf="actifs.nomManager">
+        Manager
+        <mat-icon (click)="clearInput('nomManager')">close</mat-icon>
+      </span>
+      <span class="actif" *ngIf="actifs.nomAgent">
+        Agent
+        <mat-icon (click)="clearInput('nomAgent')">close</mat-icon>
+      </span>
+    </div>
+    <mat-tab-group *ngIf="searchQuery != null" #tabGroup (selectedIndexChange)="tabChanged($event)"
+                   [selectedIndex]="initTab">
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name }}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <app-base-search-tab (sync)="onSync(tabKeyValue.key)($event)"
+                             (syncSideNav)="refreshNav($event)"
+                             [columns]="tabKeyValue.value.columns"
+                             [fn]="tabKeyValue.value.fetchFn"
+                             [isOpen]="isSideNavOpen"
+                             [pageSize]="25"
+                             [searchQuery]="searchQuery"
+                             (changeDocument)="onChangeDocument($event)"
+                             (changeGeranceAssociesATraiter)="onChangeGeranceAssociesATraiter($event)"
+                             (changeGeranceAssociesStatDoc)="onChangeGeranceAssociesStatDoc($event)"
+                             [sortBy]="sortBy"
+                             [space]="'gerance_associes'">
+        </app-base-search-tab>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

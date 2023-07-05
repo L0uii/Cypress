@@ -1,0 +1,184 @@
+<ng-container [formGroup]="form">
+  <ng-container [formGroupName]="step3FieldName">
+    <h4>Intitulé de l'enveloppe : <span
+      class="fw-normal">{{ form?.get([step3FieldName, 'cm:description']).value }}</span></h4>
+
+    <mat-form-field class="w-100 mb-3">
+      <textarea
+        matInput
+        placeholder="Message à envoyer"
+        autocomplete="off"
+        (blur)="this.fidusign.pastedTextToUnFormat();"
+        (focus)="this.fidusign.pastedTextToFormat()"
+        formControlName="fp:message"
+        rows="3">
+      </textarea>
+    </mat-form-field>
+
+    <ng-container formGroupName="viewFields">
+      <ng-container *ngIf="signatairesFavorisNameList$ | async as signatairesFavorisNameList">
+        <app-autocomplete-chips
+          class="w-100"
+          [disabled]="form.get([step3FieldName, 'viewFields', 'signataires'])?.controls.length === 4"
+          hintText="Entrez du texte pour rechercher un signataire par nom"
+          [list]="signatairesFavorisNameList"
+          [maxSelection]="maxSignataires"
+          placeHolder="Signataires Favoris"
+          formControlName="signatairesOptions">
+        </app-autocomplete-chips>
+      </ng-container>
+
+      <ng-container formArrayName="signataires">
+        <ng-container
+          *ngFor="let signataireGroup of form.get([step3FieldName, 'viewFields', 'signataires'])?.controls; let i = index">
+          <ng-container [formGroupName]="i">
+            <h4 class="mb-3">Signataire {{ i + 1 }} :</h4>
+            <div class="row mb-3">
+              <div class="col-11">
+                <div class="row">
+                  <div
+                    [ngClass]="form.get([step3FieldName, 'viewFields', 'signataires', i, 'fiduSign:telSignataire']) ? 'col-3' : 'col-4'">
+                    <mat-form-field class="w-100">
+                      <input
+                        autocomplete="off"
+                        formControlName="fiduSign:prenomSignataire"
+                        matInput
+                        placeholder="Prénom destinataire"
+                        type="text"/>
+                    </mat-form-field>
+                  </div>
+                  <div
+                    [ngClass]="form.get([step3FieldName, 'viewFields', 'signataires', i, 'fiduSign:telSignataire']) ? 'col-3' : 'col-4'">
+                    <mat-form-field class="w-100">
+                      <input
+                        matInput
+                        type="text"
+                        autocomplete="off"
+                        placeholder="Nom destinataire"
+                        formControlName="fiduSign:nomSignataire"/>
+                    </mat-form-field>
+                  </div>
+                  <div
+                    [ngClass]="form.get([step3FieldName, 'viewFields', 'signataires', i, 'fiduSign:telSignataire']) ? 'col-3' : 'col-4'">
+                    <mat-form-field class="w-100">
+                      <input
+                        matInput
+                        type="email"
+                        autocomplete="off"
+                        placeholder="E-mail destinataire"
+                        formControlName="fiduSign:mailSignataire"/>
+                    </mat-form-field>
+                  </div>
+                  <div *ngIf="form.get([step3FieldName, 'viewFields', 'signataires', i, 'fiduSign:telSignataire'])"
+                        class="col-3">
+                    <mat-form-field class="w-100">
+                      <input
+                        matInput
+                        type="tel"
+                        autocomplete="off"
+                        placeholder="Téléphone destinataire"
+                        formControlName="fiduSign:telSignataire"
+                        pattern="(06|07)[0-9]{8}"/>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+              <div class="col-1">
+                <button
+                  type="button"
+                  mat-icon-button
+                  [disabled]="form.get([step3FieldName, 'viewFields', 'signataires']).controls.length === maxSignataires"
+                  (click)="addSignataire(false)"
+                  matTooltip="Ajout signataire {{ i + 1 }}">
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  mat-icon-button
+                  *ngIf="signatairesFormArray.controls.length > 1"
+                  (click)="removeSignataire(i)"
+                  matTooltip="Retirer signataire {{ i + 1 }}">
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <div class="mb-5">
+        <app-email-list-chips
+          class="w-100"
+          [list]="destinatairesCopie$ | async"
+          [formControl]="form.get([step3FieldName, 'fiduSign:mailCopie'])"
+          placeHolder="Destinaires en copie (après signature)">
+        </app-email-list-chips>
+      </div>
+
+      <div class="row pt-5 pb-4">
+        <div class="col-auto me-5 d-flex align-items-center">
+          <label class="me-2">Autoriser la double authentification par SMS : </label>
+          <span [matTooltip]="authenticationParSMSField.disabled ? disabledFieldTooltipText : ''" class="d-flex align-items-center">
+            <mat-icon *ngIf="authenticationParSMSField.disabled" class="me-1">help</mat-icon>
+            <mat-radio-group color="primary" formControlName="authenticationParSMS">
+              <mat-radio-button value="1" class="me-2">Oui</mat-radio-button>
+              <mat-radio-button value="0">Non</mat-radio-button>
+            </mat-radio-group>
+          </span>
+        </div>
+
+        <div class="col-auto me-5 d-flex align-items-center">
+          <label class="me-2">Respecter l'ordre de signature : </label>
+          <span [matTooltip]="respecterOrdreDeSignatureField.disabled ? disabledFieldTooltipText : ''"
+                class="d-flex align-items-center">
+            <mat-icon *ngIf="respecterOrdreDeSignatureField.disabled" class="me-1">help</mat-icon>
+            <mat-radio-group color="primary" formControlName="respecterOrdreDeSignature">
+              <mat-radio-button value="2" class="me-2">Oui</mat-radio-button>
+              <mat-radio-button value="0">Non</mat-radio-button>
+            </mat-radio-group>
+          </span>
+        </div>
+
+        <div class="col-auto d-flex align-items-center">
+          <label class="me-2">Signature visible : </label>
+          <span [matTooltip]="signatureVisibleField.disabled ? disabledFieldTooltipText : ''" class="d-flex align-items-center">
+            <mat-icon *ngIf="signatureVisibleField.disabled" class="me-1">help</mat-icon>
+            <mat-radio-group color="primary" formControlName="signatureVisible">
+              <mat-radio-button value="1" class="me-2">Oui</mat-radio-button>
+              <mat-radio-button value="0">Non</mat-radio-button>
+            </mat-radio-group>
+          </span>
+        </div>
+      </div>
+
+      <div class="row pb-4" *ngIf="signatureVisibleField.value === '1'">
+        <div class="col-auto me-5 d-flex align-items-center">
+          <label class="me-2">Type de signature visible : </label>
+          <span [matTooltip]="visibleSigningModeField.disabled ? disabledFieldTooltipText : ''" class="d-flex align-items-center">
+            <mat-icon *ngIf="visibleSigningModeField.disabled" class="me-1">help</mat-icon>
+            <mat-radio-group color="primary" formControlName="visibleSigningMode">
+              <mat-radio-button value="DEFAULT" class="me-2">Ajout d'une page de signature</mat-radio-button>
+              <mat-radio-button value="FIELD" [matTooltip]="visibleSigningModeField.disabled ? '' : dernierePageMessage">
+                Utilisation de champs normés
+              </mat-radio-button>
+            </mat-radio-group>
+          </span>
+        </div>
+      </div>
+
+      <div class="row pb-4" *ngIf="visibleSigningModeField.value === 'DEFAULT' && signatureVisibleField.value === '1'">
+        <div class="col-auto me-5 d-flex align-items-center">
+          <label class="me-2">Emplacement de la page de signature : </label>
+          <span class="d-flex align-items-center">
+            <mat-radio-group color="primary" formControlName="posSigningPageTemplate">
+              <mat-radio-button value="START" class="me-2">Première page</mat-radio-button>
+              <mat-radio-button value="END">Dernière page</mat-radio-button>
+            </mat-radio-group>
+          </span>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+</ng-container>

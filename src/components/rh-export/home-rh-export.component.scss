@@ -1,0 +1,25 @@
+article {
+  width: 85%;
+  margin: auto;
+}
+
+.section {
+  text-decoration: underline;
+  font-style: italic;
+}
+
+.input-hint {
+  max-width: 45ch;
+  font-size: smaller;
+  font-style: italic;
+  display: block;
+  white-space: normal;
+}
+
+mat-radio-group {
+  display: flex;
+
+  .mat-radio-label {
+    align-items: flex-start;
+  }
+}

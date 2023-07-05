@@ -1,0 +1,239 @@
+<main class="archives-presidence">
+  <aside class="sidenav right" [ngClass]="{open: sideNavOpen}">
+    <h3>Recherche avancée</h3>
+    <button class="close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="recherche-container-scroll">
+      <!-- Filtres de recherche -->
+      <section>
+        <div class="sort">
+          <button [matMenuTriggerFor]="trier" color="primary" mat-flat-button>Trier par :
+            <span>{{selectedSortByField}}</span></button>
+          <button [matMenuTriggerFor]="sens" color="primary" mat-flat-button>Ordre : <span>{{selectedSortByOrder}}</span>
+          </button>
+        </div>
+        <mat-menu #trier="matMenu" yPosition="below" [overlapTrigger]="false">
+          <button (click)="setSortByField(field)" *ngFor="let field of filterFields"
+                  mat-menu-item>{{field.label}}</button>
+        </mat-menu>
+        <mat-menu #sens="matMenu" yPosition="below" [overlapTrigger]="false">
+          <button (click)="setSortByOrder(order)" *ngFor="let order of filtersOrder"
+                  mat-menu-item>{{order.label}}</button>
+        </mat-menu>
+      </section>
+      <div class="fields">
+        <ng-container *ngFor="let input of inputs | keyValue; let i = index">
+          <!--  Champs type text -->
+          <mat-form-field *ngIf="input.value.type === 'text'" [ngStyle]="{'order': input.value.order}">
+            <input #i (keyup.enter)="search()" [(ngModel)]="input.value.value" [placeholder]="input.value.label"
+                  autocomplete="off"
+                  matInput/>
+            <button mat-button *ngIf="input.value.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs type datetime -->
+          <mat-form-field *ngIf="input.value.type === 'date'" [ngStyle]="{'order': input.value.order}">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input (keyup.enter)="search()" [(ngModel)]="input.value.value" [matDatepicker]="i" [min]="minDate"
+                  autocomplete="off"
+                  matInput/>
+            <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+            <mat-datepicker #i></mat-datepicker>
+            <button mat-button *ngIf="input.value.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Champs type dateRange -->
+          <div *ngIf="input.value.type === 'dateRange'">
+            <app-date-select
+              [label]="input.value.label"
+              [(ngModel)]="input.value.value"
+              [minYear]="currentYear - 2"
+              [maxYear]="currentYear + 15"
+              [isYearDescending]="false"
+              (onSearch)="search()"
+            >
+            </app-date-select>
+          </div>
+          <!-- Champs type year -->
+          <mat-form-field *ngIf="input.value.type === 'year'" [ngStyle]="{'order': input.value.order}">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input (click)="i.open()" (keyup.enter)="search()" [value]="input.value.typedDate" class="date-input"/>
+            <input [(ngModel)]="input.value.value" [matDatepicker]="i" [min]="minDate" autocomplete="off" matInput
+                  style="display:none;"/>
+            <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+            <mat-datepicker #i (yearSelected)="setYear(input.value.name, $event, i)"
+                            startView="multi-year"></mat-datepicker>
+            <button mat-button *ngIf="input.value.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput(input.value.name)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <!-- Champs autocomplete -->
+          <mat-form-field *ngIf="input.value.type === 'optionsArray' || input.value.type === 'optionsObject'"
+                          [ngStyle]="{'order': input.value.order}">
+            <mat-label>{{input.value.label}}</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              [(ngModel)]="input.value.typedValue"
+              (keyup.enter)="search()"
+              (keyup)="filterOptions($event.target.value, input.value.name)"
+              [matAutocomplete]="i"
+              #trigger="matAutocompleteTrigger"
+              (click)="onFocus($event, trigger)">
+
+            <mat-autocomplete #i="matAutocomplete">
+              <mat-option (click)="setValue(element.value, input.value.name)"
+                          *ngFor="let element of filtered[input.value.name]" [value]="element.label">
+                {{element.label}}
+              </mat-option>
+            </mat-autocomplete>
+            <button (click)="setValue(input.value.typedValue, input.value.name)"
+                    *ngIf="filtered[input.value.name].length === 0" mat-button mat-icon-button
+                    matSuffix
+                    matTooltip="Recherche saisie libre">
+              <mat-icon>search</mat-icon>
+            </button>
+            <button (click)="clearInput(input.value.name)" *ngIf="input.value.value || input.value.typedValue"
+                    aria-label="Clear" mat-button
+                    mat-icon-button
+                    matSuffix>
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </ng-container>
+      </div>
+    </div>
+    <!-- Boutons recherche / réinitialisation -->
+    <div class="filter filter-buttons-fixed">
+      <button mat-raised-button color="primary" (click)="search()">Rechercher</button>
+      <button mat-button color="primary" (click)="clearAll()">Effacer</button>
+    </div>
+  </aside>
+
+  <section [ngClass]="{'sidenav-open': sideNavOpen}">
+    <!-- Champ de recherche principal -->
+    <div class="main-search container-egd">
+      <div class="fields">
+        <!--  Champs type text -->
+        <mat-form-field class="one">
+          <input
+            matInput
+            autocomplete="off"
+            placeholder="Titre ou contenu"
+            (keyup.enter)="search()"
+            [(ngModel)]="inputs['titre'].value"
+          />
+          <button *ngIf="inputs['titre'].value" matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('titre')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <!--  Champs type option -->
+        <mat-form-field class="two">
+          <mat-label>Thématique</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            [(ngModel)]="inputs['thematique'].typedValue"
+            (keyup.enter)="search()"
+            (keyup)="filterOptions($event.target.value, 'thematique')"
+            [matAutocomplete]="autoCompleteThematique"
+            #trigger="matAutocompleteTrigger"
+            (click)="onFocus($event, trigger)"
+          >
+          <mat-autocomplete #autoCompleteThematique="matAutocomplete">
+            <mat-option (click)="setValue(element.value, 'thematique')" *ngFor="let element of filtered['thematique']"
+                        [value]="element.label">
+              {{element.label}}
+            </mat-option>
+          </mat-autocomplete>
+          <button (click)="setValue(inputs['thematique'].typedValue, 'thematique')"
+                  *ngIf="filtered['thematique'].length === 0" mat-button mat-icon-button
+                  matSuffix
+                  matTooltip="Recherche saisie libre">
+            <mat-icon>search</mat-icon>
+          </button>
+          <button (click)="clearInput('thematique')" *ngIf="inputs.thematique.value || inputs.thematique.typedValue"
+                  aria-label="Clear" mat-button
+                  mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <!-- Champs type tags -->
+        <mat-form-field class="two">
+          <mat-label>Mot-clés</mat-label>
+          <mat-chip-list #keywords>
+            <mat-chip *ngFor="let value of inputs['keywords'].value"
+                      (removed)="remove(value)"
+                      [removable]="true"
+            >
+              {{value}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <input
+              autocomplete="off"
+              (keyup.enter)="search()"
+              [matChipInputFor]="keywords"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [matChipInputAddOnBlur]="true"
+              (matChipInputTokenEnd)="add($event)"
+            >
+          </mat-chip-list>
+          <button mat-button *ngIf="inputs.keywords.value" matSuffix mat-icon-button aria-label="Clear"
+                  (click)="clearInput('keywords')">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-hint>Séparez les mots-clés d'un espace.</mat-hint>
+        </mat-form-field>
+      </div>
+      <!-- Boutons recherche / réinitialisation -->
+      <button class="action" mat-icon-button color="primary" (click)="search()" matTooltip="Rechercher">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button class="action" mat-icon-button (click)="clearAll()" matTooltip="Effacer les filtres">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button mat-stroked-button color="primary" (click)="toggleNav()">
+        <span>Recherche avancée</span>
+      </button>
+    </div>
+    <div *ngIf="searchQuery" class="filtres-actifs">
+      <span>Filtre sur </span>
+      <div *ngFor="let input of inputs | keyValue; let i = index; trackBy:trackByIndex">
+        <span *ngIf="input.value.actif" class="actif">{{input.value.label}}
+          <mat-icon (click)="clearInput(input.value.name)">close</mat-icon></span>
+      </div>
+    </div>
+    <!-- Onglets résultats-->
+    <mat-tab-group *ngIf="searchQuery != null" #tabGroup class="tabs__conseil">
+      <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+        <ng-template matTabLabel>
+          <div class="custom-label">
+            <span>{{ tabKeyValue.value.name }}</span>
+            <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+          </div>
+        </ng-template>
+        <!-- Tableau résultats -->
+        <app-base-search-tab (sync)="onSync(tabKeyValue.key)($event)"
+                             (syncSideNav)="refreshNav($event)"
+                             [columns]="tabKeyValue.value.columns"
+                             [fn]="tabKeyValue.value.fetchFn"
+                             [isOpen]="sideNavOpen"
+                             [pageSize]="10"
+                             [searchQuery]="searchQuery"
+                             [sortBy]="sortBy"
+                             [space]="'archives_presidence'">
+        </app-base-search-tab>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

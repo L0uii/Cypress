@@ -1,0 +1,11 @@
+<mat-form-field appearance="fill" class="search-user">
+  <mat-label>Utilisateurs</mat-label>
+  <mat-select #select name="selectedUser">
+    <mat-option (click)="selectedUser(user)" *ngFor="let user of users" [value]="user">
+      {{user.Owner.displayName}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+<button (click)="changeChoice()">
+  <mat-icon>close</mat-icon>
+</button>

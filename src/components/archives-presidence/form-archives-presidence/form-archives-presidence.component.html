@@ -1,0 +1,120 @@
+<article>
+  <form [formGroup]="uploadForm">
+    <div class="fields-grid">
+      <ng-container *ngFor="let input of (inputs | callback: filterFields) | keyValue; let i = index; let j = index">
+        <!--  Champs type text -->
+        <mat-form-field *ngIf="input.value.type === 'text' && input.value.show" [ngStyle]="{'order': input.value.order}" [ngClass]="input.value.name === 'description' ? 'one' : 'three'">
+          <input #i autocomplete="off" matInput [placeholder]="input.value.label" [formControlName]="input.value.name" />
+          <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+          <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Ce champ est requis</mat-error>
+          <mat-hint *ngIf="input.value.hint" align="end">{{ i.value.length }} / {{input.value.hint}}</mat-hint>
+          <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button
+                  aria-label="Clear"
+                  (click)="clearInput($event, input.value.name)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Champs type datetime -->
+        <mat-form-field *ngIf="input.value.type === 'date' && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+          <mat-label>{{input.value.label}}</mat-label>
+          <input autocomplete="off" matInput [matDatepicker]="i" [formControlName]="input.value.name"/>
+          <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+          <mat-datepicker #i></mat-datepicker>
+          <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+          <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Le format de date n'est pas valide</mat-error>
+          <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearInput($event, input.value.name)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Champs type year -->
+        <mat-form-field *ngIf="input.value.type === 'year' && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+          <mat-label>{{input.value.label}}</mat-label>
+          <input readonly class="date-input" matInput (focus)="i.open()" [value]="input.value.typedDate" />
+          <input style="display:none;" matInput [matDatepicker]="i" [formControlName]="input.value.name"/>
+          <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+          <mat-datepicker #i startView="multi-year" (yearSelected)="setYear(input.value.name, $event, i)"></mat-datepicker>
+          <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+          <div *ngIf="uploadForm.controls[input.value.name].invalid && (uploadForm.controls[input.value.name].dirty || uploadForm.controls[input.value.name].touched)" class="date-error">Le format de date n'est pas valide</div>
+          <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearInput($event, input.value.name)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Champs select autocomplete -->
+        <mat-form-field  *ngIf="(input.value.type === 'optionsArray' || input.value.type === 'optionsObject') && input.value.show" [ngStyle]="{'order': input.value.order}" class="three">
+          <mat-label>{{input.value.label}}</mat-label>
+          <input autocomplete="off"
+            #j
+            matInput
+            (keyup)="filterOptions($event.target.value, input.value.name)"
+            [matAutocomplete]="i"
+            [formControlName]="input.value.name"
+            #trigger="matAutocompleteTrigger"
+            (click)="onFocus($event, trigger)"
+            >
+          <mat-autocomplete #i="matAutocomplete">
+            <mat-option
+              *ngFor="let element of filtered[input.value.name]"
+              (click)="setValue($event, element.value, input.value.name)"
+              [value]="element.label"
+            >
+              {{element.label}}
+            </mat-option>
+          </mat-autocomplete>
+          <span *ngIf="utils.isRequiredControl(uploadForm,input.value.name)" class="obligatoire">*</span>
+          <mat-error *ngIf="uploadForm.controls[input.value.name].invalid">Ce champ est requis</mat-error>
+          <button mat-button *ngIf="input.value.saisieLibre && filtered[input.value.name].length === 0 " matSuffix mat-icon-button matTooltip="Ajouter cette saisie"
+              (click)="setValue($event, j.value, input.value.name)">
+              <mat-icon>add</mat-icon>
+            </button>
+          <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearInput($event, input.value.name)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <!-- Champ type tags -->
+        <mat-form-field *ngIf="input.value.type === 'tags' && input.value.show" [ngStyle]="{'order': input.value.order}" class="one">
+          <mat-label>{{input.value.label}}</mat-label>
+          <mat-chip-list #i>
+            <mat-chip *ngFor="let value of input.value.value" [removable]="true" (removed)="remove(value)">
+              {{value}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <input [matChipInputFor]="i"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="true"
+            (matChipInputTokenEnd)="add($event)">
+          </mat-chip-list>
+          <button mat-button *ngIf="uploadForm.controls[input.value.name].value" matSuffix mat-icon-button aria-label="Clear"
+            (click)="clearInput($event, input.value.name)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </ng-container>
+      <div *ngIf="uploadForm.controls['sommaire'].value === 'Oui'" class="file">
+        <input
+          type="file"
+          class="file-input"
+          (filesChangeEmiter)="onFilesChange($event)"
+          (filesInvalidEmiter)="onFilesInvalid($event)"
+          [allowed_extensions]="archivesPresidenceService.extensions"
+          appDragAndDrop
+          #fileUpload>
+          <button mat-button [color]="invalidFile ? 'warn' : 'primary'" class="upload-btn"
+          (click)="fileUpload.click(); $event.preventDefault()">
+          <span *ngIf="fileName">{{fileName}}</span>
+          <span *ngIf="invalidFile">Document invalide (docx ou odt).</span>
+          <span *ngIf="!fileName && !invalidFile">Ajouter un sommaire</span>
+            <mat-icon>attach_file</mat-icon>
+          </button>
+      </div>
+    </div>
+    <em>* champs requis</em>
+    <button class="submit" color="primary" mat-raised-button (click)="saveMetadataFromInput($event)">Valider</button>
+  </form>
+  <app-send *ngIf="showSend" [data]="data" (filesSended)="resetPage()"></app-send>
+</article>

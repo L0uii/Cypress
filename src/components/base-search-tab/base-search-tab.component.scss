@@ -1,0 +1,493 @@
+@import '../../../src/_custom-style.scss';
+
+@mixin flex-column-start {
+  flex-direction: column;
+  align-items: start;
+  gap: 3px;
+}
+
+.mat-header-cell {
+  vertical-align: middle;
+  text-align: left;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, .87);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mat-cell {
+  position: relative;
+}
+
+.mat-cell,
+.mat-header-cell {
+  &:first-of-type {
+    max-width: 2%;
+  }
+
+  &:last-of-type {
+    max-width: 80px;
+    justify-content: center;
+  }
+}
+
+// --- Commons columns ---
+
+.mat-column-Duplicata {
+  max-width: $five-percent;
+  justify-content: $center;
+}
+
+// --- Column Expertise ---
+
+.mat-column-CodeClientMR {
+  max-width: 6% !important;
+}
+
+.mat-column-NomClientMR {
+  min-width: $thirteen-percent;
+  max-width: $fifteen-percent;
+}
+
+.mat-column-TitreMR {
+  min-width: 40%;
+}
+
+.mat-column-NommageMR {
+  min-width: $sixteen-percent;
+}
+
+.mat-column-DateCreation {
+  max-width: $twenty-percent;
+}
+
+.mat-column-ClassementMR {
+  min-width: $fifteen-percent;
+}
+
+.mat-column-VisibilityClient {
+  //justify-content: $center;
+  .eCoffreCell_display{
+    margin-top: -3px;
+    margin-bottom: 15px;
+  }
+  .visibCell_display{
+    margin-top: 11px;
+  }
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-SousFamilleMR {
+  min-width: $seven-percent;
+}
+
+// --- Column Gerance Associés ---
+
+.mat-column-Associe_Traitement {
+  min-width: $twelve-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-CategorieProduitMixed {
+  min-width: $twelve-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Associe {
+  min-width: $twelve-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-TypeDocumentGerance {
+  min-width: $nine-percent;
+}
+
+.mat-column-NommageGerance {
+  min-width: $twelve-percent;
+  padding: 0 5px;
+}
+
+.mat-column-ProduitGerance {
+  min-width: $five-percent;
+  padding: 0 8px;
+  word-break: break-all;
+}
+
+.mat-column-FamilleGerance {
+  min-width: 11%;
+}
+
+.mat-column-DatesGerance {
+  max-width: 160px;
+  padding: 0 8px;
+
+  &.mat-cell {
+    @include flex-column-start;
+    min-height: initial;
+  }
+}
+
+// --- Column Archives Presidences ---
+
+.mat-column-Titre_AP {
+  min-width: $ten-percent;
+}
+
+.mat-column-Date_AP {
+  max-width: $seven-percent;
+}
+
+.mat-column-Nature_AP {
+  max-width: $six-percent;
+}
+
+.mat-column-Annee_AP {
+  max-width: $five-percent;
+
+  &.mat-cell {
+    justify-content: $center;
+  }
+}
+
+.mat-column-Dossier_AP {
+  max-width: $eleven-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Localisation_AP {
+  min-width: $six-percent;
+  max-width: $fifteen-percent;
+}
+
+.mat-column-Thematique_AP {
+  max-width: $ten-percent;
+}
+
+.mat-column-Remarques_AP {
+  max-width: $thirteen-percent;
+}
+
+// --- Column Sofiral ---
+
+.mat-column-AcheteurSofiral {
+  min-width: $sixteen-percent;
+  max-width: $eighteen-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-NumSociete {
+  max-width: $four-percent
+}
+
+.mat-column-NumFacture {
+  max-width: $five-percent;
+}
+
+.mat-column-NomSociete {
+  min-width: $five-percent;
+}
+
+.mat-column-DateFacture {
+  max-width: 89px;
+}
+
+.mat-column-DateDebutFacture {
+  max-width: 89px;
+}
+
+.mat-column-DateFinFacture {
+  max-width: 89px;
+}
+
+.mat-column-Montant {
+  max-width: 100px;
+}
+
+.mat-column-Createur {
+  max-width: 111px;
+}
+
+.mat-column-AcheteurPending {
+  max-width: 156px;
+}
+
+.cdk-column-Acheteur {
+  max-width: 165px;
+}
+
+.mat-column-Periodicite {
+  max-width: $six-percent;
+}
+
+.mat-column-Titre_Sofiral {
+  max-width: $fifteen-percent;
+}
+
+// --- Column ADV ---
+
+.mat-column-CodeClient {
+  max-width: $six-percent;
+}
+
+.mat-column-DateDocument {
+  max-width: $seven-percent;
+}
+
+.mat-column-Nature {
+  max-width: $seven-percent;
+}
+
+.mat-column-Statut {
+  max-width: $seven-percent;
+}
+
+.mat-column-NomClient {
+  min-width: $ten-percent;
+}
+
+.mat-column-SousCategory {
+  max-width: 28%;
+}
+
+// --- Column Conseil ---
+
+.mat-column-ClientFacture {
+  max-width: $twelve-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Description {
+  min-width: $twelve-percent;
+  &.mat-cell {
+    @include flex-column-start;
+    min-height: initial;
+  }
+}
+
+.mat-column-TypeDocument {
+  max-width: $twelve-percent;
+}
+
+.mat-column-CategorieProduit {
+  max-width: $seven-percent;
+}
+
+.mat-column-Partenaire {
+  max-width: $five-percent;
+}
+
+.mat-column-Famille {
+  max-width: $eleven-percent;
+}
+
+.mat-column-DatesConseil {
+  max-width: 173px;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Produit {
+  max-width: 195px;
+}
+
+.mat-column-DatesATraiter {
+  max-width: 141px;
+
+  &.mat-cell {
+    @include flex-column-start;
+    min-height: initial;
+  }
+}
+
+.mat-column-DirectionRegionale {
+  max-width: $seven-percent;
+}
+
+.mat-cell.mat-column-Metier p,
+.mat-cell.mat-column-NiveauExpertise p {
+  align-items: $center;
+}
+
+.mat-cell.mat-column-Metier p .mat-icon,
+.mat-cell.mat-column-NiveauExpertise p .mat-icon {
+  padding-top: 5px;
+}
+
+
+.mat-column-OptionsCv,
+.mat-column-OptionsCv {
+  text-align: $center;
+}
+
+.mat-row:nth-child(odd) {
+  background: #ebebeb;
+}
+
+.no-results {
+  font-size: 1.5em;
+}
+
+.pending-results {
+  display: flex;
+  flex-direction: column;
+  align-items: $center;
+
+  h3 {
+    font-size: 1.5em;
+  }
+}
+
+.gooey {
+  position: unset;
+  margin: 0;
+}
+
+@-moz-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-webkit-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-o-keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@keyframes dot {
+  50% {
+    transform: translateX(96px);
+  }
+}
+
+@-moz-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@-webkit-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@-o-keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+@keyframes dots {
+  50% {
+    transform: translateX(-31px);
+  }
+}
+
+.custom-label .mat-tab-label {
+  font-weight: bold;
+  color: #000;
+}
+
+.link-customer {
+  color: #3498db;
+  font-weight: bold;
+  text-decoration: underline #3498db;
+  cursor: pointer;
+  padding-right: 5px;
+}
+
+.link-nommage {
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.table-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  max-height: 100%;
+
+  &.has-toolbar {
+    max-height: calc(100% - 64px);
+  }
+}
+
+.table-container {
+  overflow: auto;
+}
+
+.no-rows-container {
+  display: flex;
+  justify-content: $center;
+  align-items: $center;
+  background: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.paginator {
+  position: sticky;
+  bottom: 0;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.icon-display {
+  vertical-align: bottom;
+  transform: scale(0.8);
+}
+
+.collecte-message-icon {
+  font-size: 19px;
+  padding-right: 10px;
+}
+
+.document-name-table-field {
+  word-break: break-all;
+}
+
+.cdk-overlay-pane {  
+  &.mat-tooltip-panel {  
+   .mat-tooltip { 
+    font-size: 14px;
+   } 
+  } 
+ }

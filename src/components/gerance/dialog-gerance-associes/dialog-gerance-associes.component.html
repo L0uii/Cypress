@@ -1,0 +1,35 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Mise à jour</h1>
+  <button mat-icon-button (click)="closeDialog(failList.length > 0)">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<ng-container *ngIf="failList.length > 0; else documentList">
+  <div mat-dialog-content>
+    <p>Il-y-a eu une erreur de traitement dans les documents suivants</p>
+    <ul>
+      <li *ngFor="let row of failList">
+        {{row.title}} - Erreur: {{row.error}}
+      </li>
+    </ul>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-stroked-button color="primary" (click)="closeDialog(true)" [disabled]="isSaving">Fermer</button>
+  </div>
+</ng-container>
+
+<ng-template #documentList>
+  <div mat-dialog-content>
+    <p>Confirmez vous le traitement de ce(s) documents et la bascule de ceux-ci dans l'onglet "Consulter"</p>
+    <ul>
+      <li *ngFor="let row of data">
+        {{row.NommageGerance}} ({{row.NumeroAssocie}} {{row.NomAssocie}})
+      </li>
+    </ul>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-stroked-button color="primary" (click)="closeDialog()" [disabled]="isSaving">Annuler</button>
+    <button mat-raised-button color="primary" (click)="updateDocuments()" [disabled]="isSaving">Confirmer</button>
+    <div *ngIf="isSaving" class="spinner"></div>
+  </div>
+</ng-template>

@@ -1,0 +1,43 @@
+<div class="update">
+  <div class="update__container -delete">
+    <div *ngIf="!deleteDone" class="update__form">
+      <div class="update__title">
+        <ng-container *ngIf="documentsToBeDeleted.length > 1; else singleDocument">
+          <h3>Voulez-vous supprimer les documents suivants :</h3>
+        </ng-container>
+        <ng-template #singleDocument>
+          <h3>Voulez-vous supprimer le document '{{ documentsToBeDeleted[0].Nommage ? documentsToBeDeleted[0].Nommage : documentsToBeDeleted[0].name }}' ?</h3>
+        </ng-template>
+        <button class="pdf__icon" (click)="close()" matTooltip="Fermer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <ul *ngIf="documentsToBeDeleted.length > 1">
+        <li *ngFor="let documentToBeDeleted of documentsToBeDeleted">{{ documentToBeDeleted.Nommage ? documentToBeDeleted.Nommage : documentToBeDeleted.name }}</li>
+      </ul>
+      <div class="update__file">
+        <button mat-button (click)="close()">
+          Annuler
+        </button>
+        <button type="submit" color="primary" mat-raised-button (click)="deleteDocument()">
+          Supprimer
+        </button>
+      </div>
+    </div>
+    <div *ngIf="deleteDone" class="update__form">
+      <div *ngIf="success" class="update__title">
+        <h3>Suppression effectuée</h3>
+        <span class="pdf__icon">
+          <mat-icon>check</mat-icon>
+        </span>
+      </div>
+      <div *ngIf="failed" class="update__title">
+        <span class="pdf__icon">
+          <mat-icon>info</mat-icon>
+        </span>
+        <h3>Votre action ne peut être validée car ce(s) document(s) a (ont) déjà fait l'objet d'une suppression. Il se peut que l'affichage dans l'espace GED soit en cours d'actualisation. Merci pour votre compréhension</h3>
+      </div>
+    </div>
+  </div>
+</div>

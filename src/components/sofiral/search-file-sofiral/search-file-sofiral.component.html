@@ -1,0 +1,11 @@
+<div class="search-customer">
+  <mat-form-field>
+    <mat-label>Rechercher un dossier</mat-label>
+    <input autocomplete="off" matInput
+            [formControl]="customerQuery">
+    <mat-hint>Entrez le nom ou numéro de dossier</mat-hint>
+    <button *ngIf="customerQuery.value" mat-button matSuffix mat-icon-button aria-label="Effacer" (click)="clearCustomer()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+</div>

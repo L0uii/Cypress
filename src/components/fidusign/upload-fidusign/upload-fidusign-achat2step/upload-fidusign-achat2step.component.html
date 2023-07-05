@@ -1,0 +1,173 @@
+<header *ngIf="fidusign.fileList.length === 1; else multipleFiles">
+  <h3 class="d-inline-block">Informations relatives au document :</h3>
+  <span class="files-info">{{ fidusign.fileList[0].name }}</span>
+</header>
+
+<ng-template #multipleFiles>
+  <h3 class="d-flex align-items-center">
+    Informations relatives à cette enveloppe :
+    <button [matMenuTriggerFor]="files" class="files-info" color="secondary" mat-raised-button
+            type="button">Liste des documents téléchargés
+    </button>
+
+    <mat-menu #files="matMenu" class="mat-menu-scroll">
+      <span mat-menu-item class="pe-none" *ngFor="let file of fidusign.fileList">{{ file.name }}</span>
+    </mat-menu>
+  </h3>
+</ng-template>
+
+<ng-container [formGroup]="form">
+  <article formGroupName="step2">
+    <div class="form__3">
+      <app-autocomplete
+        isRequired="true"
+        [list]="societeSignataireList$ | async"
+        placeHolder="Société signataire"
+        formControlName="contrat:acheteur">
+      </app-autocomplete>
+
+      <app-autocomplete
+        isRequired="true"
+        [list]="fournisseurList$ | async"
+        placeHolder="Fournisseur"
+        formControlName="contrat:fournisseur"
+        allowFreeText="true">
+      </app-autocomplete>
+
+      <app-autocomplete
+        isRequired="true"
+        [list]="achatNatureDuDocumentList$ | async"
+        placeHolder="Nature du document"
+        formControlName="contrat:nature">
+      </app-autocomplete>
+    </div>
+
+    <div class="form__3">
+      <app-autocomplete
+        isRequired="true"
+        [valueLabelList]="categorieDuContratList$ | async"
+        placeHolder="Catégorie du contrat"
+        formControlName="fiducial:domainContainerFamille">
+      </app-autocomplete>
+
+      <app-autocomplete
+        isRequired="true"
+        [valueLabelList]="sousCategorieList"
+        placeHolder="Sous catégorie"
+        formControlName="fiducial:domainContainerSousFamille">
+      </app-autocomplete>
+
+      <mat-form-field>
+        <input
+          autocomplete="off"
+          matInput
+          type="text"
+          placeholder="Client interne"
+          formControlName="contrat:clientinterne"/>
+      </mat-form-field>
+    </div>
+
+    <div class="form__3">
+      <mat-form-field>
+        <input
+          autocomplete="off"
+          matInput
+          [matDatepicker]="dateDePrise"
+          placeholder="Date de prise d’effet"
+          formControlName="contrat:dateContrat"/>
+        <mat-datepicker-toggle matSuffix [for]="dateDePrise"></mat-datepicker-toggle>
+        <mat-datepicker #dateDePrise></mat-datepicker>
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+
+      <div class="dates d-flex align-items-center justify-content-between"
+           [class.active]="form.get(['step2', 'contrat:reconduction']).value === 'Oui'">
+        <mat-form-field class="column">
+          <input
+            autocomplete="off"
+            matInput
+            [matDatepicker]="dateDeFin"
+            placeholder="Date de fin de contrat"
+            formControlName="contrat:dateFinContrat"/>
+          <mat-datepicker-toggle matSuffix [for]="dateDeFin"></mat-datepicker-toggle>
+          <mat-datepicker #dateDeFin></mat-datepicker>
+          <span class="obligatoire">*</span>
+        </mat-form-field>
+
+        <div class="column d-flex align-items-center justify-content-between">
+          <section class="reduction-tacite">
+            <label>Reconduction tacite</label>
+            <mat-radio-group color="primary" formControlName="contrat:reconduction">
+              <mat-radio-button class="me-2" value="Oui">Oui</mat-radio-button>
+              <mat-radio-button value="Non">Non</mat-radio-button>
+            </mat-radio-group>
+          </section>
+          <mat-form-field *ngIf="form.get(['step2', 'contrat:resiliation'])"
+                          class="date-resiliation">
+            <input
+              autocomplete="off"
+              matInput
+              [matDatepicker]="dateDeadlineCancellation"
+              placeholder="Date limite résiliation"
+              formControlName="contrat:resiliation"/>
+            <mat-datepicker-toggle matSuffix [for]="dateDeadlineCancellation"></mat-datepicker-toggle>
+            <mat-datepicker #dateDeadlineCancellation></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+    </div>
+
+    <div>
+      <mat-form-field class="w-100">
+        <textarea
+          matInput
+          autocomplete="off"
+          placeholder="Intitulé de l'enveloppe"
+          formControlName="cm:description"
+          maxlength="100"
+          (blur)="this.fidusign.pastedTextToUnFormat();"
+          (focus)="this.fidusign.pastedTextToFormat()"
+          (keydown.enter)="onKeyDown($event)"
+          #description>
+        </textarea>
+        <mat-hint align="end">{{ description.value.length }} / 100</mat-hint>
+        <span class="obligatoire">*</span>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="form.get(['step2', 'envoyerEnGed'])">
+      <h4>Envoyer en GED :</h4>
+      <mat-radio-group color="primary" formControlName="envoyerEnGed">
+        <div class="mb-3">
+          <mat-radio-button value="avec">
+            Avec demande de signature
+          </mat-radio-button>
+        </div>
+
+        <div>
+          <mat-radio-button value="sans">
+            Sans demande de signature (document(s) déjà signé(s))
+          </mat-radio-button>
+        </div>
+      </mat-radio-group>
+
+      <div *ngIf="form.get(['step2', 'fiduSign:dateCertification'])" class="form__3 mt-2">
+        <mat-form-field>
+          <mat-label>Date de signature</mat-label>
+          <input
+            [matDatepicker]="dateDeSignature"
+            [matDatepickerFilter]="noFutureFilter"
+            autocomplete="off"
+            [max]="dateNow"
+            formControlName="fiduSign:dateCertification"
+            matInput/>
+          <mat-datepicker-toggle matSuffix [for]="dateDeSignature"></mat-datepicker-toggle>
+          <mat-datepicker #dateDeSignature></mat-datepicker>
+          <span class="obligatoire">*</span>
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+</ng-container>
+

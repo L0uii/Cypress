@@ -1,0 +1,155 @@
+<div class="search-form">
+  <div class="container-egd">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="customerId" matInput placeholder="Numéro client"/>
+            <button *ngIf="customerId != ''" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearCustomer()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="customerName" matInput placeholder="Nom client"/>
+            <button *ngIf="customerName != ''" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="customerName = ''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="siren" matInput placeholder="Numéro SIREN"/>
+            <button *ngIf="siren != ''" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="siren = ''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <mat-label>Société émettrice</mat-label>
+            <mat-select [(ngModel)]="societeEmName" (keyup.enter)="onSearch()">
+              <mat-option>Aucune</mat-option>
+              <mat-option *ngFor="let societeEmettrice of societeEmettriceOptions" [value]="societeEmettrice">
+                {{ societeEmettrice }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <app-date-select label="Date document"
+            [(ngModel)]="dateDocument"
+            [minYear]="currentYear - 15"
+            [maxYear]="currentYear"
+            (onSearch)="onSearch()">
+          </app-date-select>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="codeBudget" matInput placeholder="Code budget"/>
+            <button *ngIf="codeBudget != ''" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="codeBudget = ''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input matInput placeholder="Date de début facture" type="date" format="dd/MM/yyyy" (keyup.enter)="onSearch()"
+                   [(ngModel)]="factureStartDate"/>
+          </mat-form-field>
+        </div>
+
+        <div class="col-3">
+          <mat-form-field>
+            <input matInput placeholder="Date de fin facture" type="date" format="dd/MM/yyyy" (keyup.enter)="onSearch()"
+                   [(ngModel)]="factureEndDate"/>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <mat-label>Sous catégorie</mat-label>
+            <mat-select [(ngModel)]="sousCategory" (keyup.enter)="onSearch()">
+              <mat-option>Aucune</mat-option>
+              <mat-option value="ContratDeServicesFiducialConsulting">Contrat De Services Fiducial Consulting</mat-option>
+              <mat-option value="ContratDeServicesFiducialConsultinge_ConditionsGeneralesDePrestationDeServices">Contrat De
+                Services Fiducial Consulting Conditions Générales De Prestation De Services
+              </mat-option>
+              <mat-option value="LettreMissionFiducialExpertise">Lettre Mission Fiducial Expertise</mat-option>
+              <mat-option value="LettreMissionFiducialExpertise_ConditionsGeneralesDeCollaboration">Lettre Mission Fiducial
+                Expertise Conditions Générales De Collaboration
+              </mat-option>
+              <mat-option value="DocumentsDIdentification">Documents d'identification</mat-option>
+              <mat-option value="MandatEtebac">Mandat ETEBAC</mat-option>
+              <mat-option value="MandatPrelevementSepaExpertiseOuConsulting">Mandat Prélèvement SEPA Expertise Ou Consulting
+              </mat-option>
+              <mat-option value="releveDIdentiteBancaire">Relevé D'Identité Bancaire</mat-option>
+              <mat-option value="Facture">Facture</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="factureNum" matInput placeholder="Numéro facture"/>
+            <button *ngIf="factureNum != ''" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="factureNum = ''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field>
+            <input (keyup.enter)="onSearch()" [(ngModel)]="billAmount" matInput placeholder="Montant facture"/>
+            <button *ngIf="billAmount != ''" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="billAmount = ''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div class="col-3">
+          <mat-form-field>
+            <mat-label>TVA</mat-label>
+            <mat-select [(ngModel)]="factureTVA" (keyup.enter)="onSearch()">
+              <mat-option value="OUI">Oui</mat-option>
+              <mat-option value="NON">Non</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12">
+          <div class="btn-search-form">
+            <button id="btn-search" mat-raised-button color="primary" (click)="onSearch()">
+              Rechercher
+            </button>
+
+            <button type="reset" id="btn-reset" mat-button color="primary" (click)="clearAll()">
+              Effacer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<mat-tab-group *ngIf="searchQuery != null" #tabGroup>
+  <mat-tab *ngFor="let tabKeyValue of tabs | keyValue">
+    <ng-template matTabLabel>
+      <div class="custom-label">
+        <span>{{ tabKeyValue.value.name }}</span>
+        <span *ngIf="tabKeyValue.value.count" class="results">{{ tabKeyValue.value.count }}</span>
+      </div>
+    </ng-template>
+    <app-base-search-tab (sync)="onSync(tabKeyValue.key)($event)"
+                         [columns]="tabKeyValue.value.columns"
+                         [fn]="tabKeyValue.value.fetchFn"
+                         [pageSize]="10"
+                         [searchQuery]="searchQuery"
+                         [space]="'adv'">
+    </app-base-search-tab>
+  </mat-tab>
+</mat-tab-group>

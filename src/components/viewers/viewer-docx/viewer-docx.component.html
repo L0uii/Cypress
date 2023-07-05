@@ -1,0 +1,38 @@
+<div class="viewer">
+  <div class="docx__toolbar">
+    <button class="pdf__icon" (click)="toggleNav()" matTooltip="Afficher détails">
+      <mat-icon>info</mat-icon>
+    </button>
+    <div class="docx__info">
+      <span>
+        Ce document est un aperçu. Pour consulter le CV dans sa présentation d'origine vous pouvez le
+        <strong (click)="download()">télécharger</strong>.
+      </span>
+    </div>
+    <button class="docx__icon" (click)="close()" matTooltip="Fermer l'aperçu">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="sidenav" [ngClass]="{open: sideNavOpen}">
+    <h3>Propriétés du document
+      <button class="pdf__icon" (click)="updateCV()" matTooltip="Modifier propriétés">
+        <mat-icon>create</mat-icon>
+      </button></h3>
+    <button class="sidenav__btn--close" (click)="toggleNav()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="properties">
+      <div *ngFor="let property of properties">
+        <strong>{{property.name}}</strong>
+        <span>{{property.value}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="main__content" [ngClass]="{sideNavOpen: sideNavOpen}">
+    <div class="docx__viewer">
+      <div class="docx__body">
+        <div id="docxInnerText" class="docx__page"></div>
+      </div>
+    </div>
+  </div>
+</div>

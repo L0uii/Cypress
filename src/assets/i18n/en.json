@@ -1,0 +1,148 @@
+{
+  "LOGIN": {
+    "LOGO": "Alfresco",
+    "LABEL": {
+      "LOGIN": "Sign in",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "REMEMBER": "Remember me"
+    },
+    "MESSAGES": {
+      "USERNAME-REQUIRED": "Required",
+      "USERNAME-MIN": "Your username needs to be at least {{ minLength }} characters.",
+      "PASSWORD-REQUIRED": "Enter your password to sign in",
+      "LOGIN-ERROR-CREDENTIALS": "You've entered an unknown username or password",
+      "LOGIN-ERROR-PROVIDERS": "Providers cannot be undefined",
+      "LOGIN-ERROR-CORS": "CORS exception, check your server configuration",
+      "LOGIN-ERROR-CSRF": "CSRF exception, set [disableCsrf]=\"true\" in login.component",
+      "LOGIN-ECM-LICENSE": "Alfresco Content Services repository is in read-only mode"
+    },
+    "BUTTON": {
+      "LOGIN": "SIGN IN",
+      "CHECKING": "CHECKING",
+      "WELCOME": "WELCOME",
+      "SSO": "SIGN IN SSO"
+    },
+    "ACTION": {
+      "HELP": "NEED HELP?",
+      "REGISTER": "REGISTER"
+    },
+    "DIALOG": {
+      "CANCEL": "Cancel",
+      "CHOOSE": "Choose"
+    }
+  },
+  "ESPACE_GED": {
+    "ICONS": {
+      "LANGUAGE": "Language",
+      "LOGOUT": "Log out",
+      "CHANGE": "Change space"
+    },
+    "SEARCH": {
+      "LABEL": {
+        "CUSTOMER_ID": "Customer number",
+        "CUSTOMER_NAME": "Customer name",
+        "SIREN": "SIREN number",
+        "COMPANY": "Issuing company",
+        "BILL_NUMBER": "Bill number",
+        "DOCUMENT_DATE": "Document date",
+        "BILL_AMOUNT": "Bill amount",
+        "BUDGET_ID": " Budget code",
+        "CATEGORY": "Sub-category",
+        "DOCUMENT_START_DATE": "Bill start date",
+        "DOCUMENT_END_DATE": "Bill end date",
+        "TVA": "TVA",
+        "DATE_DAY": "Day",
+        "DATE_MONTH": "Month",
+        "DATE_YEAR": "Year",
+        "REGIONAL_DIRECTORY": "Regional directory",
+        "SUBFAMILY": "Subfolder",
+        "CONTRACT_PROVIDER": "Contract provider",
+        "CONTRACT_TYPE": "Product category",
+        "DOCUMENT_TYPE": "Document type",
+        "POSTAL_CODE": "Postal code",
+        "EMISSION_DATE": "Emission date",
+        "CONTRACT_DATE": "Effective date",
+        "CONTRACT_END_DATE": "End of validity date",
+        "RECEPTION_DATE": "Reception date",
+        "CONSEIL_PRODUIT": "Product name",
+        "CV_CONTENT": "Search in resume",
+        "CV_TITLE": "Search in document title",
+        "CANDIDATE_NUMBER": "Reference number",
+        "CANDIDATE_FIRSTNAME": "Candidat firstname",
+        "CANDIDATE_ACTIVITY": "Professional field",
+        "CANDIDATE_JOB": "Type of job",
+        "CANDIDATE_EXPERIENCE": "Level of expertise (years)",
+        "CANDIDATE_LANGUAGE": "Language"
+      },
+      "BUTTON": {
+        "SEARCH": "Search",
+        "DELETE": "Delete"
+      }
+    },
+    "RESULTS": {
+      "TABS": {
+        "CONTRACTS": "Contracts",
+        "DOCLAB": "Documents LAB",
+        "MANDATSETEBAC": "Mandats ETEBAC",
+        "MANDATSSEPA": "Mandats SEPA",
+        "RIB": "RIB",
+        "BILLS": "Bills"
+      },
+      "COLUMNS": {
+        "CUSTOMER_ID": "Customer number",
+        "DOCUMENT_DATE": "Document date",
+        "TYPE": "Type",
+        "NAMING": "Naming",
+        "STATUS": "Status",
+        "CUSTOMER_NAME": "Customer name",
+        "BILL_NUMBER": "Bill number",
+        "COMPANY": "Company name",
+        "CATEGORY": "Sub-category",
+        "BILL_DATE": "Bill date",
+        "OPTIONS": "Options",
+        "BEGIN_DATE": "Start date",
+        "END_DATE": "End date",
+        "FREQUENCY": "Frequency",
+        "AMOUNT": "Amount",
+        "DUPLICATA": "Duplicate",
+        "REFERENCE": "Reference",
+        "CUSTOMER": "Customer",
+        "SIGNING_DATE": "Signing date",
+        "VALIDITY_END_DATE": "Validity end date",
+        "PRODUCT": "Product",
+        "DESCRIPTION": "Description",
+        "FILE_NUMBER": "File number",
+        "JOB": "Profession",
+        "FIELD": "Activity field",
+        "EXPERTISE_LEVEL": "Expertise level",
+        "SIGNING_STATUS": "Signing status",
+        "RENEWAL": "Renewal",
+        "CANCELLATION_DEADLINE": "Cancellation deadline date",
+        "CONTRACT_END": "End of contract",
+        "EMITTER": "Transmitter",
+        "RECIPIENT": "Recipient(s)",
+        "PROVIDER": "Provider",
+        "RECEPTION_DATE": "Reception date"
+      },
+      "MESSAGES": {
+        "NO_RESULT": "No result for this search query."
+      },
+      "LABELS": {
+        "PREVIEW": "Preview",
+        "DOWNLOAD": "Download",
+        "UPDATE": "Update",
+        "DELETE": "Delete"
+      },
+      "BUTTONS": {
+        "FILTER": "Filter search results",
+        "SEND": "Send by e-mail",
+        "DOWNLOAD": "Download selection"
+      },
+      "PAGINATION": {
+        "RANGE": "Items per page",
+        "NUMBER": "on"
+      }
+    }
+  }
+}

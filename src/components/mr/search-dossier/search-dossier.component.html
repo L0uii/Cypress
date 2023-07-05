@@ -1,0 +1,65 @@
+<div class="search-customer">
+  <mat-form-field *ngIf="!(sameCustomer && pager.currentPage > 1)">
+    <mat-label>Rechercher un dossier</mat-label>
+    <input autocomplete="off" matInput
+           [formControl]="customerQuery"
+           (focus)="onFocus()"
+           />
+    <mat-error *ngIf="customerQuery.touched">Entrez le nom ou le numéro de dossier complet puis
+      validez cette saisie pour afficher le menu déroulant et sélectionner le dossier souhaité
+    </mat-error>
+    <mat-hint>Entrez le nom ou le numéro de dossier complet puis
+      validez cette saisie pour afficher le menu déroulant et sélectionner le dossier souhaité
+    </mat-hint>
+    <button *ngIf="customerQuery" mat-button matSuffix mat-icon-button aria-label="Effacer" (click)="clearCustomer()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <ng-container *ngIf="!selectedCustomer && (filteredList.length > 0 || noResults)">
+    <div class="absolute-container">
+      <div class="directory">
+        <div class="scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div class="list" *ngFor="let customer of filteredList">
+              <mat-card class="list-customer" (click)="select(customer)">
+                <h3>
+                  {{customer.numeroDossier}} -
+                  {{customer.nomDossier}} -
+                  {{customer.statutAffaire}}
+                </h3>
+              </mat-card>
+            </div>
+            <div *ngIf="customerSearchPending">
+              <div class="gooey" >
+                <span class="dot"></span>
+                <div class="dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+            <div class="list-empty" *ngIf="noResults && !customerSearchPending">
+              <div>
+                <ng-container *ngIf="hasRcuError; else emptyTemplate">
+                    <h4>
+                      Nous n'avons pas pu récupérer les clients appartenant {{
+                        codeBudgets.length === 1  ? 'au code budget suivant' : 'aux codes budget suivants'
+                      }} "{{codeBudgets.join(', ')}}" dans le RCU. Merci de vous reconnecter.
+                    </h4>
+                </ng-container>
+                <ng-template #emptyTemplate>
+                  <h4>Aucun dossier trouvé pour cette recherche</h4>
+                  <button class="button-reload" mat-raised-button color="primary" (click)="newSearch()">Nouvelle
+                    recherche
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

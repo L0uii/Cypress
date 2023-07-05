@@ -1,0 +1,157 @@
+
+main {
+  position: relative;
+}
+
+.sort {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 24px;
+
+  .mat-button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+.filtres-actifs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: -8px 0 12px;
+  padding: 0 24px;
+
+}
+
+.sidenav {
+  z-index: 3;
+
+  .fields {
+    margin: 20px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mat-form-field {
+    width: 100%;
+  }
+}
+
+.sidenav.right {
+  right: 0;
+  left: unset;
+}
+
+.sidenav.open {
+  width: 450px;
+}
+
+.filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 24px;
+}
+
+.filter .mat-button,
+.filter .mat-raised-button {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 16px;;
+}
+
+.date-input {
+  border: none;
+  width: 100%;
+  outline: none;
+  font-size: 1em;
+}
+
+.date-fields {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 15px;
+
+  .mat-form-field {
+    width: 30%;
+  }
+
+  .date-clear {
+    width: 5%;
+  }
+
+  .date-label {
+    position: absolute;
+    bottom: -5px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #808080;
+  padding: 15px;
+  cursor: pointer;
+}
+
+
+section {
+  transition: margin-left 0.5s;
+}
+
+// section.sidenav-open {
+//   margin-right: 450px;
+// }
+
+.main-search {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+
+  .fields {
+    width: 75%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .one {
+      width: 100%;
+    }
+
+    .two {
+      width: 49%;
+    }
+  }
+
+  .action.mat-icon-button {
+    max-width: 5%;
+  }
+}
+
+
+.archives-presidence ::ng-deep .mat-tab-label-active {
+  background-color: rgba(51, 152, 219, 0.6);
+}
+
+.archives-presidence ::ng-deep .mat-tab-label {
+  opacity: 1;
+}
+
+::ng-deep .mat-tab-group.mat-primary .mat-ink-bar {
+  background-color: transparent;
+}
+
+:host ::ng-deep .mat-tab-body-wrapper {
+  height: calc(100vh - 340px);
+  overflow: auto;
+}

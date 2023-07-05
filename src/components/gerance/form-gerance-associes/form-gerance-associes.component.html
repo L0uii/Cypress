@@ -1,0 +1,192 @@
+<div class="file-input">
+  <app-file-input *ngIf="showFiles" (syncData)="filesLoaded($event)" [extensions]="extensions"
+    [showMetadataOptions]="true">
+  </app-file-input>
+</div>
+<div *ngIf="showForm" class="row">
+  <div class="col-6">
+    <article>
+      <div *ngFor="let document of pageOfItems">
+        <div *ngIf="!sameMetadata" class="flex-between-center">
+          <h3>Informations relatives au document : '{{document}}'</h3>
+          <h4>({{pager.currentPage}}/{{pager.totalItems}})</h4>
+        </div>
+        <div *ngIf="sameMetadata && !noPluralforSinglDoc">
+          <h3>Informations relatives aux documents : </h3>
+          <p>{{document}}</p>
+        </div>
+        <div *ngIf="sameMetadata && noPluralforSinglDoc">
+          <h3>Informations relatives au document : </h3>
+          <p>{{document}}</p>
+        </div>
+        <div class="profil">
+          <mat-checkbox #partenaireCheckbox color="primary" (change)="changeProfil($event, 'partenaire');"
+                        [(ngModel)]="partenaire">Partenaire
+          </mat-checkbox>
+          <mat-checkbox #associeCheckbox color="primary" (change)="changeProfil($event, 'associe');"
+                        [(ngModel)]="associe">Associé
+          </mat-checkbox>
+        </div>
+        <section class="form">
+          <app-search-dossier-gerance-associes
+            *ngIf="showDirectory"
+            (result)="addCustomer($event)"
+            [pager]="pager"
+            [sameCustomer]="sameCustomer">
+          </app-search-dossier-gerance-associes>
+          <form *ngIf="showCustomerForm" [formGroup]="customerForm">
+            <div class="fields">
+              <mat-form-field class="two">
+                <input autocomplete="off" matInput placeholder="Numéro dossier"
+                        (keyup)="setNumeroAssocie($event.target.value)"
+                        formControlName="numeroAssocie"/>
+                <span class="obligatoire">*</span>
+              </mat-form-field>
+            </div>
+          </form>
+          <section *ngIf="showSelectedCustomer" class="selected-customer">
+            <div class="infos-customer">
+              <p><strong>Numéro associé :</strong> {{customerForm.value.numeroAssocie}}</p>
+              <p><strong *ngIf="customerForm.value.nomAssocie">Nom associé :</strong> {{customerForm.value.nomAssocie}}
+              </p>
+            </div>
+            <button *ngIf="!sameCustomer || pager.currentPage === 1" mat-button color="primary"
+                    (click)="destroySelectedCustomer()">Changer de client
+            </button>
+          </section>
+          <section *ngIf="sameCustomer && pager.currentPage > 1 && customerForm.value" class="selected-customer">
+            <div class="infos-customer">
+              <p><strong>Numéro associé :</strong> {{customerForm.value.numeroAssocie}}</p>
+              <p><strong *ngIf="customerForm.value.nomAssocie">Nom associé :</strong> {{customerForm.value.nomAssocie}}
+              </p>
+            </div>
+          </section>
+          <form (keydown.enter)="$event.preventDefault()" [formGroup]="uploadForm" #formDirective="ngForm">
+            <!-- Type du document -->
+            <div class="fields document">
+              <mat-form-field>
+                <input autocomplete="off"
+                        matInput
+                        placeholder="Type de document"
+                        (keyup)="selectDocType($event.target.value, trigger)"
+                        [matAutocomplete]="autoGroup1"
+                        formControlName="documentType"
+                        #trigger="matAutocompleteTrigger"
+                        (click)="onFocus($event, trigger)"
+                >
+                <mat-autocomplete #autoGroup1="matAutocomplete">
+                  <mat-option *ngFor="let doc of filteredDocumentType" (click)="selectInputs(doc)"
+                              [value]="doc.labelSousFamille">
+                    {{doc.labelSousFamille}}
+                  </mat-option>
+                </mat-autocomplete>
+                <span class="obligatoire">*</span>
+                <mat-error *ngIf="inputValidators.typeDocument">Vous devez sélectionner un type de document dans le menu
+                  déroulant.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="fields">
+              <ng-container *ngFor="let input of inputs; let i = index; trackBy:trackByIndex">
+                <!--  Champs type text -->
+                <mat-form-field
+                  *ngIf="input.type === 'text' && input.name!= 'statutDocumentAssocie' && input.name!= 'atraiter' && input.name!='attributionCollaborateurAssocie' "
+                  [ngStyle]="{'order': input.order}" class="three">
+                  <input #i autocomplete="off" matInput [placeholder]="input.label"
+                          (keyup.enter)="$event.stopPropagation()" [formControlName]="input.name"/>
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="uploadForm.controls[input.name].invalid">Ce champ est requis</mat-error>
+                  <mat-hint *ngIf="input.hint" align="end">{{ i.value.length }} / {{input.hint}}</mat-hint>
+                </mat-form-field>
+
+                <!-- Champs type datetime -->
+                <mat-form-field *ngIf="input.type === 'date'" [ngStyle]="{'order': input.order}" class="three">
+                  <mat-label>{{input.label}}</mat-label>
+                  <input autocomplete="off" matInput [min]="minDate" (keyup.enter)="$event.stopPropagation()"
+                          [matDatepicker]="i" [formControlName]="input.name"/>
+                  <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+                  <mat-datepicker #i></mat-datepicker>
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="uploadForm.controls[input.name].invalid">Le format de date n'est pas valide
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Champs type year -->
+                <mat-form-field *ngIf="input.type === 'year'" [ngStyle]="{'order': input.order}" class="three">
+                  <mat-label>{{input.label}}</mat-label>
+                  <input readonly class="date-input" matInput (focus)="i.open()" [value]="input.typedDate"/>
+                  <input style="display:none;" matInput [min]="minDate" [matDatepicker]="i"
+                          [formControlName]="input.name"/>
+                  <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+                  <mat-datepicker #i startView="multi-year"
+                                  (yearSelected)="setYear(input.name, $event, i)"></mat-datepicker>
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <div
+                    *ngIf="uploadForm.controls[input.name].invalid && (uploadForm.controls[input.name].dirty || uploadForm.controls[input.name].touched)"
+                    class="date-error">Le format de date n'est pas valide
+                  </div>
+                </mat-form-field>
+
+                <!-- Champs type month -->
+                <mat-form-field *ngIf="input.type === 'month'" [ngStyle]="{'order': input.order}" class="three">
+                  <mat-label>{{input.label}}</mat-label>
+                  <input readonly class="date-input" matInput (focus)="i.open()" [value]="input.typedDate"/>
+                  <input style="display:none;" matInput [min]="minDate" [matDatepicker]="i"
+                          [formControlName]="input.name"/>
+                  <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+                  <mat-datepicker #i startView="multi-year"
+                                  (monthSelected)="setMonth(input.name, $event, i)"></mat-datepicker>
+                  <span *ngIf="utils.isRequiredControl(uploadForm,input.name)" class="obligatoire">*</span>
+                  <div
+                    *ngIf="uploadForm.controls[input.name].invalid && (uploadForm.controls[input.name].dirty || uploadForm.controls[input.name].touched)"
+                    class="date-error">Le format de date n'est pas valide
+                  </div>
+                </mat-form-field>
+
+                <app-autocomplete *ngIf="input.label === 'Catégorie produit'"
+                                  #categorie
+                                  [isRequired]="utils.isRequiredControl(uploadForm,input.name)"
+                                  [list]="productCategoryList"
+                                  [ngStyle]="{'order': input.order}"
+                                  class="three"
+                                  formControlName="categorieProduit" placeHolder="Catégorie du produit">
+                </app-autocomplete>
+
+                <app-autocomplete *ngIf="input.label === 'Produit'"
+                                  #nomProduit
+                                  [isRequired]="utils.isRequiredControl(uploadForm,input.name)"
+                                  [list]="productList"
+                                  [ngStyle]="{'order': input.order}"
+                                  class="three"
+                                  formControlName="produit" placeHolder="Nom du produit souscrit">
+                </app-autocomplete>
+              </ng-container>
+
+            </div>
+            <div *ngIf="isUserGeranceAssociesAssociesBO" class="info">
+              <div class="traiter">
+                <label>Le traitement de ce document est terminé : </label>
+                <mat-checkbox formControlName="isFinished" color="primary"></mat-checkbox>
+              </div>
+            </div>
+            <em>* champs requis</em>
+            <div class="flex-between-center">
+              <button color="primary" mat-raised-button (click)="goBack($event)">Annuler</button>
+              <button color="primary" mat-raised-button (click)="saveMetadataFromInput($event)" [disabled]="!uploadForm.valid || !customerForm.valid">
+                <span>{{pager.currentPage !== pager.totalItems ? 'Suivant' : 'Valider'}}</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </article>
+  </div>
+  <div class="col-6">
+    <app-blob-file-view
+      [blobFileList]="filePreviewList"
+      (onViewerClosed)="goBack()">
+    </app-blob-file-view>
+  </div>
+</div>
+<app-send *ngIf="showSend" [data]="data" (filesSended)="resetPage()"></app-send>

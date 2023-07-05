@@ -1,0 +1,17 @@
+
+:host ::ng-deep .mat-tab-body-wrapper {
+  height: calc(100vh - 492px);
+  overflow: auto;
+}
+
+mat-form-field {
+  width: 100% !important;
+}
+
+[class*="col-"] {
+  margin-bottom: 10px;
+}
+
+app-date-select {
+  width: 100% !important;
+}

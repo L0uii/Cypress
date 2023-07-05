@@ -1,0 +1,70 @@
+<article>
+  <h2>Chargez des documents</h2>
+  <small>Si vous souhaitez déposer plusieurs fichiers pour un même dossier, merci de sélectionner l'ensemble des
+    fichiers en une seule fois.
+    Chaque nouveau dépôt vient remplacer la précédente sélection.</small>
+  <!-- Upload zone -->
+  <label class="dropzone" (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFilesInvalid($event)"
+         [allowed_extensions]="extensions" appDragAndDrop>
+    <div>
+      <input type="file" (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFilesInvalid($event)"
+             [allowed_extensions]="extensions" appDragAndDrop multiple/>
+      <img src="assets/img/upload.png" alt="Upload."/>
+      Déposez vos fichiers ici !
+    </div>
+  </label>
+
+  <!-- Liste documents avant envoi-->
+  <section *ngIf="showLists">
+    <!-- Documents valides -->
+    <div *ngIf="fileList.length > 0">
+      <h3>Fichier<span *ngIf="fileList.length > 1">s</span> en téléchargement :</h3>
+      <div class="file-list">
+        <div *ngFor="let file of fileList" class="file">
+          <mat-icon (click)="utils.remove(file, fileList)" title="Supprimer">cancel</mat-icon>
+          <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents invalides -->
+    <div *ngIf="invalidFiles.length > 0 && showLists">
+      <h3>Document<span *ngIf="invalidFiles.length > 1">s</span> invalide<span *ngIf="invalidFiles.length > 1">s</span>
+        :</h3>
+      <em>Vous devez fournir des documents au format <span *ngFor="let extension of extensionsLabel">.{{extension}}
+        </span>. La taille de chaque document ne doit pas dépasser 20 Mo</em>
+      <div class="file-list">
+        <div *ngFor="let file of invalidFiles" class="file invalid">
+          <mat-icon (click)="utils.remove(file, invalidFiles)" title="Supprimer">cancel</mat-icon>
+          <span>{{ file.name }} ({{ file.size | formatFilesize }})</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex-between-center" *ngIf="fileList.length > 1">
+      <div *ngIf="router.url.includes('expertise-consulting') || router.url.includes('gerance-associes');
+      else notExpertiseNorGeranceAssocies"><h3>Définir le
+        même dossier pour tous les fichiers :</h3></div>
+      <ng-template #notExpertiseNorGeranceAssocies>
+        <h3>Définir le même client pour tous les fichiers :</h3></ng-template>
+       <div class="upload_checkbox flex-between-center">
+        <mat-radio-group (ngModelChange)="sameCustomerChanges($event)" [(ngModel)]="sameCustomer">
+          <mat-radio-button color="primary" [labelPosition]="'before'" [value]="true">Oui</mat-radio-button>
+          <mat-radio-button color="primary" [value]="false">Non</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+    <div class="metadata" *ngIf="showMetadataOptions && fileList.length > 1">
+      <h3>Renseigner les mêmes informations pour tous les documents :</h3>
+      <mat-radio-group [(ngModel)]="sameMetadata">
+        <mat-radio-button color="primary" [labelPosition]="'before'" [disabled]="!sameCustomer" [value]="true">Oui
+        </mat-radio-button>
+        <mat-radio-button color="primary" [value]="false">Non</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </section>
+
+  <button class="next" color="primary" mat-raised-button (click)="nextStep()"
+          [disabled]="invalidFiles.length > 0 || fileList.length === 0">
+    Suivant
+  </button>
+</article>

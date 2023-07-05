@@ -1,0 +1,103 @@
+@import 'src/_custom-style';
+
+@mixin flex-column-start {
+  flex-direction: column;
+  align-items: start;
+  gap: 5px;
+  justify-content: center;
+}
+
+.scroll {
+  width: 100%;
+  min-height: 300px;
+  height: calc(100vh - 370px);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mat-header-cell {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 10px;
+}
+
+.mat-column-Description {
+  min-width: $eleven-percent;
+}
+
+.mat-column-StatutSignature {
+  max-width: $seven-percent;
+}
+
+.mat-column-Fournisseur {
+  max-width: $seven-percent;
+}
+
+.mat-column-Files {
+  max-width: $sixteen-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Nature {
+  max-width: $eight-percent;
+}
+
+.mat-column-Emetteur {
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Dates {
+  max-width: $nine-percent;
+
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-DateSignature {
+  &.mat-cell {
+    @include flex-column-start;
+  }
+}
+
+.mat-column-Reconduction {
+  justify-content: center;
+  max-width: $four-percent;
+}
+
+.mat-cell {
+  border-bottom: none;
+  padding: 5px 10px;
+  word-break: break-word;
+}
+
+.mat-cell,
+.mat-header-cell {
+
+  &:last-of-type {
+    max-width: 90px;
+  }
+}
+
+.mat-row:nth-child(odd) {
+  background: #ebebeb;
+}
+
+.more-results.mat-raised-button {
+  float: right;
+  margin: 15px;
+}
+
+.no-results {
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5em;
+}

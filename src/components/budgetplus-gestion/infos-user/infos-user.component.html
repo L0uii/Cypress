@@ -1,0 +1,12 @@
+<section class="selected-user">
+  <div *ngIf="user" class="infos-user">
+    <p><strong>Prénom :</strong> {{user.FirstName}}</p>
+    <p><strong>Nom :</strong> {{user.LastName}}</p>
+    <p><strong>Matricule :</strong> {{user.EmployeeNumber}}</p>
+    <p><strong>Code budget principal :</strong> {{user.DepartmentNumber}}</p>
+    <p><strong>Société :</strong> {{user.Organization}}</p>
+    <button (click)="emitDestroySelectedCustomer()" color="primary"
+            mat-button>Changer d'utilisateur
+    </button>
+  </div>
+</section>

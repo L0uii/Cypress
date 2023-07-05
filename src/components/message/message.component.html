@@ -1,0 +1,12 @@
+<h3 mat-dialog-title>Voici le corps du message qui va être envoyé par mail : </h3>
+<div mat-dialog-content>
+  <p>{{message}}</p>
+</div>
+<mat-hint *ngIf="replacedChars.length">
+  <em>Les caractères suivants ont été transformés pour des raisons techniques :
+    {{replacedChars.join(', ')}}</em>
+</mat-hint>
+<div mat-dialog-actions>
+  <button [matDialogClose]="false" mat-button>Annuler</button>
+  <button [matDialogClose]="true" cdkFocusInitial mat-button>Ok</button>
+</div>

@@ -1,0 +1,58 @@
+<div class="login-background">
+  <div class="login-form">
+    <div>
+      <mat-card>
+        <div>
+          <img class="img-logo" src="assets/img/logo@2x.png"/>
+        </div>
+        <div class="error-container">
+          <mat-icon *ngIf="error">warning</mat-icon>
+          <span *ngIf="error">
+            {{ error }}
+          </span>
+        </div>
+        <form [formGroup]="formLogin" (ngSubmit)="login()" class="form">
+          <mat-form-field class="form-element">
+            <input type="text" matInput placeholder="Nom d'utilisateur" formControlName="username"
+                   (keyup)="error = ''"/>
+            <mat-error *ngIf="formLogin.controls['username'].invalid">
+              {{ getError("user") }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-element">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              matInput
+              placeholder="Mot de passe"
+              formControlName="password"
+              (keyup)="error = ''"
+            />
+            <mat-error *ngIf="!formLogin.controls['password'].valid">
+              {{ getError("pass") }}
+            </mat-error>
+            <span mat-icon-button mat-button matSuffix mat-icon-button (click)="showPassword = !showPassword">
+              <mat-icon>visibility_off</mat-icon>
+            </span>
+          </mat-form-field>
+
+          <div>
+            <div *ngIf="disabled" class="spinner"></div>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="formLogin.invalid || disabled">
+              Connexion
+            </button>
+          </div>
+        </form>
+      </mat-card>
+      <div class="login-copyright">
+        <small>©{{year}} Fiducial Espace GED</small>
+        <img src="assets/img/picto-fiducial.svg" alt="Logo Fiducial"/>
+      </div>
+    </div>
+  </div>
+</div>

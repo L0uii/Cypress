@@ -1,0 +1,299 @@
+<div class="update">
+  <div class="row justify-content-between w-100 container-update">
+    <div class="col-6">
+      <app-nav-return-button (onClick)="close()"></app-nav-return-button>
+      <article class="container-egd mt-5">
+        <ng-container *ngIf="!updateLaunched; else updateLaunchedTemplate">
+          <section>
+            <div class="title">
+              <h3>Mettre à jour les métadonnées dossier:</h3>
+            </div>
+            <section *ngIf="showSelectedCustomer" class="selected-customer">
+              <div class="infos-customer">
+                <p><strong>Numéro dossier :</strong> {{updateCustomer.value.numeroAssocie}}</p>
+                <p><strong *ngIf="updateCustomer.value.nomAssocie">Nom associé
+                  :</strong> {{updateCustomer.value.nomAssocie}}
+                </p>
+              </div>
+              <button *ngIf="!showDirectory && !showCustomerForm" mat-mini-fab color="primary" (click)="destroyCustomer()"
+                      matTooltip="Nouvelle recherche">
+                <mat-icon>search</mat-icon>
+              </button>
+            </section>
+            <app-search-dossier-gerance-associes *ngIf="showDirectory"
+                                                 (result)="setCustomer($event)">
+            </app-search-dossier-gerance-associes>
+            <form [formGroup]="updateCustomer">
+              <div class="info">
+                <div class="traiter">
+                  <div *ngIf="!isNumeroAssocieInvalid">
+                    <ng-container *ngIf="documents.length > 1; then docs else doc"></ng-container>
+                    <ng-template #docs>
+                      <label>Le traitement de ces documents est terminé : </label>
+                    </ng-template>
+                    <ng-template #doc>
+                      <label>Le traitement de ce document est terminé : </label>
+                    </ng-template>
+                    <mat-checkbox (change)="toggle($event)" [checked]="true"
+                                  color="primary"></mat-checkbox>
+                  </div>
+                  <div *ngIf="isNumeroAssocieInvalid" class="message">
+                    <span class="alert">!</span>
+                    <div>
+                      <ng-container *ngIf="documents.length > 1; then numDocs else numDoc"></ng-container>
+                      <ng-template #numDocs>
+                        <span>Les documents seront classés dans l'onglet "À traiter".</span>
+                      </ng-template>
+                      <ng-template #numDoc>
+                        <span>Le document sera classé dans l'onglet "À traiter".</span>
+                      </ng-template>
+                    </div>
+                  </div>
+                </div>
+                <em>* champs requis</em>
+              </div>
+              <div *ngIf="showCustomerForm">
+                <div class="fields">
+                  <mat-form-field class="two">
+                    <input autocomplete="off" matInput placeholder="Numéro dossier" formControlName="numeroDossier"/>
+                    <span class="obligatoire">*</span>
+                  </mat-form-field>
+                  <mat-form-field class="two">
+                    <input autocomplete="off" matInput placeholder="Code budget" formControlName="codeBudget"/>
+                    <span class="obligatoire">*</span>
+                  </mat-form-field>
+                </div>
+                <div class="info">
+                  <div class="traiter">
+                    <div>
+                      <ng-container *ngIf="documents.length > 1; then docs else doc"></ng-container>
+                      <ng-template #docs>
+                        <label>Le traitement de ces documents est terminé : </label>
+                      </ng-template>
+                      <ng-template #doc>
+                        <label>Le traitement de ce document est terminé : </label>
+                      </ng-template>
+                    </div>
+                    <mat-checkbox [checked]="true" color="primary" (change)="toggle($event)"></mat-checkbox>
+                  </div>
+                  <em>* champs requis</em>
+                </div>
+              </div>
+            </form>
+          </section>
+          <div class="title mt-5">
+            <h3>Mettre à jour les métadonnées du document :</h3>
+          </div>
+          <form [formGroup]="updateDocument">
+            <!-- Type du document -->
+            <div class="fields-grid">
+              <mat-form-field class="one">
+                <input autocomplete="off"
+                        matInput
+                        placeholder="Type de document"
+                        (keyup)="selectDocType('labelSousFamille', $event.target.value)"
+                        [matAutocomplete]="autoGroup1"
+                        formControlName="documentType"
+                        (click)="onFocus(0)">
+                <mat-autocomplete #autoGroup1="matAutocomplete">
+                  <mat-option class="option-documentType" *ngFor="let doc of filteredDocumentType"
+                              (click)="selectInputs(doc)" [value]="doc.labelSousFamille">
+                    <span> {{doc.labelSousFamille}} </span>
+                    <span *ngIf="doc.displayClient; then visible else invisible"></span>
+                    <ng-template #visible>
+                      <mat-icon title="Visible client">visibility</mat-icon>
+                    </ng-template>
+                    <ng-template #invisible>
+                      <mat-icon title="Non visible client">visibility_off</mat-icon>
+                    </ng-template>
+                  </mat-option>
+                </mat-autocomplete>
+                <button *ngIf="updateDocument.value.documentType" mat-button matSuffix mat-icon-button aria-label="Clear"
+                        (click)="clearInput()">
+                  <mat-icon>close</mat-icon>
+                </button>
+                <span class="obligatoire">*</span>
+                <mat-error *ngIf="updateDocument.controls['documentType'].invalid">Vous devez sélectionner un type de
+                  document dans le menu déroulant.
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="fields-grid">
+              <ng-container *ngFor="let input of inputs; let i = index; trackBy:trackByIndex;">
+                <!--  Champs type text -->
+                <mat-form-field *ngIf="input.type === 'text' && input.name!='atraiter' && input.name!='statutDocumentAssocie' && input.name!='attributionCollaborateurAssocie'" [ngStyle]="{'order': input.order}" class="three">
+                  <input
+                    #i
+                    matInput
+                    [placeholder]="input.label"
+                    [formControlName]="input.name"
+                    autocomplete="off"
+                  />
+                  <span *ngIf="utils.isRequiredControl(updateDocument, input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="updateDocument.controls[input.name].invalid">Ce champ est requis</mat-error>
+                  <mat-hint *ngIf="input.hint" align="end">{{ i.value.length }} / {{input.hint}}</mat-hint>
+                </mat-form-field>
+
+                <!-- Champs type datetime -->
+                <mat-form-field *ngIf="input.type === 'date'" [ngStyle]="{'order': input.order}" class="three">
+                  <mat-label>{{input.label}}</mat-label>
+                  <input autocomplete="off" matInput [min]="minDate" [matDatepicker]="i" [formControlName]="input.name"/>
+                  <mat-datepicker-toggle matSuffix [for]="i"></mat-datepicker-toggle>
+                  <mat-datepicker #i></mat-datepicker>
+                  <span *ngIf="utils.isRequiredControl(updateDocument,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="updateDocument.controls[input.name].invalid">Le format de date n'est pas valide
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Champs type select -->
+                <mat-form-field *ngIf="input.type === 'options' && input.name!='categorieProduit'"
+                                [ngStyle]="{'order': input.order}" class="three">
+                  <mat-label>{{input.label}}</mat-label>
+                  <mat-select [formControlName]="input.name">
+                    <mat-option [value]=""></mat-option>
+                    <mat-option #i *ngFor="let option of input.options" [value]="option"
+                                (click)="checkCategorieProduit(input.name, option)">{{option}}</mat-option>
+                  </mat-select>
+                  <span *ngIf="utils.isRequiredControl(updateDocument,input.name)" class="obligatoire">*</span>
+                  <mat-error *ngIf="updateDocument.controls[input.name].invalid">Ce champ est requis</mat-error>
+                </mat-form-field>
+              </ng-container>
+            </div>
+            <div class="info">
+              <div class="traiter">
+                <div *ngIf="!isNumeroAssocieInvalid">
+                  <ng-container *ngIf="documents.length > 1; then docs else doc"></ng-container>
+                  <ng-template #docs>
+                    <label>Le traitement de ces documents est terminé : </label>
+                  </ng-template>
+                  <ng-template #doc>
+                    <label>Le traitement de ce document est terminé : </label>
+                  </ng-template>
+                  <mat-checkbox (change)="toggle($event)" [checked]="true"
+                                color="primary"></mat-checkbox>
+                </div>
+                <div *ngIf="isNumeroAssocieInvalid" class="message">
+                  <span class="alert">!</span>
+                  <div>
+                    <ng-container *ngIf="documents.length > 1; then numDocs else numDoc"></ng-container>
+                    <ng-template #numDocs>
+                      <span>Les documents seront classés dans l'onglet "À traiter".</span>
+                    </ng-template>
+                    <ng-template #numDoc>
+                      <span>Le document sera classé dans l'onglet "À traiter".</span>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
+              <em>* champs requis</em>
+            </div>
+            <div class="buttons">
+              <button type="button" mat-button (click)="goToSelect()">
+                Annuler
+              </button>
+              <button type="button" [disabled]="disabled" color="primary" (click)="send()"
+                      mat-raised-button>Modifier
+              </button>
+            </div>
+          </form>
+        </ng-container>
+
+        <ng-template #updateLaunchedTemplate>
+          <div class="pending">
+            <div class="title">
+              <h3 [ngClass]="{'done': updateSuccess || updateFailed}">
+                <span>
+                  <ng-container *ngIf="documents.length > 1; then titleDocs else titleDoc"></ng-container>
+                  <ng-template #titleDocs>
+                    <label>Documents en cours de modification :</label>
+                  </ng-template>
+                  <ng-template #titleDoc>
+                    <label>Document en cours de modification :</label>
+                  </ng-template>
+                </span>
+                <div *ngIf="updatePending" class="box">
+                  <div class="loader"></div>
+                </div>
+                <mat-icon *ngIf="updateSuccess">done</mat-icon>
+                <mat-icon *ngIf="updateFailed">error</mat-icon>
+              </h3>
+            </div>
+            <!-- Liste documents modifiés -->
+            <div class="documents" *ngIf="successList.length > 0">
+              <h3>
+                <ng-container *ngIf="documents.length > 1; then updatedDocs else updatedDoc"></ng-container>
+                <ng-template #updatedDocs>
+                  <label>Ces fichiers ont été modifiés :</label>
+                </ng-template>
+                <ng-template #updatedDoc>
+                  <label>Ce fichier a été modifié :</label>
+                </ng-template>
+              </h3>
+              <div class="container-scroll">
+                <ngx-simplebar [options]="{ autoHide: false }">
+                  <div *ngFor="let file of successList" class="documents-list">
+                    <mat-icon>done</mat-icon>
+                    <p>{{ file }}</p>
+                  </div>
+                </ngx-simplebar>
+              </div>
+            </div>
+            <!-- Liste documents échec modification -->
+            <div class="documents" *ngIf="failList.length > 0">
+              <h3>
+                <ng-container *ngIf="documents.length > 1; then notUpdatedDocs else notUpdatedDoc"></ng-container>
+                <ng-template #notUpdatedDocs>
+                  <label>Ces fichiers n'ont pas pu être modifiés :</label>
+                </ng-template>
+                <ng-template #notUpdatedDoc>
+                  <label>Ce fichier n'a pas pu être modifié :</label>
+                </ng-template>
+              </h3>
+              <div class="container-scroll">
+                <ngx-simplebar [options]="{ autoHide: false }">
+                  <div *ngFor="let file of failList" class="documents-list">
+                    <mat-icon>error</mat-icon>
+                    <div>
+                      <p>{{ file.title }}</p>
+                      <p><em>{{file.error}}</em></p>
+                    </div>
+                  </div>
+                </ngx-simplebar>
+              </div>
+            </div>
+          </div>
+          <div class="result">
+            <!-- Succès modification -->
+            <div *ngIf="updateSuccess">
+              <h3>
+                <div>
+                  <span>La modification a été un succès </span>
+                  <ng-container *ngIf="successList.length > 1; then docs_valid else doc_valid"></ng-container>
+                  <ng-template #docs_valid>
+                    <span>({{successList.length}} documents modifiés).</span>
+                  </ng-template>
+                  <ng-template #doc_valid>
+                    <span>(un document modifié).</span>
+                  </ng-template>
+                </div>
+              </h3>
+              <button mat-raised-button color="primary" (click)="close(true)">Retour</button>
+            </div>
+          </div>
+          <!-- Erreur envoi -->
+          <div *ngIf="updateFailed">
+            <h3>Une erreur est survenue lors de la modifications des métadonnées.</h3>
+            <p>Veuillez contacter le support.</p>
+            <button mat-raised-button color="primary" (click)="close()">Retour</button>
+          </div>
+        </ng-template>
+      </article>
+    </div>
+    <div class="col-6">
+      <app-file-view></app-file-view>
+    </div>
+  </div>
+</div>
+
+<app-loading-overlay *ngIf="isLoadingDocument">
+</app-loading-overlay>

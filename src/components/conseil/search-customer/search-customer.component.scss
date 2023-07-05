@@ -1,0 +1,28 @@
+.search-customer .mat-form-field {
+  width: 100%;
+}
+
+.directory {
+  margin-bottom: 30px;
+}
+
+.scroll {
+  width: 100%;
+  height: 150px;
+  background-color: #e6e6e6;
+  margin-top: 2px;
+}
+
+.list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.list-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+}

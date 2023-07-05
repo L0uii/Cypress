@@ -1,0 +1,55 @@
+.scroll {
+  width: 100%;
+  min-height: 500px;
+  height: calc(100vh - 370px);
+  border-bottom: 1px solid #e0e0e0;
+
+  .mat-cell {
+    border-bottom: none;
+    padding: 5px 10px;
+  }
+
+  .mat-cell:last-of-type {
+    text-align: center;
+  }
+
+  .mat-row:nth-child(odd) {
+    background: #ebebeb;
+  }
+
+  .mat-column-StatutSignature {
+    width: 100px;
+  }
+
+  .mat-column-Files {
+    width: 200px;
+  }
+
+  .mat-column-Emetteur strong {
+    font-weight: 500;
+  }
+
+  .mat-column-Emetteur p {
+    margin: 0 0 7px;
+    font-size: 0.95em;
+  }
+
+  .mat-column-DateSignature p,
+  .mat-column-Dates p {
+    margin: 5px 0;
+  }
+}
+
+.more-results.mat-raised-button {
+  float: right;
+  margin: 15px;
+}
+
+.no-results {
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5em;
+}

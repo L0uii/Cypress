@@ -1,0 +1,113 @@
+:host {
+  ::ng-deep .mat-toolbar {
+    border: 0 !important;
+  }
+
+  ::ng-deep .adf-viewer-content {
+    border-left: 2px solid rgba(0, 0, 0, 0.4);
+  }
+}
+
+article,
+.file-input {
+  width: 85%;
+  margin: 0 auto;
+}
+
+form {
+  margin: 20px 0 30px;
+}
+
+.fields {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .mat-form-field {
+    font-size: 1em;
+  }
+
+  .one {
+    width: 100%;
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .two {
+    width: 49%;
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .three {
+    width: 32%;
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+.customer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.customer-inputs-full {
+  width: 100%;
+}
+
+.customer-inputs-button {
+  width: 97%;
+}
+
+.selected-customer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+
+  &:hover {
+    box-shadow: 0 0px 20px 0px rgba(0, 0, 0, 0.25), 3px 5px 7px rgba(0, 0, 0, 0.22);
+  }
+
+  .infos-customer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    p {
+      margin-right: 32px;
+    }
+  }
+}
+
+#btnAddCustomer {
+  cursor: pointer;
+}
+
+em {
+  font-family: "Heebo";
+  color: #3498db;
+  font-size: 0.9em;
+}
+
+h4 {
+  font-style: italic;
+}
+
+app-blob-file-view {
+  height: calc(100vh - 104px);
+  display: block;
+  position: relative;
+}

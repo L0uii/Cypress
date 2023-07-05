@@ -1,0 +1,34 @@
+<mat-form-field class="w-100" [class.mat-form-field-invalid]="isInvalid">
+  <mat-label>{{ placeHolder }}</mat-label>
+  <input
+    matInput
+    type="text"
+    autocomplete="off"
+    [formControl]="inputControl"
+    [matAutocomplete]="autoGroup2"
+    (click)="resetList()"
+    (blur)="onBlur.emit()"
+    #autocomplete>
+  <mat-autocomplete panelWidth="auto" #autoGroup2="matAutocomplete" (optionSelected)="getValue($event.option.value)"
+    [autoActiveFirstOption]="autoActiveFirstOption || allowFreeText" (closed)="onClose()">
+    <mat-option *ngFor="let item of manageableList" [value]="item.value" (mousedown)="$event.preventDefault()">
+      {{ item.label }} <span *ngIf="item.icon"><mat-icon>{{item.icon}}</mat-icon></span>
+    </mat-option>
+    <mat-option *ngIf="allowFreeText && autocomplete.value && manageableList?.length < 2" [value]="autocomplete.value">
+      Utiliser "{{ placeHolder }}" : "{{ autocomplete.value }}"
+    </mat-option>
+  </mat-autocomplete>
+  <button
+    *ngIf="inputControl.value"
+    mat-button
+    matSuffix
+    mat-icon-button
+    aria-label="Clear"
+    tabindex="-1"
+    (click)="clear($event)"
+    type="button">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <span class="obligatoire" *ngIf="isRequired">*</span>
+</mat-form-field>

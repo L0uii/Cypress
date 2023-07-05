@@ -1,0 +1,132 @@
+.update {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+article {
+        width: 80%;
+        position: relative;
+        background: #fff;
+        padding: 26px 30px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    }
+
+    .title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h3 {
+            display: flex;
+            align-items: center;
+            span {
+                margin-right: 5px;
+            }
+        }
+    }
+    .close {
+        border: none;
+        background: transparent;
+        padding: 0;
+        height: 24px;
+        align-self: center;
+        cursor: pointer;
+    }
+    em {
+        color: #3498db;
+    }
+
+    .submit {
+        float: right;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file {
+        order: 15;
+    }
+    .fields-grid {
+        width: 100%;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: repeat(auto-fill, 33%) ;
+        .one {
+            grid-column: auto / span 3;
+        }
+        .two {
+            grid-column: auto / span 2;
+        }
+        .three {
+            grid-column: auto / span 1;
+        }
+        .mat-form-field {
+            font-size: 1em;
+        }
+    }
+    .date-input {
+        border: none;
+        width: 100%;
+        outline: none;
+        font-size: 1em;
+    }
+
+    .date-error {
+        position: absolute;
+        bottom: -16px;
+        left: 0;
+        color: #f44336;
+        font-size: 10.5px;
+    }
+
+    .documents-list {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        .mat-icon {
+            margin-right: 10px;
+        }
+    }
+    .container-scroll{
+        width: 100%;
+        height: 150px;
+        padding: 5px 0;
+    }
+    ngx-simplebar {
+        height: 100%;
+    }
+
+}
+/* Classe disabled */
+.done {
+    color: #6e6e6e;
+}
+
+/* Loader */
+.box {
+	display: inline-block;
+	width: 20px;
+    height: 20px;
+    position: relative;
+	font-size: 30px;
+    transition: .3s color, .3s border, .3s transform, .3s opacity;
+}
+
+.loader {
+    width: 20px;
+    height: 20px;
+	border: .1em solid #3498db;
+	border-bottom-color: transparent;
+	border-radius: 50%;
+	animation: 1s loader linear infinite;
+}
+
+@keyframes loader {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

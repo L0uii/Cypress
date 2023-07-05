@@ -1,0 +1,33 @@
+export interface FilePropertiesGeranceAssocies {
+  matriculeCollab: string;
+  categorieProduit: string;
+  dateCreation: Date;
+  dateDocument: string;
+  dateValidite: Date;
+  description: string;
+  nomAssocie: string;
+  nomDossier: string;
+  codeClient: string;
+  NommageGerance: string;
+  numeroAssocie: string;
+  codeManager?: string;
+  nomManager?: string;
+  codeAgent?: string;
+  nomAgent?: string;
+  documentType: string;
+  atraiter: string;
+  domainContainerSociete: string;
+  domainContainerBranche: string;
+  domainContainerFamille: string;
+  domainContainerSousFamille: string;
+  typePartenaire: string;
+  contact: string;
+  produit: string;
+  sousDossiers: string;
+  typeDocument: string;
+  id: string;
+  isFile: boolean;
+  name: string;
+  TypeDossierAssocie?: string;
+  statutDocumentAssocie? : string;
+  }

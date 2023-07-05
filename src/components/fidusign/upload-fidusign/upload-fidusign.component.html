@@ -1,0 +1,192 @@
+<div [class.show]="isLoading" class="send">
+  <div class="send-container" [class.justify-content-center]="step === 2">
+    <mat-icon class="close" (click)="closeSendMessage()">close</mat-icon>
+
+    <div class="create-documents">
+      <h1 [ngClass]="{'done': sendPending}">
+        <span class="step" *ngIf="step !== 2">1</span>
+        <span>Création</span>
+      </h1>
+      <h2 *ngIf="createPending" [ngClass]="{'done': createSuccess || createFailed}">
+        <span>Vos documents sont en cours d'envoi dans la GED.</span>
+        <div *ngIf="isCreationLoading" class="box">
+          <div class="loader"></div>
+        </div>
+      </h2>
+
+      <div class="documents" *ngIf="createPending && successList.length > 0"
+           [ngClass]="{'done': createSuccess || createFailed}">
+        <h3>Ces fichiers ont été enregistrés en GED :</h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of successList" class="documents-list">
+              <mat-icon>done</mat-icon>
+              <p>{{ file }}</p>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+
+      <div class="documents" *ngIf="createPending && failList.length > 0 "
+           [ngClass]="{'done': createSuccess || createFailed}">
+        <h3>Ces fichiers n'ont pas pu être enregistrés en GED:</h3>
+        <div class="container-scroll">
+          <ngx-simplebar [options]="{ autoHide: false }">
+            <div *ngFor="let file of failList" class="documents-list">
+              <mat-icon>error</mat-icon>
+              <p>{{ file.name }}</p>
+            </div>
+          </ngx-simplebar>
+        </div>
+      </div>
+      <h2 *ngIf="createSuccess" [ngClass]="{'done': sendPending}">
+        <div>
+          <span>L'envoi dans la GED a été un succès </span>
+          <ng-container *ngIf="successList.length > 1; then docs_valid else doc_valid"></ng-container>
+          <ng-template #docs_valid>
+            <span>({{successList.length}} documents créés).</span>
+          </ng-template>
+          <ng-template #doc_valid>
+            <span>(un document créé).</span>
+          </ng-template>
+        </div>
+        <mat-icon>done</mat-icon>
+      </h2>
+      <div *ngIf="createFailed" class="message">
+        <h2>Une erreur est survenue lors de la création des documents dans la GED.</h2>
+        <p>Veuillez contacter le support.</p>
+        <button mat-button color="primary" (click)="closeSendMessage()">Retour</button>
+        <button (click)="retry()" [disabled]="retryFailed" color="primary" mat-button>Relancer</button>
+      </div>
+
+      <div *ngIf="step === 2 && createSuccess">
+        <button mat-button mat-raised-button color="primary" (click)="closeSendMessage()">Retour</button>
+      </div>
+    </div>
+
+
+    <div class="send-docusign" *ngIf="step !== 2">
+      <h1 [ngClass]="{'done': createPending || createSuccess || createFailed}">
+        <span class="step">2</span>
+        <span>Envoi en signature</span>
+      </h1>
+      <h2 *ngIf="sendPending" [ngClass]="{'done': sendSuccess || sendFailed || retrySuccess || retryFailed}">
+        <span>Vos documents sont en cours d'envoi en signature.</span>
+
+        <div *ngIf="sendPending && !sendSuccess && !sendFailed && !retrySuccess && !retryFailed" class="box">
+          <div class="loader"></div>
+        </div>
+        <mat-icon *ngIf="sendSuccess && (retrySuccess || retryFailed)">done</mat-icon>
+        <mat-icon *ngIf="sendFailed && (retrySuccess || retryFailed)">error</mat-icon>
+      </h2>
+      <h2 *ngIf="retryPending" [ngClass]="{'done': retrySuccess || retryFailed}">
+        <span>Une nouvelle tentative d'envoi est en cours.</span>
+
+        <div *ngIf="retryPending && !retrySuccess && !retryFailed" class="box">
+          <div class="loader"></div>
+        </div>
+        <mat-icon *ngIf="retrySuccess">done</mat-icon>
+        <mat-icon *ngIf="retryFailed">error</mat-icon>
+      </h2>
+      <div *ngIf="sendSuccess || retrySuccess" class="message message-final">
+        <h2>Votre enveloppe a été envoyée en signature.</h2>
+        <button mat-button mat-raised-button color="primary" (click)="closeSendMessage()">Retour</button>
+      </div>
+      <div *ngIf="sendFailed && !retryPending" class="message message-final">
+        <h2>Une erreur est survenue lors de l'envoi en signature.</h2>
+        <p>{{errorSend}}</p>
+        <h3>Vous pouvez réessayer ou annuler la demande :</h3>
+        <div>
+          <button mat-button color="primary" (click)="retry()" [disabled]="retryFailed">Relancer</button>
+          <button mat-button color="primary" (click)="cancel(nodeList)">Annuler la demande</button>
+        </div>
+      </div>
+
+      <div *ngIf="retryFailed" class="message message-final">
+        <h2>L'envoi en signature n'a pas pu être effectué.</h2>
+        <p>{{errorRetry}}</p>
+        <h3>Veuillez contacter le support pour plus d'informations. (Référence : {{timestampRetry}})</h3>
+        <div>
+          <button mat-button color="primary" (click)="cancel(nodeList)">Annuler la demande</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="upload__container">
+  <form [formGroup]="uploadForm">
+    <div class="upload__form">
+
+      <article *ngIf="step === 1">
+        <h2>Chargez des documents</h2>
+        <small>Si vous souhaitez déposer plusieurs fichiers pour un même dossier, merci de sélectionner l'ensemble des
+          fichiers en une seule fois. Chaque nouveau dépôt vient remplacer la précédente sélection.</small>
+        <app-upload
+          (onFilesChange)="onFilesChange($event)"
+          (onFilesInvalid)="onFilesInvalid($event)"
+          (isValid)="uploadValidation($event)"
+          [resetValue]="resetUpload"
+          [fileList]="fileList"
+          [invalidList]="invalidFiles">
+        </app-upload>
+      </article>
+
+      <ng-container *ngIf="step === 2">
+        <ng-template [cdkPortalOutlet]="step2Component"></ng-template>
+      </ng-container>
+
+      <article *ngIf="step === 3">
+        <ng-template [cdkPortalOutlet]="step3Component"></ng-template>
+      </article>
+
+      <div [class.justify-content-between]="step !== 1" [class.justify-content-end]="step === 1"
+           class="send__file d-flex mt-5">
+        <button
+          type="button"
+          color="primary"
+          *ngIf="step !== 1"
+          mat-raised-button
+          (click)="goBack()">
+          Annuler
+        </button>
+        <button
+          type="button"
+          *ngIf="step === 1"
+          [disabled]="!isUploadValid"
+          color="primary"
+          mat-raised-button
+          (click)="continueStep()">
+          Suivant
+        </button>
+        <button
+          type="button"
+          *ngIf="step === 2 && !uploadForm.get([step2FieldName, 'fiduSign:dateCertification'])"
+          [disabled]="uploadForm.get('step2')?.invalid"
+          color="primary"
+          mat-raised-button
+          (click)="continueStep()">
+          Suivant
+        </button>
+        <button
+          *ngIf="uploadForm.get([step2FieldName, 'fiduSign:dateCertification']) && step === 2"
+          type="button"
+          (click)="createDocument(fileList)"
+          [disabled]="uploadForm.get('step2')?.invalid"
+          color="primary"
+          mat-raised-button>
+          Valider
+        </button>
+        <button
+          *ngIf="step === 3"
+          [disabled]="uploadForm.get(step3FieldName).invalid"
+          type="button"
+          color="primary"
+          (click)="openDialog(fileList)"
+          mat-raised-button>
+          Envoyer en signature
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

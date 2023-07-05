@@ -1,0 +1,42 @@
+<mat-form-field class="w-100" [class.mat-form-field-invalid]="isInvalid">
+  <mat-label>{{ placeHolder }}</mat-label>
+  <mat-chip-list #list>
+    <mat-chip
+      *ngFor="let selectedItem of selectedList"
+      [selectable]="selectable"
+      [disabled]="disabled"
+      (removed)="remove(selectedItem)">
+      {{selectedItem}}
+      <mat-icon matChipRemove *ngIf="!disableChip">cancel</mat-icon>
+    </mat-chip>
+    <input
+      type="text"
+      [disabled]="disabled"
+      #input
+      autocomplete="off"
+      matInput
+      [formControl]="inputControl"
+      (click)="openAutocomplete()"
+      [matChipInputAddOnBlur]="true"
+      [matAutocomplete]="autoGroup2"
+      [matChipInputFor]="list">
+  </mat-chip-list>
+  <mat-autocomplete #autoGroup2="matAutocomplete" (optionSelected)="selectOption(inputControl.value)">
+    <mat-option *ngFor="let item of manageableList" [value]="item">
+      {{ item }}
+    </mat-option>
+  </mat-autocomplete>
+  <button
+    *ngIf="inputControl.value"
+    mat-button
+    matSuffix
+    mat-icon-button
+    aria-label="Clear"
+    tabindex="-1"
+    (click)="clear()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <span class="obligatoire" *ngIf="isRequired">*</span>
+  <mat-hint>{{ hintText }}</mat-hint>
+</mat-form-field>
